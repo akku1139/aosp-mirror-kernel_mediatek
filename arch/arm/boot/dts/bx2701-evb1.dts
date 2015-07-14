@@ -26,4 +26,13 @@
 	memory {
 		reg = <0x80000000 0x40000000>;
 	};
+
+	soc {
+		pinctrl@0x10005000 {
+			pinctrl-names = "default";
+			pinctrl-0 = <&state_default>;
+			state_default:pinconf_default {
+			};
+		};
+	};
 };
