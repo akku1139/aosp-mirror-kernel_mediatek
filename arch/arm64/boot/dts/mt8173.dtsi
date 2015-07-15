@@ -469,6 +469,13 @@
 			reg = <0 0x19000000 0 0x1000>;
 			#clock-cells = <1>;
 		};
+
+		keypad: keypad@10010000 {
+			compatible = "mediatek,mt8173-keypad";
+			reg = <0 0x10010000 0 0x1000>;
+			interrupts = <GIC_SPI 186 IRQ_TYPE_EDGE_FALLING>;
+		};
+
 	};
 
 	bring-up {
@@ -633,3 +640,4 @@
 	};
 };
 
+/include/ "cust_kpd_8173.dtsi"
