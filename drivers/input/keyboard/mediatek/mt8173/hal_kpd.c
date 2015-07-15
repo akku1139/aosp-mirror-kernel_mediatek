@@ -1,5 +1,6 @@
 #include <kpd.h>
 #include <mt-plat/aee.h>
+#include <mt-plat/upmu_common.h>
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
@@ -86,45 +87,6 @@ static void enable_kpd(int enable)
 
 void kpd_slide_qwerty_init(void)
 {
-#if KPD_HAS_SLIDE_QWERTY
-	bool evdev_flag = false;
-	bool power_op = false;
-	struct input_handler *handler;
-	struct input_handle *handle;
-
-	handle = rcu_dereference(dev->grab);
-	if (handle) {
-		handler = handle->handler;
-		if (strcmp(handler->name, "evdev") == 0)
-			return -1;
-	} else {
-		list_for_each_entry_rcu(handle, &dev->h_list, d_node) {
-			handler = handle->handler;
-			if (strcmp(handler->name, "evdev") == 0) {
-				evdev_flag = true;
-				break;
-			}
-		}
-		if (evdev_flag == false)
-			return -1;
-	}
-
-	power_op = powerOn_slidePin_interface();
-	if (!power_op)
-		kpd_print(KPD_SAY "Qwerty slide pin interface power on fail\n");
-	else
-		kpd_print("Qwerty slide pin interface power on success\n");
-
-	mt_eint_set_sens(KPD_SLIDE_EINT, KPD_SLIDE_SENSITIVE);
-	mt_eint_set_hw_debounce(KPD_SLIDE_EINT, KPD_SLIDE_DEBOUNCE);
-	mt_eint_registration(KPD_SLIDE_EINT, true, KPD_SLIDE_POLARITY, kpd_slide_eint_handler, false);
-
-	power_op = powerOff_slidePin_interface();
-	if (!power_op)
-		kpd_print(KPD_SAY "Qwerty slide pin interface power off fail\n");
-	else
-		kpd_print("Qwerty slide pin interface power off success\n");
-#endif
 }
 
 void kpd_get_keymap_state(u16 state[])
@@ -196,7 +158,7 @@ void kpd_auto_test_for_factorymode(void)
 
 	kpd_factory_mode_handler();
 	kpd_print("begin kpd_auto_test_for_factorymode!\n");
-	if (pmic_get_register_value(PMIC_PWRKEY_DEB) == 1) {
+	if (upmu_get_pwrkey_deb() == 1) {
 		kpd_print("power key release\n");
 		/*kpd_pwrkey_pmic_handler(1);*/
 		/*mdelay(time);*/
@@ -209,7 +171,7 @@ void kpd_auto_test_for_factorymode(void)
 	}
 
 #ifdef KPD_PMIC_RSTKEY_MAP
-	if (pmic_get_register_value(PMIC_HOMEKEY_DEB) == 1) {
+	if (upmu_get_homekey_deb() == 1) {
 		/*kpd_print("home key release\n");*/
 		/*kpd_pmic_rstkey_handler(1);*/
 		/*mdelay(time);*/
@@ -232,20 +194,20 @@ void long_press_reboot_function_setting(void)
 #ifdef CONFIG_KPD_PMIC_LPRST_TD
 		kpd_info("Enable normal mode LPRST\n");
 #ifdef CONFIG_ONEKEY_REBOOT_NORMAL_MODE
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN, 0x01);
-		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x00);
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_TD, CONFIG_KPD_PMIC_LPRST_TD);
+		upmu_set_rg_pwrkey_rst_en(0x01);
+		upmu_set_rg_homekey_rst_en(0x00);
+		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
 #endif
 
-#ifdef CONFIG_TWOKEY_REBOOT_NORMAL_MODE
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN, 0x01);
-		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x01);
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_TD, CONFIG_KPD_PMIC_LPRST_TD);
+#ifdef TWOKEY_REBOOT_NORMAL_MODE
+		upmu_set_rg_pwrkey_rst_en(0x01);
+		upmu_set_rg_homekey_rst_en(0x01);
+		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
 #endif
 #else
 		kpd_info("disable normal mode LPRST\n");
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN, 0x00);
-		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x00);
+		upmu_set_rg_pwrkey_rst_en(0x00);
+		upmu_set_rg_homekey_rst_en(0x00);
 
 #endif
 	} else {
@@ -253,25 +215,25 @@ void long_press_reboot_function_setting(void)
 #ifdef CONFIG_KPD_PMIC_LPRST_TD
 		kpd_info("Enable other mode LPRST\n");
 #ifdef CONFIG_ONEKEY_REBOOT_OTHER_MODE
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN, 0x01);
-		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x00);
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_TD, CONFIG_KPD_PMIC_LPRST_TD);
+		upmu_set_rg_pwrkey_rst_en(0x01);
+		upmu_set_rg_homekey_rst_en(0x00);
+		upmu_set_rg_pwrkey_rst_td(CONFIG_KPD_PMIC_LPRST_TD);
 #endif
 
 #ifdef CONFIG_TWOKEY_REBOOT_OTHER_MODE
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN, 0x01);
-		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x01);
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_TD, CONFIG_KPD_PMIC_LPRST_TD);
+		upmu_set_rg_pwrkey_rst_en(0x01);
+		upmu_set_rg_homekey_rst_en(0x01);
+		upmu_set_rg_pwrkey_rst_td(CONFIG_KPD_PMIC_LPRST_TD);
 #endif
 #else
 		kpd_info("disable other mode LPRST\n");
-		pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN, 0x00);
-		pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x00);
+		upmu_set_rg_pwrkey_rst_en(0x00);
+		upmu_set_rg_homekey_rst_en(0x00);
 #endif
 	}
 #else
-	pmic_set_register_value(PMIC_RG_PWRKEY_RST_EN, 0x00);
-	pmic_set_register_value(PMIC_RG_HOMEKEY_RST_EN, 0x00);
+	upmu_set_rg_pwrkey_rst_en(0x00);
+	upmu_set_rg_homekey_rst_en(0x00);
 #endif
 }
 
@@ -374,20 +336,6 @@ void kpd_pmic_pwrkey_hal(unsigned long pressed)
 void kpd_pwrkey_handler_hal(unsigned long data)
 {
 #ifdef CONFIG_KPD_PWRKEY_USE_EINT
-	bool pressed;
-	u8 old_state = kpd_pwrkey_state;
-
-	kpd_pwrkey_state = !kpd_pwrkey_state;
-	pressed = (kpd_pwrkey_state == !!KPD_PWRKEY_POLARITY);
-	if (kpd_show_hw_keycode)
-		kpd_print(KPD_SAY "(%s) HW keycode = using EINT\n", pressed ? "pressed" : "released");
-	input_report_key(kpd_input_dev, kpd_dts_data.kpd_sw_pwrkey, pressed);
-	kpd_print("report Linux keycode = %u\n", kpd_dts_data.kpd_sw_pwrkey);
-	input_sync(kpd_input_dev);
-
-	/* for detecting the return to old_state */
-	mt_eint_set_polarity(KPD_PWRKEY_EINT, old_state);
-	mt_eint_unmask(KPD_PWRKEY_EINT);
 #endif
 }
 
@@ -395,9 +343,6 @@ void kpd_pwrkey_handler_hal(unsigned long data)
 void mt_eint_register(void)
 {
 #ifdef CONFIG_KPD_PWRKEY_USE_EINT
-	mt_eint_set_sens(KPD_PWRKEY_EINT, KPD_PWRKEY_SENSITIVE);
-	mt_eint_set_hw_debounce(KPD_PWRKEY_EINT, KPD_PWRKEY_DEBOUNCE);
-	mt_eint_registration(KPD_PWRKEY_EINT, true, KPD_PWRKEY_POLARITY, kpd_pwrkey_eint_handler, false);
 #endif
 }
 
