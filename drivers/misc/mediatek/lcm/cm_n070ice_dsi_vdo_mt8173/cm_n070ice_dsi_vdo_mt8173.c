@@ -20,6 +20,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/gpio.h>
 #include <linux/pinctrl/consumer.h>
+#include <linux/of_gpio.h>
 #else
 #include <string.h>
 #endif
@@ -52,31 +53,29 @@
 #define FRAME_HEIGHT (1280)
 #endif
 
-#define LCM_ID_NT35590 (0x90)
-/* TODO. This LCM ID is NT51012 not 35590. */
-
-/* GPIO103        LCM_PMU_EN(1.8V) */
+/*
+// GPIO103        LCM_PMU_EN(1.8V)
 #ifdef GPIO_LCM_PWR_EN
 #define GPIO_LCD_PWR_EN      GPIO_LCM_PWR_EN
 #else
-#define GPIO_LCD_PWR_EN      103	/* GPIO103 0xFFFFFFFF */
+#define GPIO_LCD_PWR_EN      103	// GPIO103 0xFFFFFFFF
 #endif
 
-/* GPIO102       LCDPANEL_EN */
+// GPIO102       LCDPANEL_EN
 #ifdef GPIO_LCM_PWR2_EN
 #define GPIO_LCD_PWR2_EN      GPIO_LCM_PWR2_EN
 #else
-#define GPIO_LCD_PWR2_EN      102	/* GPIO102 0xFFFFFFFF */
+#define GPIO_LCD_PWR2_EN      102	// GPIO102 0xFFFFFFFF
 #endif
 
-/* GPIO127       LCM_RST_SOC(3.7V) for panel */
+// GPIO127       LCM_RST_SOC(3.7V) for panel
 #ifdef GPIO_LCM_RST
 #define GPIO_LCD_RST_EN		GPIO_LCM_RST
 #else
-#define GPIO_LCD_RST_EN		127	/* GPIO127 0xFFFFFFFF */
+#define GPIO_LCD_RST_EN		127	// GPIO127 0xFFFFFFFF
 #endif
 
-/* GPIO87       DISP_PWM0 for backlight panel */
+// GPIO87       DISP_PWM0 for backlight panel
 #ifdef GPIO_LCM_BL_EN
 #define GPIO_LCD_BL_EN		GPIO_LCM_BL_EN
 #else
@@ -86,8 +85,9 @@
 #ifdef GPIO_LCM_LED_EN
 #define GPIO_LCD_LED_EN		GPIO_LCM_LED_EN
 #else
-#define GPIO_LCD_LED_EN		14	/* GPIOEXT14 0xFFFFFFFF */
+#define GPIO_LCD_LED_EN		14	// GPIOEXT14 0xFFFFFFFF
 #endif
+*/
 
 #define GPIO_OUT_ONE 1
 #define GPIO_OUT_ZERO 0
@@ -106,6 +106,12 @@ static LCM_UTIL_FUNCS lcm_util = {
 #define UDELAY(n) (lcm_util.udelay(n))
 #define MDELAY(n) (lcm_util.mdelay(n))
 
+#ifndef BUILD_LK
+static unsigned int GPIO_LCD_PWR_EN;
+static unsigned int GPIO_LCD_PWR2_EN;
+static unsigned int GPIO_LCD_RST_EN;
+static unsigned int GPIO_LCD_LED_EN;
+#endif
 
 /* --------------------------------------------------------------------------- */
 /* Local Functions */
@@ -155,6 +161,15 @@ static void lcm_set_util_funcs(const LCM_UTIL_FUNCS *util)
 #ifndef BUILD_LK
 static void lcm_request_gpio_control(void)
 {
+	static struct device_node *node;
+
+	node = of_find_compatible_node(NULL, NULL, "mediatek,DISPSYS");
+
+	GPIO_LCD_PWR_EN = of_get_named_gpio(node, "GPIO_LCM_PWR_EN", 0);
+	GPIO_LCD_PWR2_EN = of_get_named_gpio(node, "GPIO_LCM_PWR2_EN", 0);
+	GPIO_LCD_RST_EN = of_get_named_gpio(node, "GPIO_LCM_RST_EN", 0);
+	GPIO_LCD_LED_EN = of_get_named_gpio(node, "GPIO_LCM_LED_EN", 0);
+
 	gpio_request(GPIO_LCD_PWR_EN, "GPIO_LCD_PWR_EN");
 	pr_debug("[KE/LCM] GPIO_LCD_PWR_EN =   0x%x\n", GPIO_LCD_PWR_EN);
 
@@ -177,7 +192,6 @@ static void lcm_set_gpio_output(unsigned int GPIO, unsigned int output)
 		printf("[LK/LCM] GPIO_LCD_PWR2_EN =  0x%x\n", GPIO_LCD_PWR2_EN);
 		printf("[LK/LCM] GPIO_LCD_RST_EN =  0x%x\n", GPIO_LCD_RST_EN);
 		printf("[LK/LCM] GPIO_LCD_LED_EN =   0x%x\n", GPIO_LCD_LED_EN);
-		printf("[LK/LCM] GPIO_LCD_BL_EN =   0x%x\n", GPIO_LCD_BL_EN);
 #elif (defined BUILD_UBOOT)	/* do nothing in uboot */
 #else
 #endif
@@ -301,10 +315,10 @@ static void lcm_suspend(void)
 #endif
 	lcm_set_gpio_output(GPIO_LCD_LED_EN, GPIO_OUT_ZERO);
 	MDELAY(10);
-
+/*
 	lcm_set_gpio_output(GPIO_LCD_BL_EN, GPIO_OUT_ZERO);
 	MDELAY(5);
-
+*/
 	lcm_set_gpio_output(GPIO_LCD_PWR_EN, GPIO_OUT_ZERO);
 	MDELAY(200);
 
@@ -344,10 +358,10 @@ static void lcm_resume(void)
 
 	lcm_set_gpio_output(GPIO_LCD_LED_EN, GPIO_OUT_ONE);
 	MDELAY(10);
-
+/*
 	lcm_set_gpio_output(GPIO_LCD_BL_EN, GPIO_OUT_ONE);
 	MDELAY(10);
-
+*/
 	init_lcm_registers();
 
 	data_array[0] = 0x00101500;	/* Sleep Out */
