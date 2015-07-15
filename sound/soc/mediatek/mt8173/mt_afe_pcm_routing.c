@@ -70,8 +70,8 @@ struct mt_pcm_routing_priv {
 
 static int ap_loopback_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_routing_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_routing_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->ap_loopback_type;
 	return 0;
@@ -79,8 +79,8 @@ static int ap_loopback_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_va
 
 static int ap_loopback_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_routing_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_routing_priv *priv = snd_soc_component_get_drvdata(component);
 	uint32_t sample_rate = 48000;
 	long set_value = ucontrol->value.integer.value[0];
 
@@ -231,8 +231,8 @@ static int ap_loopback_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_va
 
 static int afe_sinegen_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_routing_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_routing_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->afe_sinegen_type;
 	return 0;
@@ -240,8 +240,8 @@ static int afe_sinegen_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_va
 
 static int afe_sinegen_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_routing_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_routing_priv *priv = snd_soc_component_get_drvdata(component);
 
 	if (priv->afe_sinegen_type == ucontrol->value.integer.value[0]) {
 		pr_notice("%s dummy operation for %u", __func__, priv->afe_sinegen_type);
