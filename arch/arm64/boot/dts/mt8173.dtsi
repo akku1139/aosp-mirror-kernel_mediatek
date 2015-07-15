@@ -258,10 +258,27 @@
 			reg = <0 0x10200000 0 0x1000>;
 		};
 
+		m4u: mmsys_iommu@10205000 {
+			cell-index = <0>;
+			compatible = "mediatek,mt8173-m4u";
+			reg = <0 0x10205000 0 0x1000>;
+			interrupts = <GIC_SPI 139 IRQ_TYPE_LEVEL_LOW>;
+			clocks = <&infracfg CLK_INFRA_M4U>,
+				 <&infracfg CLK_INFRA_SMI>;
+			clock-names = "infra_m4u", "infra_smi";
+		};
+
 		apmixedsys: apmixedsys@10209000 {
 			compatible = "mediatek,mt8173-apmixedsys";
 			reg = <0 0x10209000 0 0x1000>;
 			#clock-cells = <1>;
+		};
+
+		perisysiommu: perisys@10214000 {
+			cell-index = <1>;
+			compatible = "mediatek,mt8173-perisys-iommu";
+			reg = <0 0x10214000 0 0x1000>;
+			interrupts = <GIC_SPI 137 IRQ_TYPE_LEVEL_LOW>;
 		};
 
 		gic: interrupt-controller@10220000 {
@@ -444,6 +461,34 @@
 			compatible = "mediatek,mt8173-mmsys", "syscon";
 			reg = <0 0x14000000 0 0x1000>;
 			#clock-cells = <1>;
+		};
+
+		smi: smi_common@0x14022000 {
+			compatible = "mediatek,mt8173-smi-common";
+			reg = <0 0x14022000 0 0x1000>,  /* SMI_COMMON_EXT */
+				<0 0x14021000 0 0x1000>,  /* LARB 0 */
+				<0 0x16010000 0 0x1000>,  /* LARB 1 */
+				<0 0x15001000 0 0x1000>,  /* LARB 2 */
+				<0 0x18001000 0 0x1000>,  /* LARB 3 */
+				<0 0x14027000 0 0x1000>,  /* LARB 4 */
+				<0 0x19001000 0 0x1000>;  /* LARB 5 */
+			clocks = <&mmsys CLK_MM_SMI_COMMON>,
+				 <&mmsys CLK_MM_SMI_LARB0>, /*larb0 */
+				 <&vdecsys CLK_VDEC_CKEN>, /*larb1*/
+				 <&vdecsys CLK_VDEC_LARB_CKEN>, /*larb1*/
+				 <&imgsys CLK_IMG_LARB2_SMI>, /*larb2*/
+				 <&vencsys CLK_VENC_CKE0>, /*larb3*/
+				 <&vencsys CLK_VENC_CKE1>, /*larb3*/
+				 <&mmsys CLK_MM_SMI_LARB4>, /*larb4*/
+				 <&vencltsys CLK_VENCLT_CKE0>,
+				 <&vencltsys CLK_VENCLT_CKE1>;
+			clock-names = "smi_common",
+				"larb0_disp",
+				"larb1_vdec_cken", "larb1_vdec_larb_cken",
+				"larb2_img",
+				"larb3_venc_cken1", "larb3_venc_cken2",
+				"larb4_disp",
+				"larb5_venclt_cken1","larb5_venclt_cken2";
 		};
 
 		imgsys: imgsys@15000000 {
