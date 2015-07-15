@@ -10,27 +10,94 @@
  * GNU General Public License for more details.
  */
 
-#include "mt_afe_def.h"
-#ifndef CONFIG_FPGA_EARLY_PORTING
-#include<mt-plat/upmu_common.h>
-#else
-#define upmu_set_rg_clksq_en(x)
-#define upmu_get_cid() (0)
-#endif
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/module.h>
 #include <linux/of.h>
+#include <linux/debugfs.h>
 #include <sound/soc.h>
 
+#define MT6397_CODEC_NAME "mt6397-codec"
 #define PMIC6397_E1_CID_CODE 0x1097
+#define ENUM_TO_STR(enum) #enum
 
+#include "mt6391.h"
+
+/*  analog pmic register definition */
+#ifndef CONFIG_FPGA_EARLY_PORTING
 #define USE_PMIC_WRAP_DRIVER
 #ifdef USE_PMIC_WRAP_DRIVER
 #include <mt_pmic_wrap.h>
 #endif
+#include <mt-plat/upmu_common.h>
+#define PMIC_TRIM_ADDRESS1          (EFUSE_DOUT_192_207)
+#define PMIC_TRIM_ADDRESS2          (EFUSE_DOUT_208_223)
+#else
+#define AFE_PMICANA_AUDIO_BASE        (0x0)
+#define TOP_CKPDN                   (AFE_PMICANA_AUDIO_BASE + 0x0102)
+#define TOP_CKPDN_SET               (AFE_PMICANA_AUDIO_BASE + 0x0104)
+#define TOP_CKPDN_CLR               (AFE_PMICANA_AUDIO_BASE + 0x0106)
+#define TOP_CKPDN2                  (AFE_PMICANA_AUDIO_BASE + 0x0108)
+#define TOP_CKPDN2_SET              (AFE_PMICANA_AUDIO_BASE + 0x010a)
+#define TOP_CKPDN2_CLR              (AFE_PMICANA_AUDIO_BASE + 0x010c)
+#define TOP_CKCON1                  (AFE_PMICANA_AUDIO_BASE + 0x0128)
+#define TOP_CKCON3                  (AFE_PMICANA_AUDIO_BASE + 0x01D4)
+#define TEST_CON0                   (AFE_PMICANA_AUDIO_BASE + 0x013A)
+#define TEST_OUT_L                  (AFE_PMICANA_AUDIO_BASE + 0x014E)
+#define PMIC_TRIM_ADDRESS1          (AFE_PMICANA_AUDIO_BASE + 0x01E6)
+#define PMIC_TRIM_ADDRESS2          (AFE_PMICANA_AUDIO_BASE + 0x01E8)
+#define SPK_CON0                    (AFE_PMICANA_AUDIO_BASE + 0x0600)
+#define SPK_CON1                    (AFE_PMICANA_AUDIO_BASE + 0x0602)
+#define SPK_CON2                    (AFE_PMICANA_AUDIO_BASE + 0x0604)
+#define SPK_CON3                    (AFE_PMICANA_AUDIO_BASE + 0x0606)
+#define SPK_CON4                    (AFE_PMICANA_AUDIO_BASE + 0x0608)
+#define SPK_CON5                    (AFE_PMICANA_AUDIO_BASE + 0x060A)
+#define SPK_CON6                    (AFE_PMICANA_AUDIO_BASE + 0x060C)
+#define SPK_CON7                    (AFE_PMICANA_AUDIO_BASE + 0x060E)
+#define SPK_CON8                    (AFE_PMICANA_AUDIO_BASE + 0x0610)
+#define SPK_CON9                    (AFE_PMICANA_AUDIO_BASE + 0x0612)
+#define SPK_CON10                   (AFE_PMICANA_AUDIO_BASE + 0x0614)
+#define SPK_CON11                   (AFE_PMICANA_AUDIO_BASE + 0x0616)
+#define AUDDAC_CON0                 (AFE_PMICANA_AUDIO_BASE + 0x0700)
+#define AUDBUF_CFG0                 (AFE_PMICANA_AUDIO_BASE + 0x0702)
+#define AUDBUF_CFG1                 (AFE_PMICANA_AUDIO_BASE + 0x0704)
+#define AUDBUF_CFG2                 (AFE_PMICANA_AUDIO_BASE + 0x0706)
+#define AUDBUF_CFG3                 (AFE_PMICANA_AUDIO_BASE + 0x0708)
+#define AUDBUF_CFG4                 (AFE_PMICANA_AUDIO_BASE + 0x070a)
+#define IBIASDIST_CFG0              (AFE_PMICANA_AUDIO_BASE + 0x070c)
+#define AUDACCDEPOP_CFG0            (AFE_PMICANA_AUDIO_BASE + 0x070e)
+#define AUD_IV_CFG0                 (AFE_PMICANA_AUDIO_BASE + 0x0710)
+#define AUDCLKGEN_CFG0              (AFE_PMICANA_AUDIO_BASE + 0x0712)
+#define AUDLDO_CFG0                 (AFE_PMICANA_AUDIO_BASE + 0x0714)
+#define AUDLDO_CFG1                 (AFE_PMICANA_AUDIO_BASE + 0x0716)
+#define AUDNVREGGLB_CFG0            (AFE_PMICANA_AUDIO_BASE + 0x0718)
+#define AUD_NCP0                    (AFE_PMICANA_AUDIO_BASE + 0x071a)
+#define AUDPREAMP_CON0              (AFE_PMICANA_AUDIO_BASE + 0x071c)
+#define AUDADC_CON0                 (AFE_PMICANA_AUDIO_BASE + 0x071e)
+#define AUDADC_CON1                 (AFE_PMICANA_AUDIO_BASE + 0x0720)
+#define AUDADC_CON2                 (AFE_PMICANA_AUDIO_BASE + 0x0722)
+#define AUDADC_CON3                 (AFE_PMICANA_AUDIO_BASE + 0x0724)
+#define AUDADC_CON4                 (AFE_PMICANA_AUDIO_BASE + 0x0726)
+#define AUDADC_CON5                 (AFE_PMICANA_AUDIO_BASE + 0x0728)
+#define AUDADC_CON6                 (AFE_PMICANA_AUDIO_BASE + 0x072a)
+#define AUDDIGMI_CON0               (AFE_PMICANA_AUDIO_BASE + 0x072c)
+#define AUDLSBUF_CON0               (AFE_PMICANA_AUDIO_BASE + 0x072e)
+#define AUDLSBUF_CON1               (AFE_PMICANA_AUDIO_BASE + 0x0730)
+#define AUDENCSPARE_CON0            (AFE_PMICANA_AUDIO_BASE + 0x0732)
+#define AUDENCCLKSQ_CON0            (AFE_PMICANA_AUDIO_BASE + 0x0734)
+#define AUDPREAMPGAIN_CON0          (AFE_PMICANA_AUDIO_BASE + 0x0736)
+#define ZCD_CON0                    (AFE_PMICANA_AUDIO_BASE + 0x0738)
+#define ZCD_CON1                    (AFE_PMICANA_AUDIO_BASE + 0x073a)
+#define ZCD_CON2                    (AFE_PMICANA_AUDIO_BASE + 0x073c)
+#define ZCD_CON3                    (AFE_PMICANA_AUDIO_BASE + 0x073e)
+#define ZCD_CON4                    (AFE_PMICANA_AUDIO_BASE + 0x0740)
+#define ZCD_CON5                    (AFE_PMICANA_AUDIO_BASE + 0x0742)
+#define NCP_CLKDIV_CON0             (AFE_PMICANA_AUDIO_BASE + 0x0744)
+#define NCP_CLKDIV_CON1             (AFE_PMICANA_AUDIO_BASE + 0x0746)
 
-#include "mt6391.h"
+#define upmu_set_rg_clksq_en(x)
+#define upmu_get_cid() (0)
+#endif
 
 
 /* enum definition */
@@ -197,6 +264,9 @@ struct mt6391_priv {
 	int ana_clk_counter;
 	struct mutex ctrl_mutex;
 	struct mutex clk_mutex;
+#ifdef CONFIG_DEBUG_FS
+	struct dentry *debugfs;
+#endif
 };
 
 
@@ -357,7 +427,6 @@ static void mt6391_ana_clk_off(struct mt6391_priv *codec_data)
 		mt6391_control_top_clk(0x0003, false);
 	} else if (codec_data->ana_clk_counter < 0) {
 		pr_err("%s ana_clk_counter:%d<0\n", __func__, codec_data->ana_clk_counter);
-		AUDIO_ASSERT(true);
 		codec_data->ana_clk_counter = 0;
 	}
 	mutex_unlock(&codec_data->clk_mutex);
@@ -2443,6 +2512,155 @@ static const struct snd_kcontrol_new mt6391_factory_controls[] = {
 		     mt6391_adc_freq_get, mt6391_adc_freq_set),
 };
 
+#ifdef CONFIG_DEBUG_FS
+static ssize_t mt6391_debug_read(struct file *file, char __user *buf,
+				size_t count, loff_t *pos)
+{
+	const int size = 4096;
+	char buffer[size];
+	int n = 0;
+
+	pr_notice("%s\n", __func__);
+
+	n += scnprintf(buffer + n, size - n, "UL_DL_CON0 = 0x%x\n",
+		       mt6391_get_reg(AFE_UL_DL_CON0));
+	n += scnprintf(buffer + n, size - n, "DL_SRC2_CON0_H = 0x%x\n",
+		       mt6391_get_reg(AFE_DL_SRC2_CON0_H));
+	n += scnprintf(buffer + n, size - n, "DL_SRC2_CON0_L = 0x%x\n",
+		       mt6391_get_reg(AFE_DL_SRC2_CON0_L));
+	n += scnprintf(buffer + n, size - n, "DL_SDM_CON0 = 0x%x\n",
+		       mt6391_get_reg(AFE_DL_SDM_CON0));
+	n += scnprintf(buffer + n, size - n, "DL_SDM_CON1 = 0x%x\n",
+		       mt6391_get_reg(AFE_DL_SDM_CON1));
+	n += scnprintf(buffer + n, size - n, "UL_SRC_CON0_H = 0x%x\n",
+		       mt6391_get_reg(AFE_UL_SRC_CON0_H));
+	n += scnprintf(buffer + n, size - n, "UL_SRC_CON0_L = 0x%x\n",
+		       mt6391_get_reg(AFE_UL_SRC_CON0_L));
+	n += scnprintf(buffer + n, size - n, "UL_SRC_CON1_H = 0x%x\n",
+		       mt6391_get_reg(AFE_UL_SRC_CON1_H));
+	n += scnprintf(buffer + n, size - n, "UL_SRC_CON1_L = 0x%x\n",
+		       mt6391_get_reg(AFE_UL_SRC_CON1_L));
+	n += scnprintf(buffer + n, size - n, "ANA_AFE_TOP_CON0 = 0x%x\n",
+		       mt6391_get_reg(ANA_AFE_TOP_CON0));
+	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON0 = 0x%x\n",
+		       mt6391_get_reg(AFUNC_AUD_CON0));
+	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON1 = 0x%x\n",
+		       mt6391_get_reg(AFUNC_AUD_CON1));
+	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON2 = 0x%x\n",
+		       mt6391_get_reg(AFUNC_AUD_CON2));
+	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON3 = 0x%x\n",
+		       mt6391_get_reg(AFUNC_AUD_CON3));
+	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON4 = 0x%x\n",
+		       mt6391_get_reg(AFUNC_AUD_CON4));
+	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_MON0 = 0x%x\n",
+		       mt6391_get_reg(AFUNC_AUD_MON0));
+	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_MON1 = 0x%x\n",
+		       mt6391_get_reg(AFUNC_AUD_MON1));
+	n += scnprintf(buffer + n, size - n, "AUDRC_TUNE_MON0 = 0x%x\n",
+		       mt6391_get_reg(AUDRC_TUNE_MON0));
+	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_CFG0 = 0x%x\n",
+		       mt6391_get_reg(AFE_UP8X_FIFO_CFG0));
+	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_LOG_MON0 = 0x%x\n",
+		       mt6391_get_reg(AFE_UP8X_FIFO_LOG_MON0));
+	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_LOG_MON1 = 0x%x\n",
+		       mt6391_get_reg(AFE_UP8X_FIFO_LOG_MON1));
+	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG0 = 0x%x\n",
+		       mt6391_get_reg(AFE_DL_DC_COMP_CFG0));
+	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG1 = 0x%x\n",
+		       mt6391_get_reg(AFE_DL_DC_COMP_CFG1));
+	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG2 = 0x%x\n",
+		       mt6391_get_reg(AFE_DL_DC_COMP_CFG2));
+	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG0 = 0x%x\n",
+		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG0));
+	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG1 = 0x%x\n",
+		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG1));
+	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG2 = 0x%x\n",
+		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG2));
+	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG3 = 0x%x\n",
+		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG3));
+	n += scnprintf(buffer + n, size - n, "AFE_SGEN_CFG0 = 0x%x\n",
+		       mt6391_get_reg(AFE_SGEN_CFG0));
+	n += scnprintf(buffer + n, size - n, "AFE_SGEN_CFG1 = 0x%x\n",
+		       mt6391_get_reg(AFE_SGEN_CFG1));
+	n += scnprintf(buffer + n, size - n, "======PMIC analog registers====\n");
+	n += scnprintf(buffer + n, size - n, "TOP_CKPDN = 0x%x\n", mt6391_get_reg(TOP_CKPDN));
+	n += scnprintf(buffer + n, size - n, "TOP_CKPDN2 = 0x%x\n", mt6391_get_reg(TOP_CKPDN2));
+	n += scnprintf(buffer + n, size - n, "TOP_CKCON1 = 0x%x\n", mt6391_get_reg(TOP_CKCON1));
+	n += scnprintf(buffer + n, size - n, "TOP_CKCON3 = 0x%x\n", mt6391_get_reg(TOP_CKCON3));
+	n += scnprintf(buffer + n, size - n, "SPK_CON0 = 0x%x\n", mt6391_get_reg(SPK_CON0));
+	n += scnprintf(buffer + n, size - n, "SPK_CON1 = 0x%x\n", mt6391_get_reg(SPK_CON1));
+	n += scnprintf(buffer + n, size - n, "SPK_CON2 = 0x%x\n", mt6391_get_reg(SPK_CON2));
+	n += scnprintf(buffer + n, size - n, "SPK_CON3 = 0x%x\n", mt6391_get_reg(SPK_CON3));
+	n += scnprintf(buffer + n, size - n, "SPK_CON4 = 0x%x\n", mt6391_get_reg(SPK_CON4));
+	n += scnprintf(buffer + n, size - n, "SPK_CON5 = 0x%x\n", mt6391_get_reg(SPK_CON5));
+	n += scnprintf(buffer + n, size - n, "SPK_CON6 = 0x%x\n", mt6391_get_reg(SPK_CON6));
+	n += scnprintf(buffer + n, size - n, "SPK_CON7 = 0x%x\n", mt6391_get_reg(SPK_CON7));
+	n += scnprintf(buffer + n, size - n, "SPK_CON8 = 0x%x\n", mt6391_get_reg(SPK_CON8));
+	n += scnprintf(buffer + n, size - n, "SPK_CON9 = 0x%x\n", mt6391_get_reg(SPK_CON9));
+	n += scnprintf(buffer + n, size - n, "SPK_CON10 = 0x%x\n", mt6391_get_reg(SPK_CON10));
+	n += scnprintf(buffer + n, size - n, "SPK_CON11 = 0x%x\n", mt6391_get_reg(SPK_CON11));
+	n += scnprintf(buffer + n, size - n, "AUDDAC_CON0 = 0x%x\n", mt6391_get_reg(AUDDAC_CON0));
+	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG0 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG0));
+	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG1 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG1));
+	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG2 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG2));
+	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG3 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG3));
+	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG4 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG4));
+	n += scnprintf(buffer + n, size - n, "IBIASDIST_CFG0 = 0x%x\n",
+		       mt6391_get_reg(IBIASDIST_CFG0));
+	n += scnprintf(buffer + n, size - n, "AUDACCDEPOP_CFG0 = 0x%x\n",
+		       mt6391_get_reg(AUDACCDEPOP_CFG0));
+	n += scnprintf(buffer + n, size - n, "AUD_IV_CFG0 = 0x%x\n", mt6391_get_reg(AUD_IV_CFG0));
+	n += scnprintf(buffer + n, size - n, "AUDCLKGEN_CFG0 = 0x%x\n",
+		       mt6391_get_reg(AUDCLKGEN_CFG0));
+	n += scnprintf(buffer + n, size - n, "AUDLDO_CFG0 = 0x%x\n", mt6391_get_reg(AUDLDO_CFG0));
+	n += scnprintf(buffer + n, size - n, "AUDLDO_CFG1 = 0x%x\n", mt6391_get_reg(AUDLDO_CFG1));
+	n += scnprintf(buffer + n, size - n, "AUDNVREGGLB_CFG0 = 0x%x\n",
+		       mt6391_get_reg(AUDNVREGGLB_CFG0));
+	n += scnprintf(buffer + n, size - n, "AUD_NCP0 = 0x%x\n", mt6391_get_reg(AUD_NCP0));
+	n += scnprintf(buffer + n, size - n, "AUDPREAMP_CON0 = 0x%x\n",
+		       mt6391_get_reg(AUDPREAMP_CON0));
+	n += scnprintf(buffer + n, size - n, "AUDADC_CON0 = 0x%x\n", mt6391_get_reg(AUDADC_CON0));
+	n += scnprintf(buffer + n, size - n, "AUDADC_CON1 = 0x%x\n", mt6391_get_reg(AUDADC_CON1));
+	n += scnprintf(buffer + n, size - n, "AUDADC_CON2 = 0x%x\n", mt6391_get_reg(AUDADC_CON2));
+	n += scnprintf(buffer + n, size - n, "AUDADC_CON3 = 0x%x\n", mt6391_get_reg(AUDADC_CON3));
+	n += scnprintf(buffer + n, size - n, "AUDADC_CON4 = 0x%x\n", mt6391_get_reg(AUDADC_CON4));
+	n += scnprintf(buffer + n, size - n, "AUDADC_CON5 = 0x%x\n", mt6391_get_reg(AUDADC_CON5));
+	n += scnprintf(buffer + n, size - n, "AUDADC_CON6 = 0x%x\n", mt6391_get_reg(AUDADC_CON6));
+	n += scnprintf(buffer + n, size - n, "AUDDIGMI_CON0 = 0x%x\n",
+		       mt6391_get_reg(AUDDIGMI_CON0));
+	n += scnprintf(buffer + n, size - n, "AUDLSBUF_CON0 = 0x%x\n",
+		       mt6391_get_reg(AUDLSBUF_CON0));
+	n += scnprintf(buffer + n, size - n, "AUDLSBUF_CON1 = 0x%x\n",
+		       mt6391_get_reg(AUDLSBUF_CON1));
+	n += scnprintf(buffer + n, size - n, "AUDENCSPARE_CON0 = 0x%x\n",
+		       mt6391_get_reg(AUDENCSPARE_CON0));
+	n += scnprintf(buffer + n, size - n, "AUDENCCLKSQ_CON0 = 0x%x\n",
+		       mt6391_get_reg(AUDENCCLKSQ_CON0));
+	n += scnprintf(buffer + n, size - n, "AUDPREAMPGAIN_CON0 = 0x%x\n",
+		       mt6391_get_reg(AUDPREAMPGAIN_CON0));
+	n += scnprintf(buffer + n, size - n, "ZCD_CON0 = 0x%x\n", mt6391_get_reg(ZCD_CON0));
+	n += scnprintf(buffer + n, size - n, "ZCD_CON1 = 0x%x\n", mt6391_get_reg(ZCD_CON1));
+	n += scnprintf(buffer + n, size - n, "ZCD_CON2 = 0x%x\n", mt6391_get_reg(ZCD_CON2));
+	n += scnprintf(buffer + n, size - n, "ZCD_CON3 = 0x%x\n", mt6391_get_reg(ZCD_CON3));
+	n += scnprintf(buffer + n, size - n, "ZCD_CON4 = 0x%x\n", mt6391_get_reg(ZCD_CON4));
+	n += scnprintf(buffer + n, size - n, "ZCD_CON5 = 0x%x\n", mt6391_get_reg(ZCD_CON5));
+	n += scnprintf(buffer + n, size - n, "NCP_CLKDIV_CON0 = 0x%x\n",
+		       mt6391_get_reg(NCP_CLKDIV_CON0));
+	n += scnprintf(buffer + n, size - n, "NCP_CLKDIV_CON1 = 0x%x\n",
+		       mt6391_get_reg(NCP_CLKDIV_CON1));
+
+	pr_notice("%s len = %d\n", __func__, n);
+
+	return simple_read_from_buffer(buf, count, pos, buffer, n);
+}
+
+static const struct file_operations mt6391_debug_ops = {
+	.open = simple_open,
+	.read = mt6391_debug_read,
+	.llseek = default_llseek,
+};
+#endif
+
 static int mt6391_codec_startup(struct snd_pcm_substream *substream,
 			struct snd_soc_dai *codec_dai)
 {
@@ -2496,10 +2714,10 @@ static const struct snd_soc_dai_ops mt6391_aif1_dai_ops = {
 
 static struct snd_soc_dai_driver mt6391_codec_dai_drvs[] = {
 	{
-	 .name = MT_SOC_CODEC_TXDAI_NAME,
+	 .name = "mt6397-codec-tx-dai",
 	 .ops = &mt6391_aif1_dai_ops,
 	 .playback = {
-		      .stream_name = MT_SOC_DL1_STREAM_NAME,
+		      .stream_name = "Playback",
 		      .channels_min = 1,
 		      .channels_max = 2,
 		      .rates = SNDRV_PCM_RATE_8000_48000,
@@ -2507,10 +2725,10 @@ static struct snd_soc_dai_driver mt6391_codec_dai_drvs[] = {
 		      },
 	 },
 	{
-	 .name = MT_SOC_CODEC_RXDAI_NAME,
+	 .name = "mt6397-codec-rx-dai",
 	 .ops = &mt6391_aif1_dai_ops,
 	 .capture = {
-		     .stream_name = MT_SOC_UL1_STREAM_NAME,
+		     .stream_name = "Capture",
 		     .channels_min = 1,
 		     .channels_max = 2,
 		     .rates = SNDRV_PCM_RATE_8000_48000,
@@ -2554,7 +2772,6 @@ static int mt6391_codec_probe(struct snd_soc_codec *codec)
 	upmu_set_rg_clksq_en(0);
 	mt6391_control_top_clk(0x0607, false);
 
-	/* add codec controls */
 	snd_soc_add_codec_controls(codec, mt6391_dl_codec_controls,
 				ARRAY_SIZE(mt6391_dl_codec_controls));
 	snd_soc_add_codec_controls(codec, mt6391_ul_codec_controls,
@@ -2562,12 +2779,20 @@ static int mt6391_codec_probe(struct snd_soc_codec *codec)
 	snd_soc_add_codec_controls(codec, mt6391_factory_controls,
 				ARRAY_SIZE(mt6391_factory_controls));
 
+#ifdef CONFIG_DEBUG_FS
+	codec_data->debugfs = debugfs_create_file("mt6391reg", S_IFREG | S_IRUGO,
+					NULL, NULL, &mt6391_debug_ops);
+#endif
 	return 0;
 }
 
 static int mt6391_codec_remove(struct snd_soc_codec *codec)
 {
-	pr_info("%s\n", __func__);
+#ifdef CONFIG_DEBUG_FS
+	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+
+	debugfs_remove(codec_data->debugfs);
+#endif
 	return 0;
 }
 
@@ -2620,7 +2845,7 @@ static int mt6391_dev_probe(struct platform_device *pdev)
 	pr_notice("%s dev name %s\n", __func__, dev_name(dev));
 
 	if (dev->of_node) {
-		dev_set_name(dev, "%s", MT_SOC_CODEC_NAME);
+		dev_set_name(dev, "%s", MT6397_CODEC_NAME);
 		pr_notice("%s set dev name %s\n", __func__, dev_name(dev));
 	}
 
@@ -2661,7 +2886,7 @@ static int mt6391_dev_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id mt6391_codec_dt_match[] = {
-	{.compatible = "mediatek," MT_SOC_CODEC_NAME,},
+	{.compatible = "mediatek," MT6397_CODEC_NAME,},
 	{}
 };
 
@@ -2669,7 +2894,7 @@ MODULE_DEVICE_TABLE(of, mt6391_codec_dt_match);
 
 static struct platform_driver mt6391_codec_device_driver = {
 	.driver = {
-		   .name = MT_SOC_CODEC_NAME,
+		   .name = MT6397_CODEC_NAME,
 		   .owner = THIS_MODULE,
 		   .of_match_table = mt6391_codec_dt_match,
 		   },
