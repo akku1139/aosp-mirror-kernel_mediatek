@@ -18,9 +18,7 @@ obj-$(CONFIG_MTK_FB) += mtkfb_console.o             \
 	     mtk_ovl.o
 
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/mmp/
-ccflags-y += -I$(srctree)/drivers/misc/mediatek/video/include/     \
-             -I$(srctree)/drivers/misc/mediatek/video/common/      \
-             -I$(srctree)/drivers/misc/mediatek/video/$(MTK_PLATFORM)/dispsys   \
+ccflags-y += -I$(srctree)/drivers/misc/mediatek/video/$(MTK_PLATFORM)/dispsys   \
              -I$(srctree)/drivers/misc/mediatek/sync/      \
              -I$(srctree)/drivers/misc/mediatek/m4u/       \
              -I$(srctree)/drivers/misc/mediatek/cmdq/      \
