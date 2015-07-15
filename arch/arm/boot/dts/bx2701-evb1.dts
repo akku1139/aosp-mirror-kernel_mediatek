@@ -36,6 +36,36 @@
 	state_default:pinconf_default {
 	};
 
+	spi_pins_a: spi0@0 {
+		pins_spi {
+			pins = <MT2701_PIN_53_SPI0_CSN__FUNC_SPI0_CS>,
+			<MT2701_PIN_54_SPI0_CK__FUNC_SPI0_CK>,
+			<MT2701_PIN_55_SPI0_MI__FUNC_SPI0_MI>,
+			<MT2701_PIN_56_SPI0_MO__FUNC_SPI0_MO>;
+			bias-disable;
+		};
+	};
+
+	spi_pins_b: spi1@0 {
+		pins_spi {
+			pins = <MT2701_PIN_7_SPI1_CSN__FUNC_SPI1_CS>,
+			<MT2701_PIN_8_SPI1_MI__FUNC_SPI1_MI>,
+			<MT2701_PIN_9_SPI1_MO__FUNC_SPI1_MO>,
+			<MT2701_PIN_199_SPI1_CLK__FUNC_SPI1_CK>;
+			bias-disable;
+		};
+	};
+
+	spi_pins_c: spi2@0 {
+		pins_spi {
+			pins = <MT2701_PIN_101_SPI2_CSN__FUNC_SPI2_CS>,
+			<MT2701_PIN_102_SPI2_MI__FUNC_SPI2_MI>,
+			<MT2701_PIN_103_SPI2_MO__FUNC_SPI2_MO>,
+			<MT2701_PIN_104_SPI2_CLK__FUNC_SPI2_CK>;
+			bias-disable;
+		};
+	};
+
 	i2c0_pins_a: i2c0@0 {
 		pins1 {
 			pinmux = <MT2701_PIN_75_SDA0__FUNC_SDA0>,
@@ -59,6 +89,30 @@
 			bias-disable;
 		};
 	};
+};
+
+&spi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_pins_a>;
+	status = "okay";
+	#address-cells = <0x1>;
+	#size-cells = <0>;
+};
+
+&spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_pins_b>;
+	status = "okay";
+	#address-cells = <0x1>;
+	#size-cells = <0>;
+};
+
+&spi2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi_pins_c>;
+	status = "okay";
+	#address-cells = <0x1>;
+	#size-cells = <0>;
 };
 
 &i2c0 {
