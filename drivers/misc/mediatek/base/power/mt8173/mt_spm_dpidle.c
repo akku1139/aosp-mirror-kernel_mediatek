@@ -8,7 +8,7 @@
 #include <linux/irqchip/mt-gic.h>
 
 #include <mach/wd_api.h>
-/* #include <mt-plat/upmu_common.h> */ /* TODO: add upmu_common.h */
+#include <mt-plat/upmu_common.h>
 #include <mt-plat/mt_cirq.h>
 
 #include "mt_spm_idle.h"
