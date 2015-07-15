@@ -11,7 +11,7 @@ obj-$(CONFIG_MTK_SERIAL)	+= uart/
 obj-$(CONFIG_MTK_IRQ) += irq/
 obj-$(CONFIG_MTK_SYS_CIRQ) += cirq/
 
-obj-$(CONFIG_MTK_MMPROFILE_SUPPORT) += mmp/
+obj-y += mmp/
 obj-$(CONFIG_MTK_AUXADC)	+= auxadc/
 obj-$(CONFIG_MTK_M4U)	+= m4u/
 obj-$(CONFIG_MTK_GPT_SCHEME_SUPPORT)	+= partition/

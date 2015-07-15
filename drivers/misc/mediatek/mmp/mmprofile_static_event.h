@@ -18,10 +18,10 @@ typedef struct {
 	MMP_StaticEvents parent;
 } MMP_StaticEvent_t;
 
-static MMP_StaticEvent_t MMProfileStaticEvents[] = {
+/*static MMP_StaticEvent_t MMProfileStaticEvents[] = {
 	{MMP_RootEvent, "Root_Event", MMP_InvalidEvent},
 	{MMP_TouchPanelEvent, "TouchPanel_Event", MMP_RootEvent},
-};
+};*/
 
 #endif
 

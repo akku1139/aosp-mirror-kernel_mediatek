@@ -14,7 +14,7 @@
 /* #include <asm/mach-types.h> */
 
 #define MMPROFILE_INTERNAL
-#include <linux/mmprofile_internal.h>
+#include "../mmprofile_internal.h"
 /* #pragma GCC optimize ("O0") */
 #define MMP_DEVNAME "mmp"
 
