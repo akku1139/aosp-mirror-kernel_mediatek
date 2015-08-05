@@ -203,6 +203,10 @@
 			#gpio-cells = <2>;
 		};
 
+		mt6397pmic: mt6397pmic {
+			compatible = "mediatek,mt6397-pmic";
+		};
+
 		mt6397regulator: mt6397regulator {
 			compatible = "mediatek,mt6397-regulator";
 
