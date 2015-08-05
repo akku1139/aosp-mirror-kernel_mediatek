@@ -14,6 +14,7 @@
 
 /dts-v1/;
 #include "mt8173.dtsi"
+#include <dt-bindings/pinctrl/mt6397-pinfunc.h>
 
 / {
 	model = "MediaTek mt8173 tablet p1 evaluation board";
@@ -194,6 +195,13 @@
 		compatible = "mediatek,mt6397";
 		#address-cells = <1>;
 		#size-cells = <1>;
+
+		pio6397: pinctrl@c00{
+			compatible = "mediatek,mt6397-pinctrl";
+			pins-are-numbered;
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
 
 		mt6397regulator: mt6397regulator {
 			compatible = "mediatek,mt6397-regulator";
