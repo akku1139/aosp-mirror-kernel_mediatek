@@ -168,7 +168,6 @@ CONFIG_ARCH_MTK_PROJECT="tb8173p1_l318"
 # CONFIG_MTK_MEM is not set
 # CONFIG_MTK_SERIAL is not set
 # CONFIG_MTK_AUXADC is not set
-# CONFIG_MTK_M4U is not set
 # CONFIG_MTK_I2C is not set
 # CONFIG_MTK_PMIC is not set
 # CONFIG_USB_MTK_HDRC is not set
