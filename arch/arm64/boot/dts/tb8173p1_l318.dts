@@ -94,6 +94,49 @@
 };
 
 &pio {
+	CTP_pins_default: eint0default {
+	};
+
+	CTP_pins_eint_as_int: eint@0 {
+		pins_cmd_dat {
+			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
+			slew-rate = <0>;
+			bias-disable;
+		};
+	};
+
+	CTP_pins_eint_output0: eintoutput0 {
+		pins_cmd_dat {
+			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+
+	CTP_pins_eint_output1: eintoutput1 {
+		pins_cmd_dat {
+			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
+	CTP_pins_rst_output0: rstoutput0 {
+		pins_cmd_dat {
+			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
+			slew-rate = <1>;
+			output-low;
+		};
+	};
+
+	CTP_pins_rst_output1: rstoutput1 {
+		pins_cmd_dat {
+			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
+			slew-rate = <1>;
+			output-high;
+		};
+	};
+
 	mmc0_pins_default: mmc0default {
 		pins_cmd_dat {
 			pinmux = <MT8173_PIN_57_MSDC0_DAT0__FUNC_MSDC0_DAT0>,
@@ -401,6 +444,28 @@
 			};
 		};
 	};
+};
+
+&touch {
+	tpd-resolution = <720 1280>;
+	use-tpd-button = <0>;
+	tpd-key-num = <3>;
+	tpd-key-local= <139 172 158 0>;
+	tpd-key-dim-local = <145 1330 120 100 360 1330 120 100 600 1330 120 100 0 0 0 0>;
+	tpd-max-touch-num = <5>;
+	tpd-filter-enable = <1>;
+	tpd-filter-pixel-density = <124>;
+	tpd-filter-custom-prameters = <0 0 0 0 0 0 0 0 0 0 0 0>;
+	tpd-filter-custom-speed = <0 0 0>;
+	pinctrl-names = "default", "state_eint_as_int", "state_eint_output0", "state_eint_output1",
+		"state_rst_output0", "state_rst_output1";
+	pinctrl-0 = <&CTP_pins_default>;
+	pinctrl-1 = <&CTP_pins_eint_as_int>;
+	pinctrl-2 = <&CTP_pins_eint_output0>;
+	pinctrl-3 = <&CTP_pins_eint_output1>;
+	pinctrl-4 = <&CTP_pins_rst_output0>;
+	pinctrl-5 = <&CTP_pins_rst_output1>;
+	status = "okay";
 };
 
 &uart0 {
