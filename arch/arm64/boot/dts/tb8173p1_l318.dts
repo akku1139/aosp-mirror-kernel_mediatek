@@ -51,6 +51,7 @@
 				regulator-min-microamp	= <2000000>;
 				regulator-max-microamp	= <4400000>;
 				regulator-ramp-delay = <10000>;
+				regulator-always-on;
 			};
 			da9212_vgpu_reg: BUCKB {
 				regulator-name = "VBUCKB";
@@ -59,6 +60,7 @@
 				regulator-min-microamp	= <2000000>;
 				regulator-max-microamp	= <3000000>;
 				regulator-ramp-delay = <10000>;
+				regulator-always-on;
 			};
 		};
 	};
@@ -311,6 +313,7 @@
 			mt6397_vusb_reg: ldo_vusb {
 				regulator-compatible = "ldo_vusb";
 				regulator-name = "vusb";
+				regulator-always-on;
 			};
 
 			mt6397_vmc_reg: ldo_vmc {
@@ -319,6 +322,7 @@
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-enable-ramp-delay = <218>;
+				regulator-always-on;
 			};
 
 			mt6397_vmch_reg: ldo_vmch {
@@ -327,6 +331,7 @@
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-enable-ramp-delay = <218>;
+				regulator-always-on;
 			};
 
 			mt6397_vemc_3v3_reg: ldo_vemc3v3 {
@@ -335,6 +340,7 @@
 				regulator-min-microvolt = <3000000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-enable-ramp-delay = <218>;
+				regulator-always-on;
 			};
 
 			mt6397_vgp1_reg: ldo_vgp1 {
@@ -351,6 +357,7 @@
 				regulator-min-microvolt = <1000000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-enable-ramp-delay = <218>;
+				regulator-always-on;
 			};
 
 			mt6397_vgp3_reg: ldo_vgp3 {
