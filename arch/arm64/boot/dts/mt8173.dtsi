@@ -166,10 +166,14 @@
 
 		pio: pinctrl@10005000 {
 			compatible = "mediatek,mt8173-pinctrl";
+			reg = <0 0x1000b000 0 0x1000>;
 			mediatek,pctl-regmap = <&syscfg_pctl_a>;
 			pins-are-numbered;
 			gpio-controller;
 			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			interrupts = <GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH>;
 
 			i2c0_pins_a: i2c0@0 {
 				pins1 {
