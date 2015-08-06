@@ -32,6 +32,11 @@
 		reg = <0 0x40000000 0 0x80000000>;
 	};
 
+	mediatek,battery_meter {
+		compatible = "mediatek,battery_meter";
+		battery = "p1v1_battery";
+	};
+
 	chosen { };
 };
 
@@ -63,6 +68,20 @@
 				regulator-always-on;
 			};
 		};
+	};
+};
+
+&i2c3 {
+	status = "okay";
+	bq24297_charger@6B {
+		compatible = "ti,bq24297";
+		reg = <0x6B>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&bq24297_int_pin>;
+		gpios = <&pio 9 0>;
+		interrupt-parent = <&pio>;
+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
+		reg-i2c-supply = <&mt6397_vgp2_reg>;
 	};
 };
 
@@ -100,6 +119,13 @@
 };
 
 &pio {
+
+	bq24297_int_pin: bq24297_int_pin {
+		pinmux = <MT8173_PIN_9_EINT9__FUNC_GPIO9>;
+		input-enable;
+		bias-pull-up;
+	};
+
 	CTP_pins_default: eint0default {
 	};
 
