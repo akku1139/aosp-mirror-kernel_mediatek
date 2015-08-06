@@ -38,4 +38,17 @@ struct mt6397_irq_data {
 	bool wake_src:1;
 };
 
+#ifdef CONFIG_MTK_BATTERY_PROTECT
+extern void low_battery_protect_init(struct device *device);
+extern void low_battery_protect_enable(void);
+extern void low_battery_protect_disable(void);
+extern irqreturn_t bat_l_int_handler(int irq, void *dev_id);
+extern irqreturn_t bat_h_int_handler(int irq, void *dev_id);
+extern void lbat_min_en_setting_nolock(int en_val);
+extern void lbat_max_en_setting_nolock(int en_val);
+extern void lbat_min_en_setting(int en_val);
+extern void lbat_max_en_setting(int en_val);
+extern void toggle_lbat_irq_src(bool enable, u16 hw_irq);
+#endif
+
 #endif				/* _PMIC_MT6397_H_ */
