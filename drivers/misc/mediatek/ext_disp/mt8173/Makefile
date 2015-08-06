@@ -36,4 +36,4 @@ ccflags-y += -DHDMI_SUB_PATH_PROB
 ccflags-y += -DHDMI_SUB_PATH_PRESENT_FENCE_SUPPORT
 endif
 
-obj-y	:= extd_ddp.o extd_debug.o  extd_drv.o extd_utils.o extd_lcm.o Kara_1280x720.o extd_fence.o
+obj-y	:= extd_ddp.o extd_debug.o  extd_drv.o extd_utils.o extd_lcm.o extd_fence.o
