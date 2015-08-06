@@ -514,6 +514,10 @@
 	pinctrl-0 = <&audio_pins_default>;
 };
 
+&spi {
+	status = "okay";
+};
+
 &touch {
 	tpd-resolution = <720 1280>;
 	use-tpd-button = <0>;
