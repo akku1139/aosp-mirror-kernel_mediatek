@@ -43,6 +43,8 @@
 		reg-ext-vpca57-supply = <&da9212_vcpu_reg>;
 		reg-vsramca57-supply = <&mt6397_vsramca7_reg>;
 		reg-vcore-supply = <&mt6397_vcore_reg>;
+		clocks = <&apmixedsys CLK_APMIXED_ARMCA15PLL>;
+		clock-names = "mtcpufreq_apmixed_ca15pll";
 	};
 
 	chosen { };
