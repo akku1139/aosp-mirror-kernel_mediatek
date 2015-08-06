@@ -260,7 +260,28 @@
 			output-high;
 		};
 	};
+			/* ++++++ Camera GPIO configs ++++++ */
+			camera_1_rst_cfgs: cfg_gpio15_mode0 {
+				mediatek,pins = <MT8173_PIN_15_EINT15__FUNC_GPIO15 &pcfg_output_low>;
+			};
+			camera_1_ldo_cfgs: cfg_gpio0_mode0 {
+				mediatek,pins = <MT8173_PIN_0_EINT0__FUNC_GPIO0 &pcfg_output_low>;
+			};
+			camera_1_MCLK_cfgs: cfg_gpio41_mode1 {
+				mediatek,pins = <MT8173_PIN_41_CMMCLK__FUNC_CMMCLK>;
+			};
 
+			camera_2_rst_cfgs: cfg_gpio15_mode0 {
+				mediatek,pins = <MT8173_PIN_15_EINT15__FUNC_GPIO15 &pcfg_output_low>;
+			};
+			camera_2_pdn_cfgs: cfg_gpio0_mode0 {
+				mediatek,pins = <MT8173_PIN_0_EINT0__FUNC_GPIO0 &pcfg_output_low>;
+			};
+			camera_2_MCLK_cfgs: cfg_gpio39_mode1 {
+				mediatek,pins = <MT8173_PIN_39_CM2MCLK__FUNC_CM2MCLK>;
+			};
+
+			/* ----- Camera GPIO configs ----- */
 	mmc0_pins_default: mmc0default {
 		pins_cmd_dat {
 			pinmux = <MT8173_PIN_57_MSDC0_DAT0__FUNC_MSDC0_DAT0>,
@@ -591,6 +612,12 @@
 				regulator-max-microvolt = <3300000>;
 				regulator-enable-ramp-delay = <218>;
 			};
+
+			/* ++++++ Camera GPIOEXT configs ++++++ */
+			camera_1_pdn_cfgs: cfg_gpioext25_mode0 { /* SMT1: gpioext#20 , SMT2: GPIO#25 */
+				mediatek,pins = <MT6397_PIN_25_ROW5__FUNC_GPIO25 &pcfg_output_low>;
+			};
+			/* ----- Camera GPIOEXT configs ----- */
 		};
 	};
 };
@@ -639,4 +666,28 @@
 	gpio_lcm_pwr2_en = <&pio 102 0>;
 	gpio_lcm_rst_en = <&pio 127 0>;
 	gpio_lcm_led_en = <&pio6397 14 0>;
+};
+/* Camera Power Regulator Framework */
+/* Redefine the camera power pins accroding to project's schematic */
+/* Main Cam */
+&kd_camera_hw1{
+	reg-vcama-supply = <&mt6397_vcama_reg>;		/* AVDD */
+	reg-vcamd-supply = <&mt6397_vgp2_reg>;		/* DVDD : not use, it only for i2c#3*/
+	reg-vcamio-supply = <&mt6397_vgp1_reg>;				/* DOVDD */
+	reg-vcamaf-supply = <&mt6397_vgp3_reg>;		/* AFVDD */
+	cam-1-gpio-rst = <&pio 15 0>;
+	cam-1-gpio-pdn = <&pioE 25 0>;
+	cam-1-gpio-ldo = <&pio 0 0>;
+};
+
+/* Sub Cam */
+/* FIX ME: same power pins as Main ? */
+&kd_camera_hw2{
+	reg-vcama-supply = <&mt6397_vcama_reg>;		/* AVDD */
+	reg-vcamd-supply = <&mt6397_vgp2_reg>;		/* DVDD : not use, it only for i2c#3*/
+	reg-vcamio-supply = <&mt6397_vgp1_reg>;		/* DOVDD */
+	reg-vcamaf-supply = <&mt6397_vgp3_reg>;		/* AFVDD */
+	cam-2-gpio-rst = <&pio 15 0>;
+	cam-2-gpio-pdn = <&pioE 20 0>;
+	/* cam-2-gpio-ldo = <&pio 0 0>; */			/* non-used */
 };
