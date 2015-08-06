@@ -22,7 +22,7 @@
 
 #include <mt-plat/mt_pmic_wrap.h>
 #include <mt-plat/upmu_common.h>
-#include <pmic_mt6397.h>
+#include "pmic_mt6397.h"
 #include <../base/power/mt8173/mt_spm_sleep.h>
 
 #if defined(CONFIG_MTK_KERNEL_POWER_OFF_CHARGING)

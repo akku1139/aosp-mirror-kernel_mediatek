@@ -1,6 +1,6 @@
 #ifndef __DISP_DRV_LOG_H__
 #define __DISP_DRV_LOG_H__
-#include "display_recorder.h"
+#include "../dispsys/display_recorder.h"
     /* /for kernel */
 /*
 #define DISP_LOG_PRINT(level, sub_module, fmt, arg...)      \

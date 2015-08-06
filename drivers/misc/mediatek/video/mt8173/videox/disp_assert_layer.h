@@ -1,8 +1,8 @@
 #ifndef __DISP_ASSERT_LAYER_H__
 #define __DISP_ASSERT_LAYER_H__
 #include <linux/types.h>
-#include "ddp_info.h"
-#include "ddp_path.h"
+#include "../dispsys/ddp_info.h"
+#include "../dispsys/ddp_path.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

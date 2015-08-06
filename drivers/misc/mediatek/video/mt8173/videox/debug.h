@@ -33,7 +33,7 @@ void DBG_OnLcdDone(void);
 #include <mmprofile.h>
 #include "lcm_drv.h"
 #include <linux/wait.h>
-#include "ddp_ovl.h"
+#include "../dispsys/ddp_ovl.h"
 #include "primary_display.h"
 
 extern struct MTKFB_MMP_Events_t {

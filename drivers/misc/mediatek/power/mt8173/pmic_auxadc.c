@@ -12,7 +12,7 @@
 #include <linux/of_address.h>
 #include <linux/kernel.h>
 #include <linux/io.h>
-#include <pmic_mt6397.h>
+#include "pmic_mt6397.h"
 #include <mt_pmic_wrap.h>
 #include <mt-plat/upmu_common.h>
 
