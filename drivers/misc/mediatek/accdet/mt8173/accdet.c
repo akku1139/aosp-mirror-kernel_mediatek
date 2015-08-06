@@ -320,7 +320,7 @@ static irqreturn_t accdet_eint_func(int irq, void *data)
 }
 
 #ifndef CONFIG_ACCDET_EINT_IRQ
-static inline int accdet_setup_eint(void)
+static inline int accdet_setup_eint(struct platform_device *accdet_device)
 {
 	int ret;
 	struct device_node *node;
@@ -1181,7 +1181,7 @@ void accdet_eint_int_handler(void)
 		ACCDET_DEBUG("[accdet_int_handler] don't finished\n");
 }
 
-int mt_accdet_probe(void)
+int mt_accdet_probe(struct platform_device *dev)
 {
 	int ret = 0;
 
@@ -1299,7 +1299,7 @@ int mt_accdet_probe(void)
 		INIT_WORK(&accdet_disable_work, disable_micbias_callback);
 		accdet_eint_workqueue = create_singlethread_workqueue("accdet_eint");
 		INIT_WORK(&accdet_eint_work, accdet_eint_work_callback);
-		accdet_setup_eint();
+		accdet_setup_eint(dev);
 
 		g_accdet_first = 0;
 	}
