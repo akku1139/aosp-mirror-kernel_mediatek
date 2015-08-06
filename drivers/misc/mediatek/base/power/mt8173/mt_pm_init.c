@@ -10,16 +10,13 @@
 #include <asm/io.h>
 #include <asm/uaccess.h>
 
-#include "mach/mt_spm.h"
-#include "mach/mt_sleep.h"
-#include "mach/mt_dcm.h"
-#include "mach/mt_idle.h"
-#include <mach/mt_cpuidle.h>
+#include "mt-plat/mtk_rtc.h"
 
 /*********************************************************************
  * FUNCTION DEFINATIONS
  ********************************************************************/
-
+/* todo: recover clock related code later if MET needs it */
+#if 0
 #define TAG	"[pm_init] "
 
 #define clk_err(fmt, args...)	pr_err(TAG fmt, ##args)
@@ -296,37 +293,25 @@ static void __init init_iomap(void)
 	get_base_from_node("mediatek,mt8173-infrasys", &infrasys_base);
 	get_base_from_node("mediatek,MCUCFG", &mcucfg_base);
 }
+#endif
 
 static int __init mt_power_management_init(void)
 {
-	/* cpu dormant driver init */
-	mt_cpu_dormant_init();
-#if !defined(CONFIG_FPGA_EARLY_PORTING)
-	/* SPM driver init */
-	spm_module_init();
-	/* Sleep driver init (for suspend) */
-	slp_module_init();
-	/* clock manager init */
-	/*mt_clkmgr_init(); */
-	/* dynamic clock management init */
-	mt_dcm_init();
-#endif
+	pm_power_off = mt_power_off;
 	return 0;
 }
 arch_initcall(mt_power_management_init);
 
 static int __init mt_pm_module_init(void)
 {
-	init_iomap();
+	/* recover clock related code later if MET needs it */
+	/* init_iomap(); */
 	return 0;
 }
 module_init(mt_pm_module_init);
 
 static int __init mt_pm_late_init(void)
 {
-#if !defined(MT_DORMANT_UT)
-	mt_idle_init();
-#endif				/* #if !defined (MT_DORMANT_UT) */
 	return 0;
 }
 late_initcall(mt_pm_late_init);
