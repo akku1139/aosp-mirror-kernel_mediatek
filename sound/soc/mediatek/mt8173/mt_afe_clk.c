@@ -17,7 +17,7 @@
 #include <linux/delay.h>
 #include <sync_write.h>
 #ifdef IDLE_TASK_DRIVER_API
-#include <mach/mt_idle.h>
+#include <mt_idle.h>
 #endif
 #ifdef COMMON_CLOCK_FRAMEWORK_API
 #include <linux/clk.h>
