@@ -236,10 +236,6 @@ extern void __iomem *pwrap_base;
 
 
 #if 1	/* L318_Need_Related_File Dummy code */
-typedef enum {
-	CHIP_SW_VER_01 = 0x0000,
-	CHIP_SW_VER_02 = 0x0001,
-} CHIP_SW_VER;
 
 /* mt_thermal.h */
 typedef enum {
