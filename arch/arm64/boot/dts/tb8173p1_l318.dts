@@ -300,6 +300,19 @@
 	vqmmc-supply = <&mt6397_vmc_reg>;
 };
 
+&mmc3 {
+	pinctrl-names = "default", "state_uhs";
+	pinctrl-0 = <&mmc3_pins_default>;
+	pinctrl-1 = <&mmc3_pins_uhs>;
+	status = "okay";
+	bus-width = <4>;
+	max-frequency = <50000000>;
+	cap-sd-highspeed;
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
+	sd-uhs-sdr50;
+};
+
 &pio {
 	pinctrl-names = "default";
 	pinctrl-0 = <&state_default>;
@@ -483,6 +496,7 @@
 			bias-pull-down = <MTK_PUPD_SET_R1R0_10>;
 		};
 	};
+
 	mmc3_pins_uhs: mmc3@0 {
 		pins_cmd_dat {
 			pinmux = <MT8173_PIN_22_MSDC3_DAT0__FUNC_MSDC3_DAT0>,
