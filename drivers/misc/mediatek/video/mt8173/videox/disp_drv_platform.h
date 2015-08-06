@@ -27,7 +27,7 @@
 #define MTK_FB_START_DSI_ISR
 #define MTK_FB_OVERLAY_SUPPORT
 #define MTK_FB_SYNC_SUPPORT
-/* #define MTK_FB_ION_SUPPORT */ /*kernel 3.18*/
+#define MTK_FB_ION_SUPPORT
 #define HW_OVERLAY_COUNT                 (4)
 #define RESERVED_LAYER_COUNT             (2)
 #define VIDEO_LAYER_COUNT                (HW_OVERLAY_COUNT - RESERVED_LAYER_COUNT)
