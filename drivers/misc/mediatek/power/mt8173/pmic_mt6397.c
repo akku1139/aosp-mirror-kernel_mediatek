@@ -31,6 +31,10 @@
 #include <mt-plat/mt_boot_common.h>
 #endif
 
+#if defined(CONFIG_MTK_RTC)
+#include <mtk_rtc.h>
+#endif
+
 static DEFINE_MUTEX(pmic_lock_mutex);
 static DEFINE_MUTEX(pmic_access_mutex);
 static DEFINE_SPINLOCK(pmic_smp_spinlock);
