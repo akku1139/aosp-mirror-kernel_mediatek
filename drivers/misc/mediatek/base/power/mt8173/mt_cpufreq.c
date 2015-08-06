@@ -4565,7 +4565,7 @@ static int _mt_cpufreq_pm_restore_early(struct device *dev)
 
 #ifdef CONFIG_OF
 static const struct of_device_id mtcpufreq_of_match[] = {
-	{.compatible = "mediatek,MT_CPUFREQ",},
+	{.compatible = "mediatek,mt8173-cpufreq",},
 	{},
 };
 
@@ -5846,7 +5846,7 @@ static int __init _mt_cpufreq_pdrv_init(void)
 	FUNC_ENTER(FUNC_LV_MODULE);
 
 #ifdef CONFIG_OF
-	node = of_find_compatible_node(NULL, NULL, "mediatek,MT_CPUFREQ");
+	node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-cpufreq");
 	if (node) {
 		/* Setup IO addresses */
 #if 0
