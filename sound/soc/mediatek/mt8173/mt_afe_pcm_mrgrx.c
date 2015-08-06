@@ -17,7 +17,7 @@
 #include "mt_afe_digital_type.h"
 #include <linux/module.h>
 #include <sound/soc.h>
-/* #include <mach/mtk_wcn_cmb_stub.h> */
+#include <mtk_wcn_cmb_stub.h>
 
 
 struct mt_pcm_mrgrx_priv {
@@ -57,7 +57,6 @@ static const char *const wcn_stub_audio_ctr[] = {
 };
 
 static const struct soc_enum wcn_stub_audio_ctr_Enum[] = {
-	/* speaker class setting */
 	SOC_ENUM_SINGLE_EXT(ARRAY_SIZE(wcn_stub_audio_ctr), wcn_stub_audio_ctr),
 };
 
@@ -76,7 +75,7 @@ static int audio_wcn_cmb_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_
 	struct mt_pcm_mrgrx_priv *priv = snd_soc_component_get_drvdata(component);
 
 	priv->audio_wcn_cmb = ucontrol->value.integer.value[0];
-	/* mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X) priv->audio_wcn_cmb); */
+	mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X) priv->audio_wcn_cmb);
 	return 0;
 }
 
@@ -151,7 +150,7 @@ static int mt_pcm_mrgrx_close(struct snd_pcm_substream *substream)
 
 	pr_info("%s\n", __func__);
 
-	/* mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X) CMB_STUB_AIF_0); */
+	mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X) CMB_STUB_AIF_0);
 
 	mt_afe_disable_memory_path(MT_AFE_DIGITAL_BLOCK_MRG_I2S_OUT);
 	if (mt_afe_get_memory_path_state(MT_AFE_DIGITAL_BLOCK_MRG_I2S_OUT) == false)
@@ -196,7 +195,7 @@ static int mt_pcm_mrgrx_prepare(struct snd_pcm_substream *substream)
 		__func__, runtime->rate, runtime->channels, runtime->period_size);
 
 	if (priv->prepare_done == false) {
-		/* mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X) CMB_STUB_AIF_3); */
+		mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X) CMB_STUB_AIF_3);
 
 		mt_afe_set_connection(INTER_CONNECT, INTER_CONN_I15, INTER_CONN_O13);
 		mt_afe_set_connection(INTER_CONNECT, INTER_CONN_I16, INTER_CONN_O14);
@@ -284,7 +283,7 @@ static int mt_pcm_mrgrx_dev_probe(struct platform_device *pdev)
 	}
 
 	priv->mrgrx_volume = 0x10000;
-	/* priv->audio_wcn_cmb = CMB_STUB_AIF_3; */
+	priv->audio_wcn_cmb = CMB_STUB_AIF_3;
 
 	dev_set_drvdata(dev, priv);
 
