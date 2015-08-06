@@ -531,6 +531,7 @@
 	bring-up {
 		compatible = "mediatek,mt8173-bring-up";
 		clocks =
+			<&apmixedsys CLK_APMIXED_ARMCA15PLL>,
 			<&topckgen CLK_TOP_MFG_SEL>,
 			<&topckgen CLK_TOP_UART_SEL>,
 			<&topckgen CLK_TOP_USB30_SEL>,
