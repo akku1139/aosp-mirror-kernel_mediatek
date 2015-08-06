@@ -389,6 +389,16 @@
 				     (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
 		};
 
+		auxadc: auxadc@11001000 {
+			compatible = "mediatek,mt8173-auxadc",
+				     "mediatek,mt6735-auxadc";
+			reg = <0 0x11001000 0 0x1000>;
+			interrupts = <GIC_SPI 68 IRQ_TYPE_EDGE_FALLING>;
+			clocks = <&pericfg CLK_PERI_AUXADC>;
+			clock-names = "auxadc-main";
+			status = "disabled";
+		};
+
 		uart0: serial@11002000 {
 			compatible = "mediatek,mt8173-uart",
 				     "mediatek,mt6577-uart";
