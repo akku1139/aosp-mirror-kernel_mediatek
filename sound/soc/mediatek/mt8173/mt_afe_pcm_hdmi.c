@@ -299,8 +299,8 @@ static snd_pcm_uframes_t mt_pcm_hdmi_pointer(struct snd_pcm_substream *substream
 
 static int hdmi_loopback_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_hdmi_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_hdmi_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->hdmi_loop_type;
 	return 0;
@@ -308,8 +308,8 @@ static int hdmi_loopback_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_
 
 static int hdmi_loopback_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_hdmi_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_hdmi_priv *priv = snd_soc_component_get_drvdata(component);
 
 	if (priv->hdmi_loop_type == ucontrol->value.integer.value[0]) {
 		pr_notice("%s dummy operation for %u\n", __func__, priv->hdmi_loop_type);
@@ -364,8 +364,8 @@ static int hdmi_loopback_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_
 
 static int hdmi_sinegen_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_hdmi_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_hdmi_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->hdmi_sinegen_switch;
 	return 0;
@@ -373,8 +373,8 @@ static int hdmi_sinegen_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
 
 static int hdmi_sinegen_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_hdmi_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_hdmi_priv *priv = snd_soc_component_get_drvdata(component);
 	uint32_t sample_rate = priv->cached_sample_rate;
 	uint32_t channels = 2;
 
@@ -387,7 +387,7 @@ static int hdmi_sinegen_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
 		uint32_t mclk_div;
 
 		priv->hdmi_dma_buf = kzalloc(sizeof(struct snd_dma_buffer), GFP_KERNEL);
-		priv->hdmi_dma_buf->area = dma_alloc_coherent(platform->dev, HDMI_MAX_BUFFER_SIZE,
+		priv->hdmi_dma_buf->area = dma_alloc_coherent(component->dev, HDMI_MAX_BUFFER_SIZE,
 							      &(priv->hdmi_dma_buf->addr),
 							      GFP_KERNEL);
 		if (priv->hdmi_dma_buf->area) {
@@ -465,7 +465,7 @@ static int hdmi_sinegen_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_v
 
 		if (priv->hdmi_dma_buf) {
 			if (priv->hdmi_dma_buf->area) {
-				dma_free_coherent(platform->dev, HDMI_MAX_BUFFER_SIZE,
+				dma_free_coherent(component->dev, HDMI_MAX_BUFFER_SIZE,
 						  priv->hdmi_dma_buf->area,
 						  priv->hdmi_dma_buf->addr);
 			}
