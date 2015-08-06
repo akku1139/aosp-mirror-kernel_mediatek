@@ -768,18 +768,292 @@ static struct syscore_ops mt6397_syscore_ops = {
 	.resume = mt6397_syscore_resume,
 };
 
+void PMIC_INIT_SETTING_V1(void)
+{
+	unsigned int chip_version = 0;
+	unsigned int ret = 0;
+
+	/* put init setting from DE/SA */
+	chip_version = upmu_get_cid();
+
+	switch (chip_version & 0xFF) {
+	case 0x91:
+		/* [7:4]: RG_VCDT_HV_VTH; 7V OVP */
+		ret = pmic_config_interface(0x2, 0xC, 0xF, 4);
+		/* [11:10]: QI_VCORE_VSLEEP; sleep mode only (0.7V) */
+		ret = pmic_config_interface(0x210, 0x0, 0x3, 10);
+		break;
+	case 0x97:
+		/* [7:4]: RG_VCDT_HV_VTH; 7V OVP */
+		ret = pmic_config_interface(0x2, 0xB, 0xF, 4);
+		/* [11:10]: QI_VCORE_VSLEEP; sleep mode only (0.7V) */
+		ret = pmic_config_interface(0x210, 0x1, 0x3, 10);
+		break;
+	default:
+		pr_err("[Power/PMIC] Error chip ID %d\r\n", chip_version);
+		break;
+	}
+
+	ret = pmic_config_interface(0xC, 0x1, 0x7, 1);	/* [3:1]: RG_VBAT_OV_VTH; VBAT_OV=4.3V */
+	ret = pmic_config_interface(0x24, 0x1, 0x1, 1);	/* [1:1]: RG_BC11_RST; */
+	ret = pmic_config_interface(0x2A, 0x0, 0x7, 4);	/* [6:4]: RG_CSDAC_STP; align to 6250's setting */
+	ret = pmic_config_interface(0x2E, 0x1, 0x1, 7);	/* [7:7]: RG_ULC_DET_EN; */
+	ret = pmic_config_interface(0x2E, 0x1, 0x1, 6);	/* [6:6]: RG_HWCV_EN; */
+	ret = pmic_config_interface(0x2E, 0x1, 0x1, 2);	/* [2:2]: RG_CSDAC_MODE; */
+	ret = pmic_config_interface(0x102, 0x0, 0x1, 3);	/* [3:3]: RG_PWMOC_CK_PDN; For OC protection */
+	ret = pmic_config_interface(0x128, 0x1, 0x1, 9);	/* [9:9]: RG_SRCVOLT_HW_AUTO_EN; */
+	ret = pmic_config_interface(0x128, 0x1, 0x1, 8);	/* [8:8]: RG_OSC_SEL_AUTO; */
+	ret = pmic_config_interface(0x128, 0x1, 0x1, 6);	/* [6:6]: RG_SMPS_DIV2_SRC_AUTOFF_DIS; */
+	ret = pmic_config_interface(0x128, 0x1, 0x1, 5);	/* [5:5]: RG_SMPS_AUTOFF_DIS; */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 7);	/* [7:7]: VDRM_DEG_EN; */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 6);	/* [6:6]: VSRMCA7_DEG_EN; */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 5);	/* [5:5]: VPCA7_DEG_EN; */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 4);	/* [4:4]: VIO18_DEG_EN; */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 3);	/* [3:3]: VGPU_DEG_EN; For OC protection */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 2);	/* [2:2]: VCORE_DEG_EN; */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 1);	/* [1:1]: VSRMCA15_DEG_EN; */
+	ret = pmic_config_interface(0x130, 0x1, 0x1, 0);	/* [0:0]: VCA15_DEG_EN; */
+	ret = pmic_config_interface(0x206, 0x600, 0x0FFF, 0);	/* [12:0]: BUCK_RSV; for OC protection */
+	/* [7:6]: QI_VSRMCA7_VSLEEP; sleep mode only (0.85V) */
+	ret = pmic_config_interface(0x210, 0x0, 0x3, 6);
+	/* [5:4]: QI_VSRMCA15_VSLEEP; sleep mode only (0.7V) */
+	ret = pmic_config_interface(0x210, 0x1, 0x3, 4);
+	/* [3:2]: QI_VPCA7_VSLEEP; sleep mode only (0.85V) */
+	ret = pmic_config_interface(0x210, 0x0, 0x3, 2);
+	/* [1:0]: QI_VCA15_VSLEEP; sleep mode only (0.7V) */
+	ret = pmic_config_interface(0x210, 0x1, 0x3, 0);
+	/* [13:12]: RG_VCA15_CSL2; for OC protection */
+	ret = pmic_config_interface(0x216, 0x0, 0x3, 12);
+	/* [11:10]: RG_VCA15_CSL1; for OC protection */
+	ret = pmic_config_interface(0x216, 0x0, 0x3, 10);
+	/* [15:15]: VCA15_SFCHG_REN; soft change rising enable */
+	ret = pmic_config_interface(0x224, 0x1, 0x1, 15);
+	/* [14:8]: VCA15_SFCHG_RRATE; soft change rising step=0.5us */
+	ret = pmic_config_interface(0x224, 0x5, 0x7F, 8);
+	/* [7:7]: VCA15_SFCHG_FEN; soft change falling enable */
+	ret = pmic_config_interface(0x224, 0x1, 0x1, 7);
+	/* [6:0]: VCA15_SFCHG_FRATE; soft change falling step=2us */
+	ret = pmic_config_interface(0x224, 0x17, 0x7F, 0);
+	/* [6:0]: VCA15_VOSEL_SLEEP; sleep mode only (0.7V) */
+	ret = pmic_config_interface(0x22A, 0x0, 0x7F, 0);
+	/* [8:8]: VCA15_VSLEEP_EN; set sleep mode reference voltage from R2R to V2V */
+	ret = pmic_config_interface(0x238, 0x1, 0x1, 8);
+	/* [5:4]: VCA15_VOSEL_TRANS_EN; rising & falling enable */
+	ret = pmic_config_interface(0x238, 0x3, 0x3, 4);
+	ret = pmic_config_interface(0x244, 0x1, 0x1, 5);	/* [5:5]: VSRMCA15_TRACK_SLEEP_CTRL; */
+	ret = pmic_config_interface(0x246, 0x0, 0x3, 4);	/* [5:4]: VSRMCA15_VOSEL_SEL; */
+	ret = pmic_config_interface(0x24A, 0x1, 0x1, 15);	/* [15:15]: VSRMCA15_SFCHG_REN; */
+	ret = pmic_config_interface(0x24A, 0x5, 0x7F, 8);	/* [14:8]: VSRMCA15_SFCHG_RRATE; */
+	ret = pmic_config_interface(0x24A, 0x1, 0x1, 7);	/* [7:7]: VSRMCA15_SFCHG_FEN; */
+	ret = pmic_config_interface(0x24A, 0x17, 0x7F, 0);	/* [6:0]: VSRMCA15_SFCHG_FRATE; */
+	/* [6:0]: VSRMCA15_VOSEL_SLEEP; Sleep mode setting only (0.7V) */
+	ret = pmic_config_interface(0x250, 0x00, 0x7F, 0);
+	/* [8:8]: VSRMCA15_VSLEEP_EN; set sleep mode reference voltage from R2R to V2V */
+	ret = pmic_config_interface(0x25E, 0x1, 0x1, 8);
+	/* [5:4]: VSRMCA15_VOSEL_TRANS_EN; rising & falling enable */
+	ret = pmic_config_interface(0x25E, 0x3, 0x3, 4);
+	/* [1:1]: VCORE_VOSEL_CTRL; sleep mode voltage control follow SRCLKEN */
+	ret = pmic_config_interface(0x270, 0x1, 0x1, 1);
+	ret = pmic_config_interface(0x272, 0x0, 0x3, 4);	/* [5:4]: VCORE_VOSEL_SEL; */
+	ret = pmic_config_interface(0x276, 0x1, 0x1, 15);	/* [15:15]: VCORE_SFCHG_REN; */
+	ret = pmic_config_interface(0x276, 0x5, 0x7F, 8);	/* [14:8]: VCORE_SFCHG_RRATE; */
+	ret = pmic_config_interface(0x276, 0x17, 0x7F, 0);	/* [6:0]: VCORE_SFCHG_FRATE; */
+	/* [6:0]: VCORE_VOSEL_SLEEP; Sleep mode setting only (0.7V) */
+	ret = pmic_config_interface(0x27C, 0x0, 0x7F, 0);
+	/* [8:8]: VCORE_VSLEEP_EN; Sleep mode HW control  R2R to VtoV */
+	ret = pmic_config_interface(0x28A, 0x1, 0x1, 8);
+	/* [5:4]: VCORE_VOSEL_TRANS_EN; Follows MT6320 VCORE setting. */
+	ret = pmic_config_interface(0x28A, 0x0, 0x3, 4);
+	ret = pmic_config_interface(0x28A, 0x3, 0x3, 0);	/* [1:0]: VCORE_TRANSTD; */
+	ret = pmic_config_interface(0x28E, 0x1, 0x3, 8);	/* [9:8]: RG_VGPU_CSL; for OC protection */
+	ret = pmic_config_interface(0x29C, 0x1, 0x1, 15);	/* [15:15]: VGPU_SFCHG_REN; */
+	ret = pmic_config_interface(0x29C, 0x5, 0x7F, 8);	/* [14:8]: VGPU_SFCHG_RRATE; */
+	ret = pmic_config_interface(0x29C, 0x17, 0x7F, 0);	/* [6:0]: VGPU_SFCHG_FRATE; */
+	ret = pmic_config_interface(0x2B0, 0x0, 0x3, 4);	/* [5:4]: VGPU_VOSEL_TRANS_EN; */
+	ret = pmic_config_interface(0x2B0, 0x3, 0x3, 0);	/* [1:0]: VGPU_TRANSTD; */
+	ret = pmic_config_interface(0x332, 0x0, 0x3, 4);	/* [5:4]: VPCA7_VOSEL_SEL; */
+	ret = pmic_config_interface(0x336, 0x1, 0x1, 15);	/* [15:15]: VPCA7_SFCHG_REN; */
+	ret = pmic_config_interface(0x336, 0x5, 0x7F, 8);	/* [14:8]: VPCA7_SFCHG_RRATE; */
+	ret = pmic_config_interface(0x336, 0x1, 0x1, 7);	/* [7:7]: VPCA7_SFCHG_FEN; */
+	ret = pmic_config_interface(0x336, 0x17, 0x7F, 0);	/* [6:0]: VPCA7_SFCHG_FRATE; */
+	ret = pmic_config_interface(0x33C, 0x18, 0x7F, 0);	/* [6:0]: VPCA7_VOSEL_SLEEP; */
+	ret = pmic_config_interface(0x34A, 0x1, 0x1, 8);	/* [8:8]: VPCA7_VSLEEP_EN; */
+	ret = pmic_config_interface(0x34A, 0x3, 0x3, 4);	/* [5:4]: VPCA7_VOSEL_TRANS_EN; */
+	ret = pmic_config_interface(0x356, 0x0, 0x1, 5);	/* [5:5]: VSRMCA7_TRACK_SLEEP_CTRL; */
+	ret = pmic_config_interface(0x358, 0x0, 0x3, 4);	/* [5:4]: VSRMCA7_VOSEL_SEL; */
+	ret = pmic_config_interface(0x35C, 0x1, 0x1, 15);	/* [15:15]: VSRMCA7_SFCHG_REN; */
+	ret = pmic_config_interface(0x35C, 0x5, 0x7F, 8);	/* [14:8]: VSRMCA7_SFCHG_RRATE; */
+	ret = pmic_config_interface(0x35C, 0x1, 0x1, 7);	/* [7:7]: VSRMCA7_SFCHG_FEN; */
+	ret = pmic_config_interface(0x35C, 0x17, 0x7F, 0);	/* [6:0]: VSRMCA7_SFCHG_FRATE; */
+	ret = pmic_config_interface(0x362, 0x18, 0x7F, 0);	/* [6:0]: VSRMCA7_VOSEL_SLEEP; */
+	ret = pmic_config_interface(0x370, 0x1, 0x1, 8);	/* [8:8]: VSRMCA7_VSLEEP_EN; */
+	ret = pmic_config_interface(0x370, 0x3, 0x3, 4);	/* [5:4]: VSRMCA7_VOSEL_TRANS_EN; */
+	ret = pmic_config_interface(0x39C, 0x1, 0x1, 8);	/* [8:8]: VDRM_VSLEEP_EN; */
+	ret = pmic_config_interface(0x440, 0x1, 0x1, 2);	/* [2:2]: VIBR_THER_SHEN_EN; */
+	ret = pmic_config_interface(0x500, 0x1, 0x1, 5);	/* [5:5]: THR_HWPDN_EN; */
+	ret = pmic_config_interface(0x502, 0x1, 0x1, 3);	/* [3:3]: RG_RST_DRVSEL; */
+	ret = pmic_config_interface(0x502, 0x1, 0x1, 2);	/* [2:2]: RG_EN_DRVSEL; */
+	ret = pmic_config_interface(0x508, 0x1, 0x1, 1);	/* [1:1]: PWRBB_DEB_EN; */
+	ret = pmic_config_interface(0x50C, 0x1, 0x1, 12);	/* [12:12]: VSRMCA15_PG_H2L_EN; */
+	ret = pmic_config_interface(0x50C, 0x1, 0x1, 11);	/* [11:11]: VPCA15_PG_H2L_EN; */
+	ret = pmic_config_interface(0x50C, 0x1, 0x1, 10);	/* [10:10]: VCORE_PG_H2L_EN; */
+	ret = pmic_config_interface(0x50C, 0x1, 0x1, 9);	/* [9:9]: VSRMCA7_PG_H2L_EN; */
+	ret = pmic_config_interface(0x50C, 0x1, 0x1, 8);	/* [8:8]: VPCA7_PG_H2L_EN; */
+	ret = pmic_config_interface(0x512, 0x1, 0x1, 1);	/* [1:1]: STRUP_PWROFF_PREOFF_EN; */
+	ret = pmic_config_interface(0x512, 0x1, 0x1, 0);	/* [0:0]: STRUP_PWROFF_SEQ_EN; */
+	ret = pmic_config_interface(0x55E, 0xFC, 0xFF, 8);	/* [15:8]: RG_ADC_TRIM_CH_SEL; */
+	ret = pmic_config_interface(0x560, 0x1, 0x1, 1);	/* [1:1]: FLASH_THER_SHDN_EN; */
+	ret = pmic_config_interface(0x566, 0x1, 0x1, 1);	/* [1:1]: KPLED_THER_SHDN_EN; */
+	ret = pmic_config_interface(0x600, 0x1, 0x1, 9);	/* [9:9]: SPK_THER_SHDN_L_EN; */
+	ret = pmic_config_interface(0x604, 0x1, 0x1, 0);	/* [0:0]: RG_SPK_INTG_RST_L; */
+	ret = pmic_config_interface(0x606, 0x1, 0x1, 9);	/* [9:9]: SPK_THER_SHDN_R_EN; */
+	ret = pmic_config_interface(0x60A, 0x1, 0xF, 11);	/* [14:11]: RG_SPKPGA_GAINR; */
+	ret = pmic_config_interface(0x612, 0x1, 0xF, 8);	/* [11:8]: RG_SPKPGA_GAINL; */
+	ret = pmic_config_interface(0x632, 0x1, 0x1, 8);	/* [8:8]: FG_SLP_EN; */
+	ret = pmic_config_interface(0x638, 0xFFC2, 0xFFFF, 0);	/* [15:0]: FG_SLP_CUR_TH; */
+	ret = pmic_config_interface(0x63A, 0x14, 0xFF, 0);	/* [7:0]: FG_SLP_TIME; */
+	ret = pmic_config_interface(0x63C, 0xFF, 0xFF, 8);	/* [15:8]: FG_DET_TIME; */
+	ret = pmic_config_interface(0x714, 0x1, 0x1, 7);	/* [7:7]: RG_LCLDO_ENC_REMOTE_SENSE_VA28; */
+	ret = pmic_config_interface(0x714, 0x1, 0x1, 4);	/* [4:4]: RG_LCLDO_REMOTE_SENSE_VA33; */
+	ret = pmic_config_interface(0x714, 0x1, 0x1, 1);	/* [1:1]: RG_HCLDO_REMOTE_SENSE_VA33; */
+	ret = pmic_config_interface(0x71A, 0x1, 0x1, 15);	/* [15:15]: RG_NCP_REMOTE_SENSE_VA18; */
+	ret = pmic_config_interface(0x260, 0x10, 0x7F, 8);	/* [14:8]: VSRMCA15_VOSEL_OFFSET; set offset=100mV */
+	ret = pmic_config_interface(0x260, 0x0, 0x7F, 0);	/* [6:0]: VSRMCA15_VOSEL_DELTA; set delta=0mV */
+	ret = pmic_config_interface(0x262, 0x48, 0x7F, 8);	/* [14:8]: VSRMCA15_VOSEL_ON_HB; set HB=1.15V */
+	ret = pmic_config_interface(0x262, 0x0, 0x7F, 0);	/* [6:0]: VSRMCA15_VOSEL_ON_LB; set LB=0.7V */
+	ret = pmic_config_interface(0x264, 0x0, 0x7F, 0);	/* [6:0]: VSRMCA15_VOSEL_SLEEP_LB; set sleep LB=0.7V */
+	ret = pmic_config_interface(0x372, 0x4, 0x7F, 8);	/* [14:8]: VSRMCA7_VOSEL_OFFSET; set offset=25mV */
+	ret = pmic_config_interface(0x372, 0x0, 0x7F, 0);	/* [6:0]: VSRMCA7_VOSEL_DELTA; set delta=0mV */
+	ret = pmic_config_interface(0x374, 0x48, 0x7F, 8);	/* [14:8]: VSRMCA7_VOSEL_ON_HB; set HB=1.15V */
+	ret = pmic_config_interface(0x374, 0x38, 0x7F, 0);	/* [6:0]: VSRMCA7_VOSEL_ON_LB; set LB=1.05000V */
+	ret = pmic_config_interface(0x376, 0x18, 0x7F, 0);	/* [6:0]: set sleep LB=0.85000V */
+	ret = pmic_config_interface(0x21E, 0x3, 0x3, 0);	/* [1:1]: DVS HW control by SRCLKEN */
+	ret = pmic_config_interface(0x244, 0x3, 0x3, 0);	/* [1:1]: VSRMCA15_VOSEL_CTRL, VSRMCA15_EN_CTRL; */
+	ret = pmic_config_interface(0x330, 0x0, 0x1, 1);	/* [1:1]: VPCA7_VOSEL_CTRL; */
+	ret = pmic_config_interface(0x356, 0x0, 0x1, 1);	/* [1:1]: VSRMCA7_VOSEL_CTRL; */
+	ret = pmic_config_interface(0x21E, 0x1, 0x1, 4);	/* [4:4]: VCA15_TRACK_ON_CTRL; DVFS tracking enable */
+	ret = pmic_config_interface(0x244, 0x1, 0x1, 4);	/* [4:4]: VSRMCA15_TRACK_ON_CTRL; */
+	ret = pmic_config_interface(0x330, 0x0, 0x1, 4);	/* [4:4]: VPCA7_TRACK_ON_CTRL; */
+	ret = pmic_config_interface(0x356, 0x0, 0x1, 4);	/* [4:4]: VSRMCA7_TRACK_ON_CTRL; */
+	ret = pmic_config_interface(0x134, 0x3, 0x3, 14);	/* [15:14]: VGPU OC; */
+	ret = pmic_config_interface(0x134, 0x3, 0x3, 2);	/* [3:2]: VCA15 OC; */
+}
+
+void PMIC_CUSTOM_SETTING_V1(void)
+{
+	/* enable HW control DCXO 26MHz on-off, request by SPM module */
+	upmu_set_rg_srcvolt_hw_auto_en(1);
+	upmu_set_rg_dcxo_ldo_dbb_reg_en(0);
+
+	/* enable HW control DCXO RF clk on-off, request by low power module task */
+	upmu_set_rg_srclkperi_hw_auto_en(1);
+	upmu_set_rg_dcxo_ldo_rf1_reg_en(0);
+
+#ifndef CONFIG_MTK_PMIC_RF2_26M_ALWAYS_ON
+	/* disable RF2 26MHz clock */
+	upmu_set_rg_dcxo_ldo_rf2_reg_en(0x1);
+	upmu_set_rg_dcxo_s2a_ldo_rf2_en(0x0);	/* clock off for internal 32K */
+	upmu_set_rg_dcxo_por2_ldo_rf2_en(0x0);	/* clock off for external 32K */
+#else
+	/* enable RF2 26MHz clock */
+	upmu_set_rg_dcxo_ldo_rf2_reg_en(0x1);
+	upmu_set_rg_dcxo_s2a_ldo_rf2_en(0x1);	/* clock on for internal 32K */
+	upmu_set_rg_dcxo_por2_ldo_rf2_en(0x1);	/* clock on for external 32K */
+#endif
+}
+
+void pmic_low_power_setting(void)
+{
+	unsigned int ret = 0;
+
+	pr_info("[Power/PMIC]" "[pmic_low_power_setting]\n");
+
+	upmu_set_vio18_vsleep_en(1);
+	/* top */
+	ret = pmic_config_interface(0x102, 0x8080, 0x8080, 0);
+	ret = pmic_config_interface(0x108, 0x0882, 0x0882, 0);
+	ret = pmic_config_interface(0x12a, 0x0000, 0x8c00, 0);	/* reg_ck:24MHz */
+	ret = pmic_config_interface(0x206, 0x0060, 0x0060, 0);
+	ret = pmic_config_interface(0x402, 0x0001, 0x0001, 0);
+
+	/* chip_version > PMIC6397_E1_CID_CODE*/
+	ret = pmic_config_interface(0x128, 0x0000, 0x0060, 0);
+
+	/* VTCXO control */
+	/* chip_version > PMIC6397_E1_CID_CODE*/
+	/* enter low power mode when suspend */
+	ret = pmic_config_interface(0x400, 0x4400, 0x6c01, 0);
+	ret = pmic_config_interface(0x446, 0x0100, 0x0100, 0);
+	pr_debug("[Power/PMIC][pmic_low_power_setting] Done\n");
+}
+
+void pmic_setting_depends_rtc(void)
+{
+	unsigned int ret = 0;
+
+#if (!defined(CONFIG_POWER_EXT) && defined(CONFIG_MTK_RTC))
+	if (crystal_exist_status()) {
+#else
+	if (0) {
+#endif
+		/* with 32K */
+		ret = pmic_config_interface(ANALDO_CON1, 3, 0x7, 12);	/* [14:12]=3(VTCXO_SRCLK_EN_SEL), */
+		ret = pmic_config_interface(ANALDO_CON1, 1, 0x1, 11);	/* [11]=1(VTCXO_ON_CTRL), */
+		ret = pmic_config_interface(ANALDO_CON1, 0, 0x1, 1);	/* [1]=0(VTCXO_LP_SET), */
+		ret = pmic_config_interface(ANALDO_CON1, 0, 0x1, 0);	/* [0]=0(VTCXO_LP_SEL), */
+
+		pr_info("[Power/PMIC]" "[pmic_setting_depends_rtc] With 32K. Reg[0x%x]=0x%x\n", ANALDO_CON1,
+			upmu_get_reg_value(ANALDO_CON1));
+	} else {
+		/* without 32K */
+		ret = pmic_config_interface(ANALDO_CON1, 0, 0x1, 11);	/* [11]=0(VTCXO_ON_CTRL), */
+		ret = pmic_config_interface(ANALDO_CON1, 1, 0x1, 10);	/* [10]=1(RG_VTCXO_EN), */
+		ret = pmic_config_interface(ANALDO_CON1, 3, 0x7, 4);	/* [6:4]=3(VTCXO_SRCLK_MODE_SEL), */
+		ret = pmic_config_interface(ANALDO_CON1, 1, 0x1, 0);	/* [0]=1(VTCXO_LP_SEL), */
+
+		pr_info("[Power/PMIC]" "[pmic_setting_depends_rtc] Without 32K. Reg[0x%x]=0x%x\n", ANALDO_CON1,
+			upmu_get_reg_value(ANALDO_CON1));
+	}
+}
+
+void pmic_charger_watchdog_enable(bool enable)
+{
+	int arg = enable ? 1 : 0;
+
+	upmu_set_rg_chrwdt_en(arg);
+	upmu_set_rg_chrwdt_int_en(arg);
+	upmu_set_rg_chrwdt_wr(arg);
+	upmu_set_rg_chrwdt_flag_wr(1);
+}
+
 static int pmic_mt6397_probe(struct platform_device *pdev)
 {
+	unsigned int ret_val;
 	struct mt6397_chip_priv *chip;
 	int ret;
 	struct mt6397_chip *mt6397 = dev_get_drvdata(pdev->dev.parent);
 
 	pr_debug("[Power/PMIC] ******** MT6397 pmic driver probe!! ********\n");
 
+	/* get PMIC CID */
+	ret_val = upmu_get_cid();
+	pr_debug("[Power/PMIC] MT6397 PMIC CID=0x%x\n", ret_val);
+
+	/* pmic initial setting */
+	PMIC_INIT_SETTING_V1();
+	pr_debug("[Power/PMIC][PMIC_INIT_SETTING_V1] Done\n");
+	PMIC_CUSTOM_SETTING_V1();
+	pr_debug("[Power/PMIC][PMIC_CUSTOM_SETTING_V1] Done\n");
+
+	/* pmic low power setting */
+	pmic_low_power_setting();
+
 	/* enable PWRKEY/HOMEKEY posedge detected interrupt */
 	upmu_set_rg_pwrkey_int_sel(1);
 	upmu_set_rg_homekey_int_sel(1);
 	upmu_set_rg_homekey_puen(1);
+
+	pmic_charger_watchdog_enable(false);
 
 	chip = kzalloc(sizeof(struct mt6397_chip_priv), GFP_KERNEL);
 	if (!chip)
