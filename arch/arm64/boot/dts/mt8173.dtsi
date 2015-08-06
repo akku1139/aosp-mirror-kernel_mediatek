@@ -748,6 +748,10 @@
 			reg = <0 0x1401a000 0 0x1000>;
 		};
 */
+		lcm: lcm {
+			compatible = "mediatek,mt8173-lcm";
+		};
+
 		DSI0@1401b000 {
 			compatible = "mediatek,mt8173-disp_dsi0";
 			reg = <0 0x1401b000 0 0x1000>;
@@ -823,7 +827,7 @@
 			reg = <0 0x10216000 0 0x1000>;
 		};
 
-		MTKFB@bf200000 {
+		mtkfb: MTKFB@bf200000 {
 			compatible = "mediatek,MTKFB";
 			clocks = <&mmsys CLK_MM_SMI_COMMON>,
 					<&mmsys CLK_MM_SMI_LARB0>,

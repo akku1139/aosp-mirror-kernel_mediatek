@@ -24,15 +24,12 @@
 #else
 #include <string.h>
 #endif
+
 #include "lcm_drv.h"
 
 #ifdef BUILD_LK
 #include <platform/mt_gpio.h>
 #include <platform/mt_pmic.h>
-#elif defined(BUILD_UBOOT)
-#else
-/* #include <mach/mt_gpio.h> */
-/* #include <mach/mt_pm_ldo.h> */
 #endif
 
 /* --------------------------------------------------------------------------- */
@@ -53,42 +50,6 @@
 #define FRAME_HEIGHT (1280)
 #endif
 
-/*
-// GPIO103        LCM_PMU_EN(1.8V)
-#ifdef GPIO_LCM_PWR_EN
-#define GPIO_LCD_PWR_EN      GPIO_LCM_PWR_EN
-#else
-#define GPIO_LCD_PWR_EN      103	// GPIO103 0xFFFFFFFF
-#endif
-
-// GPIO102       LCDPANEL_EN
-#ifdef GPIO_LCM_PWR2_EN
-#define GPIO_LCD_PWR2_EN      GPIO_LCM_PWR2_EN
-#else
-#define GPIO_LCD_PWR2_EN      102	// GPIO102 0xFFFFFFFF
-#endif
-
-// GPIO127       LCM_RST_SOC(3.7V) for panel
-#ifdef GPIO_LCM_RST
-#define GPIO_LCD_RST_EN		GPIO_LCM_RST
-#else
-#define GPIO_LCD_RST_EN		127	// GPIO127 0xFFFFFFFF
-#endif
-
-// GPIO87       DISP_PWM0 for backlight panel
-#ifdef GPIO_LCM_BL_EN
-#define GPIO_LCD_BL_EN		GPIO_LCM_BL_EN
-#else
-#define GPIO_LCD_BL_EN		0xFFFFFFFF
-#endif
-
-#ifdef GPIO_LCM_LED_EN
-#define GPIO_LCD_LED_EN		GPIO_LCM_LED_EN
-#else
-#define GPIO_LCD_LED_EN		14	// GPIOEXT14 0xFFFFFFFF
-#endif
-*/
-
 #define GPIO_OUT_ONE 1
 #define GPIO_OUT_ZERO 0
 /* --------------------------------------------------------------------------- */
@@ -106,12 +67,10 @@ static LCM_UTIL_FUNCS lcm_util = {
 #define UDELAY(n) (lcm_util.udelay(n))
 #define MDELAY(n) (lcm_util.mdelay(n))
 
-#ifndef BUILD_LK
-static unsigned int GPIO_LCD_PWR_EN;
-static unsigned int GPIO_LCD_PWR2_EN;
-static unsigned int GPIO_LCD_RST_EN;
-static unsigned int GPIO_LCD_LED_EN;
-#endif
+unsigned int GPIO_LCD_PWR_EN;
+unsigned int GPIO_LCD_PWR2_EN;
+unsigned int GPIO_LCD_RST_EN;
+unsigned int GPIO_LCD_LED_EN;
 
 /* --------------------------------------------------------------------------- */
 /* Local Functions */
@@ -134,8 +93,7 @@ static void init_lcm_registers(void)
 	printf("%s, LK\n", __func__);
 #endif
 
-#if 1
-	data_array[0] = 0x00011500;	/* software reset */
+	data_array[0] = 0x00011500;
 	dsi_set_cmdq(data_array, 1, 1);
 	MDELAY(20);
 
@@ -146,44 +104,15 @@ static void init_lcm_registers(void)
 	data_array[4] = 0x00ee1500;
 	data_array[5] = 0x00ef1500;
 	dsi_set_cmdq(data_array, 6, 1);
-#endif
 }
 
 /* --------------------------------------------------------------------------- */
 /* LCM Driver Implementations */
 /* --------------------------------------------------------------------------- */
-
 static void lcm_set_util_funcs(const LCM_UTIL_FUNCS *util)
 {
 	memcpy(&lcm_util, util, sizeof(LCM_UTIL_FUNCS));
 }
-
-#ifndef BUILD_LK
-static void lcm_request_gpio_control(void)
-{
-	static struct device_node *node;
-
-	node = of_find_compatible_node(NULL, NULL, "mediatek,DISPSYS");
-
-	GPIO_LCD_PWR_EN = of_get_named_gpio(node, "GPIO_LCM_PWR_EN", 0);
-	GPIO_LCD_PWR2_EN = of_get_named_gpio(node, "GPIO_LCM_PWR2_EN", 0);
-	GPIO_LCD_RST_EN = of_get_named_gpio(node, "GPIO_LCM_RST_EN", 0);
-	GPIO_LCD_LED_EN = of_get_named_gpio(node, "GPIO_LCM_LED_EN", 0);
-/*
-	gpio_request(GPIO_LCD_PWR_EN, "GPIO_LCD_PWR_EN");
-	pr_debug("[KE/LCM] GPIO_LCD_PWR_EN =   0x%x\n", GPIO_LCD_PWR_EN);
-
-	gpio_request(GPIO_LCD_PWR2_EN, "GPIO_LCD_PWR2_EN");
-	pr_debug("[KE/LCM] GPIO_LCD_PWR2_EN =  0x%x\n", GPIO_LCD_PWR2_EN);
-
-	gpio_request(GPIO_LCD_RST_EN, "GPIO_LCD_RST_EN");
-	pr_debug("[KE/LCM] GPIO_LCD_RST_EN =  0x%x\n", GPIO_LCD_RST_EN);
-
-	gpio_request(GPIO_LCD_LED_EN, "GPIO_LCD_LED_EN");
-	pr_debug("[KE/LCM] GPIO_LCD_LED_EN =   0x%x\n", GPIO_LCD_LED_EN);
-*/
-}
-#endif
 
 static void lcm_set_gpio_output(unsigned int GPIO, unsigned int output)
 {
@@ -193,7 +122,7 @@ static void lcm_set_gpio_output(unsigned int GPIO, unsigned int output)
 		printf("[LK/LCM] GPIO_LCD_PWR2_EN =  0x%x\n", GPIO_LCD_PWR2_EN);
 		printf("[LK/LCM] GPIO_LCD_RST_EN =  0x%x\n", GPIO_LCD_RST_EN);
 		printf("[LK/LCM] GPIO_LCD_LED_EN =   0x%x\n", GPIO_LCD_LED_EN);
-#elif (defined BUILD_UBOOT)	/* do nothing in uboot */
+#elif (defined BUILD_UBOOT)
 #else
 #endif
 
@@ -226,23 +155,15 @@ static void lcm_get_params(LCM_PARAMS *params)
 	params->dsi.mode = SYNC_EVENT_VDO_MODE;
 #endif
 
-	/* DSI */
-	/* Command mode setting */
-	/* 1 Three lane or Four lane */
 	params->dsi.LANE_NUM = LCM_FOUR_LANE;
-	/* The following defined the fomat for data coming from LCD engine. */
+
 	params->dsi.data_format.color_order = LCM_COLOR_ORDER_RGB;
 	params->dsi.data_format.trans_seq = LCM_DSI_TRANS_SEQ_MSB_FIRST;
 	params->dsi.data_format.padding = LCM_DSI_PADDING_ON_LSB;
 	params->dsi.data_format.format = LCM_DSI_FORMAT_RGB888;
 
-	/* Highly depends on LCD driver capability. */
-	/* Not support in MT6573 */
 	params->dsi.packet_size = 256;
-
-	/* Video mode setting */
-	params->dsi.intermediat_buffer_num = 0;	/* This para should be 0 at video mode */
-
+	params->dsi.intermediat_buffer_num = 0;
 	params->dsi.PS = LCM_PACKED_PS_24BIT_RGB888;
 	params->dsi.word_count = 720 * 3;
 
@@ -256,18 +177,12 @@ static void lcm_get_params(LCM_PARAMS *params)
 	params->dsi.horizontal_frontporch = 32;
 	params->dsi.horizontal_active_pixel = FRAME_WIDTH;
 
-	/* Bit rate calculation */
-	/* 1 Every lane speed */
-	/* params->dsi.pll_div1=0;               // div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps */
-	/* params->dsi.pll_div2=1;               // div2=0,1,2,3;div1_real=1,2,4,4 */
-	/* params->dsi.fbk_div =31;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real) */
 	params->dsi.PLL_CLOCK = 215;
 	params->dsi.ssc_disable = 1;
 
 	params->dsi.CLK_ZERO = 47;
 	params->dsi.HS_ZERO = 36;
 
-	/* For low power */
 	params->dsi.vertical_vfp_lp = 1000;
 	params->dsi.PLL_CLOCK_lp = 250;
 }
@@ -276,6 +191,8 @@ static void lcm_init(void)
 {
 #ifdef BUILD_LK
 	printf("%s, LK\n", __func__);
+#else
+	pr_notice("%s, KE\n", __func__);
 #endif
 
 #ifdef BUILD_LK
@@ -296,10 +213,7 @@ static void lcm_init(void)
 
 	lcm_set_gpio_output(GPIO_LCD_LED_EN, GPIO_OUT_ONE);
 	MDELAY(10);
-
-	lcm_set_gpio_output(GPIO_LCD_BL_EN, GPIO_OUT_ONE);
 #else
-	lcm_request_gpio_control();
 #endif
 
 	init_lcm_registers();
@@ -312,25 +226,23 @@ static void lcm_suspend(void)
 #ifdef BUILD_LK
 	printf("%s, LK\n", __func__);
 #else
-	pr_debug("%s, kernel", __func__);
+	pr_notice("%s, kernel", __func__);
 #endif
+
 	lcm_set_gpio_output(GPIO_LCD_LED_EN, GPIO_OUT_ZERO);
 	MDELAY(10);
-/*
-	lcm_set_gpio_output(GPIO_LCD_BL_EN, GPIO_OUT_ZERO);
-	MDELAY(5);
-*/
+
 	lcm_set_gpio_output(GPIO_LCD_PWR_EN, GPIO_OUT_ZERO);
 	MDELAY(200);
 
 	lcm_set_gpio_output(GPIO_LCD_PWR2_EN, GPIO_OUT_ZERO);
 	MDELAY(5);
 
-	data_array[0] = 0x00280500;	/* Display Off */
+	data_array[0] = 0x00280500;
 	dsi_set_cmdq(data_array, 1, 1);
 	MDELAY(20);
 
-	data_array[0] = 0x00111500;	/* Sleep In */
+	data_array[0] = 0x00111500;
 	dsi_set_cmdq(data_array, 1, 1);
 	MDELAY(160);
 
@@ -345,7 +257,7 @@ static void lcm_resume(void)
 #ifdef BUILD_LK
 	printf("%s, LK\n", __func__);
 #else
-	pr_debug("%s, kernel", __func__);
+	pr_notice("%s, kernel", __func__);
 #endif
 
 	lcm_set_gpio_output(GPIO_LCD_RST_EN, GPIO_OUT_ONE);
@@ -359,17 +271,14 @@ static void lcm_resume(void)
 
 	lcm_set_gpio_output(GPIO_LCD_LED_EN, GPIO_OUT_ONE);
 	MDELAY(10);
-/*
-	lcm_set_gpio_output(GPIO_LCD_BL_EN, GPIO_OUT_ONE);
-	MDELAY(10);
-*/
+
 	init_lcm_registers();
 
-	data_array[0] = 0x00101500;	/* Sleep Out */
+	data_array[0] = 0x00101500;
 	dsi_set_cmdq(data_array, 1, 1);
 	MDELAY(20);
 
-	data_array[0] = 0x00290500;	/* Display On */
+	data_array[0] = 0x00290500;
 	dsi_set_cmdq(data_array, 1, 1);
 }
 
@@ -402,7 +311,7 @@ static void lcm_update(unsigned int x, unsigned int y, unsigned int width, unsig
 	data_array[2] = (y1_LSB);
 	dsi_set_cmdq(data_array, 3, 1);
 
-	data_array[0] = 0x00290508;	/* HW bug, so need send one HS packet */
+	data_array[0] = 0x00290508;
 	dsi_set_cmdq(data_array, 1, 1);
 
 	data_array[0] = 0x002c3909;
@@ -418,7 +327,6 @@ LCM_DRIVER cm_n070ice_dsi_vdo_mt8173_lcm_drv = {
 	.init = lcm_init,
 	.suspend = lcm_suspend,
 	.resume = lcm_resume,
-	/* .compare_id     = lcm_compare_id, */
 #if (LCM_DSI_CMD_MODE)
 	.update = lcm_update,
 #endif
