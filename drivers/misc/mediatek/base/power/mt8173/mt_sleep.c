@@ -406,7 +406,7 @@ void slp_pasr_en(bool en, u32 value)
 	}
 }
 
-void slp_module_init(void)
+static int __init slp_module_init(void)
 {
 	spm_output_sleep_option();
 
@@ -422,7 +422,10 @@ void slp_module_init(void)
 #if defined(CONFIG_AMAZON_METRICS_LOG)
 	INIT_WORK(&metrics_work_offmode, wokeup_metrics_offmode);
 #endif				/* CONFIG_AMAZON_METRICS_LOG     */
+	return 0;
 }
+
+arch_initcall(slp_module_init);
 
 module_param(slp_ck26m_on, bool, 0644);
 module_param(slp_pars_dpd, bool, 0644);

@@ -288,7 +288,7 @@ wakeup_event_t spm_read_wakeup_event_and_irq(int *pirq);
 void spm_clear_wakeup_event(void);
 
 /* for power management init */
-extern int spm_module_init(void);
+/* extern int spm_module_init(void); */
 
 /* for ANC in talking */
 extern void spm_mainpll_on_request(const char *drv_name);

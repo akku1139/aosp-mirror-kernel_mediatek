@@ -9,6 +9,7 @@
 /* #include <irq.h> */
 #include <mt-plat/mt_cirq.h>
 
+#include <mach/upmu_sw.h>
 #include <mach/wd_api.h>
 /* #include <mach/eint.h> */
 
@@ -624,6 +625,12 @@ wake_reason_t spm_go_to_sleep(u32 spm_flags, u32 spm_data)
 	if (request_uart_to_sleep()) {
 		last_wr = WR_UART_BUSY;
 		goto RESTORE_IRQ;
+	}
+
+	if (!is_cpu_pdn(pwrctrl->pcm_flags)) {
+		pmic_config_interface(0x21E, 0x0, 0x3, 0);
+		pmic_config_interface(0x244, 0x0, 0x3, 0);
+		pmic_config_interface(0x270, 0x0, 0x1, 1);
 	}
 
 	__spm_reset_and_init_pcm(pcmdesc);
