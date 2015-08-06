@@ -68,7 +68,7 @@
 #include "extd_ddp.h"
 #include "extd_kernel_drv.h"
 /*#include "extd_drv.h"*/
-#include <linux/hdmitx.h>
+/*#include "hdmitx.h" */
 #endif
 
 /* TODO: revise this later @xuecheng */

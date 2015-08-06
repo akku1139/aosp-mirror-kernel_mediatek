@@ -103,7 +103,7 @@ static u32 fb_yres_update;
 	} while (0)
 
 
-static size_t mtkfb_log_on = 1;
+static size_t mtkfb_log_on;
 #define MTKFB_MSG(fmt, args...) pr_notice("[MTKFB]"fmt, ##args)
 #define MTKFB_DBG(fmt, args...) pr_debug("[MTKFB]"fmt, ##args)
 #define MTKFB_ERR(fmt, args...) pr_err("[MTKFB]"fmt, ##args)
