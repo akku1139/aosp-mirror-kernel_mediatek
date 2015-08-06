@@ -13,7 +13,6 @@
 #include "mt_afe_debug.h"
 #include "mt_afe_reg.h"
 #include "mt_afe_clk.h"
-#include "mt6391.h"
 #include <linux/debugfs.h>
 #include <linux/uaccess.h>
 
@@ -335,147 +334,6 @@ static ssize_t mt_soc_debug_write(struct file *file, const char __user *user_buf
 	return buf_size;
 }
 
-static ssize_t mt_soc_ana_debug_read(struct file *file, char __user *buf,
-				size_t count, loff_t *pos)
-{
-	const int size = DEBUG_FS_BUFFER_SIZE;
-	char buffer[size];
-	int n = 0;
-
-	pr_notice("%s\n", __func__);
-
-	n += scnprintf(buffer + n, size - n, "UL_DL_CON0 = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_DL_CON0));
-	n += scnprintf(buffer + n, size - n, "DL_SRC2_CON0_H = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SRC2_CON0_H));
-	n += scnprintf(buffer + n, size - n, "DL_SRC2_CON0_L = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SRC2_CON0_L));
-	n += scnprintf(buffer + n, size - n, "DL_SDM_CON0 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SDM_CON0));
-	n += scnprintf(buffer + n, size - n, "DL_SDM_CON1 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SDM_CON1));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON0_H = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON0_H));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON0_L = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON0_L));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON1_H = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON1_H));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON1_L = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON1_L));
-	n += scnprintf(buffer + n, size - n, "ANA_AFE_TOP_CON0 = 0x%x\n",
-		       mt6391_get_reg(ANA_AFE_TOP_CON0));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON0 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON0));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON1 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON1));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON2 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON2));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON3 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON3));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON4 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON4));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_MON0 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_MON0));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_MON1 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_MON1));
-	n += scnprintf(buffer + n, size - n, "AUDRC_TUNE_MON0 = 0x%x\n",
-		       mt6391_get_reg(AUDRC_TUNE_MON0));
-	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_UP8X_FIFO_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_LOG_MON0 = 0x%x\n",
-		       mt6391_get_reg(AFE_UP8X_FIFO_LOG_MON0));
-	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_LOG_MON1 = 0x%x\n",
-		       mt6391_get_reg(AFE_UP8X_FIFO_LOG_MON1));
-	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_DC_COMP_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG1 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_DC_COMP_CFG1));
-	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG2 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_DC_COMP_CFG2));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG1 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG1));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG2 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG2));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG3 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG3));
-	n += scnprintf(buffer + n, size - n, "AFE_SGEN_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_SGEN_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_SGEN_CFG1 = 0x%x\n",
-		       mt6391_get_reg(AFE_SGEN_CFG1));
-	n += scnprintf(buffer + n, size - n, "======PMIC analog registers====\n");
-	n += scnprintf(buffer + n, size - n, "TOP_CKPDN = 0x%x\n", mt6391_get_reg(TOP_CKPDN));
-	n += scnprintf(buffer + n, size - n, "TOP_CKPDN2 = 0x%x\n", mt6391_get_reg(TOP_CKPDN2));
-	n += scnprintf(buffer + n, size - n, "TOP_CKCON1 = 0x%x\n", mt6391_get_reg(TOP_CKCON1));
-	n += scnprintf(buffer + n, size - n, "TOP_CKCON3 = 0x%x\n", mt6391_get_reg(TOP_CKCON3));
-	n += scnprintf(buffer + n, size - n, "SPK_CON0 = 0x%x\n", mt6391_get_reg(SPK_CON0));
-	n += scnprintf(buffer + n, size - n, "SPK_CON1 = 0x%x\n", mt6391_get_reg(SPK_CON1));
-	n += scnprintf(buffer + n, size - n, "SPK_CON2 = 0x%x\n", mt6391_get_reg(SPK_CON2));
-	n += scnprintf(buffer + n, size - n, "SPK_CON3 = 0x%x\n", mt6391_get_reg(SPK_CON3));
-	n += scnprintf(buffer + n, size - n, "SPK_CON4 = 0x%x\n", mt6391_get_reg(SPK_CON4));
-	n += scnprintf(buffer + n, size - n, "SPK_CON5 = 0x%x\n", mt6391_get_reg(SPK_CON5));
-	n += scnprintf(buffer + n, size - n, "SPK_CON6 = 0x%x\n", mt6391_get_reg(SPK_CON6));
-	n += scnprintf(buffer + n, size - n, "SPK_CON7 = 0x%x\n", mt6391_get_reg(SPK_CON7));
-	n += scnprintf(buffer + n, size - n, "SPK_CON8 = 0x%x\n", mt6391_get_reg(SPK_CON8));
-	n += scnprintf(buffer + n, size - n, "SPK_CON9 = 0x%x\n", mt6391_get_reg(SPK_CON9));
-	n += scnprintf(buffer + n, size - n, "SPK_CON10 = 0x%x\n", mt6391_get_reg(SPK_CON10));
-	n += scnprintf(buffer + n, size - n, "SPK_CON11 = 0x%x\n", mt6391_get_reg(SPK_CON11));
-	n += scnprintf(buffer + n, size - n, "AUDDAC_CON0 = 0x%x\n", mt6391_get_reg(AUDDAC_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG0 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG1 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG1));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG2 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG2));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG3 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG3));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG4 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG4));
-	n += scnprintf(buffer + n, size - n, "IBIASDIST_CFG0 = 0x%x\n",
-		       mt6391_get_reg(IBIASDIST_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDACCDEPOP_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AUDACCDEPOP_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUD_IV_CFG0 = 0x%x\n", mt6391_get_reg(AUD_IV_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDCLKGEN_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AUDCLKGEN_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDLDO_CFG0 = 0x%x\n", mt6391_get_reg(AUDLDO_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDLDO_CFG1 = 0x%x\n", mt6391_get_reg(AUDLDO_CFG1));
-	n += scnprintf(buffer + n, size - n, "AUDNVREGGLB_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AUDNVREGGLB_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUD_NCP0 = 0x%x\n", mt6391_get_reg(AUD_NCP0));
-	n += scnprintf(buffer + n, size - n, "AUDPREAMP_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDPREAMP_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON0 = 0x%x\n", mt6391_get_reg(AUDADC_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON1 = 0x%x\n", mt6391_get_reg(AUDADC_CON1));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON2 = 0x%x\n", mt6391_get_reg(AUDADC_CON2));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON3 = 0x%x\n", mt6391_get_reg(AUDADC_CON3));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON4 = 0x%x\n", mt6391_get_reg(AUDADC_CON4));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON5 = 0x%x\n", mt6391_get_reg(AUDADC_CON5));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON6 = 0x%x\n", mt6391_get_reg(AUDADC_CON6));
-	n += scnprintf(buffer + n, size - n, "AUDDIGMI_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDDIGMI_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDLSBUF_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDLSBUF_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDLSBUF_CON1 = 0x%x\n",
-		       mt6391_get_reg(AUDLSBUF_CON1));
-	n += scnprintf(buffer + n, size - n, "AUDENCSPARE_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDENCSPARE_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDENCCLKSQ_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDENCCLKSQ_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDPREAMPGAIN_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDPREAMPGAIN_CON0));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON0 = 0x%x\n", mt6391_get_reg(ZCD_CON0));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON1 = 0x%x\n", mt6391_get_reg(ZCD_CON1));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON2 = 0x%x\n", mt6391_get_reg(ZCD_CON2));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON3 = 0x%x\n", mt6391_get_reg(ZCD_CON3));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON4 = 0x%x\n", mt6391_get_reg(ZCD_CON4));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON5 = 0x%x\n", mt6391_get_reg(ZCD_CON5));
-	n += scnprintf(buffer + n, size - n, "NCP_CLKDIV_CON0 = 0x%x\n",
-		       mt6391_get_reg(NCP_CLKDIV_CON0));
-	n += scnprintf(buffer + n, size - n, "NCP_CLKDIV_CON1 = 0x%x\n",
-		       mt6391_get_reg(NCP_CLKDIV_CON1));
-
-	pr_notice("%s len = %d\n", __func__, n);
-
-	return simple_read_from_buffer(buf, count, pos, buffer, n);
-}
-
 static ssize_t mt_soc_hdmi_debug_read(struct file *file, char __user *buf,
 				size_t count, loff_t *pos)
 {
@@ -690,12 +548,6 @@ static const struct file_operations mtaudio_debug_ops = {
 	.llseek = default_llseek,
 };
 
-static const struct file_operations mtaudio_ana_debug_ops = {
-	.open = simple_open,
-	.read = mt_soc_ana_debug_read,
-	.llseek = default_llseek,
-};
-
 static const struct file_operations mtaudio_hdmi_debug_ops = {
 	.open = simple_open,
 	.read = mt_soc_hdmi_debug_read,
@@ -710,7 +562,6 @@ static const struct file_operations mtaudio_spdif_debug_ops = {
 
 static struct mt_soc_audio_debug_fs audio_debug_fs[] = {
 	{NULL, "mtksocaudio", &mtaudio_debug_ops},
-	{NULL, "mtksocanaaudio", &mtaudio_ana_debug_ops},
 	{NULL, "mtksochdmiaudio", &mtaudio_hdmi_debug_ops},
 	{NULL, "mtksocspdifaudio", &mtaudio_spdif_debug_ops},
 };

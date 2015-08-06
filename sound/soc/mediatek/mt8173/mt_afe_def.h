@@ -40,12 +40,7 @@
 #define MT_SOC_UL1_CPU_DAI_NAME  "mt-soc-ul1-dai"
 #define MT_SOC_UL2_CPU_DAI_NAME  "mt-soc-ul2-dai"
 
-#define MT_SOC_CODEC_TXDAI_NAME "mt-soc-codec-tx-dai"
-#define MT_SOC_CODEC_RXDAI_NAME "mt-soc-codec-rx-dai"
-
 #define MT_SOC_STUB_CPU_DAI "mt8173-soc-dummy-dai"
-
-#define MT_SOC_CODEC_NAME "mt6397-codec"
 
 #define MT_SOC_DL1_STREAM_NAME "MultiMedia1_Playback"
 #define MT_SOC_DL2_STREAM_NAME "MultiMedia2_Playback"
