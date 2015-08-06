@@ -13,7 +13,7 @@ snd-soc-mt8173-pcm-objs := \
     mt_afe_pcm_routing.o mt_afe_dai_stub.o
 
 snd-soc-mt8173-mt6391-mach-objs := \
-    mt6391.o mt8173_evb.o
+    mt8173_evb.o
 
 obj-$(CONFIG_SND_SOC_MT8173) += snd-soc-mt8173-pcm.o
 obj-$(CONFIG_SND_SOC_MT8173_MT6391_MACH) += snd-soc-mt8173-mt6391-mach.o
