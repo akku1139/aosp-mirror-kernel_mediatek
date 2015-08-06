@@ -1229,6 +1229,38 @@
 			interrupts = <GIC_SPI 198 IRQ_TYPE_LEVEL_LOW>;
 		};
 
+		jpgenc@18003000 {
+			compatible = "mediatek,mt8173-jpgenc","mediatek,jpgenc";
+			reg = <0 0x18003000 0 0x1000>;
+			interrupts = <GIC_SPI 200 IRQ_TYPE_LEVEL_LOW>;
+			clocks =
+				<&mmsys CLK_MM_SMI_COMMON>,
+				<&vencsys CLK_VENC_CKE0>,  /* smi_larb3 */
+				<&vencsys CLK_VENC_CKE2>;  /* jpeg enc */
+
+			clock-names =
+				"disp-smi-jpgenc",
+				"venc-larb-jpgenc",
+				"venc-jpgenc";
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+		};
+
+		jpgdec@18004000 {
+			compatible = "mediatek,mt8173-jpgdec","mediatek,jpgdec";
+			reg = <0 0x18004000 0 0x1000>;
+			interrupts = <GIC_SPI 203 IRQ_TYPE_LEVEL_LOW>;
+			clocks =
+				<&mmsys CLK_MM_SMI_COMMON>,
+				<&vencsys CLK_VENC_CKE0>,
+				<&vencsys CLK_VENC_CKE3>; /* jpeg dec */
+
+			clock-names =
+				"disp-smi-jpgdec",
+				"venc-larb-jpgdec",
+				"venc-jpgdec";
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+		};
+
 		vencltsys: vencltsys@19000000 {
 			compatible = "mediatek,mt8173-vencltsys", "syscon";
 			reg = <0 0x19000000 0 0x1000>;
