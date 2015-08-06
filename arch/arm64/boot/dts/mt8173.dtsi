@@ -490,6 +490,7 @@
 			clock-names = "main";
 			pinctrl-names = "default";
 			pinctrl-0 = <&spi_pins_a>;
+			cell-index = <0>;
 			pad-select = <1>;
 			#address-cells = <0x1>;
 			#size-cells = <0>;
