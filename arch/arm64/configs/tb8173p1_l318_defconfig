@@ -1776,6 +1776,8 @@ CONFIG_WATCHDOG=y
 # CONFIG_DW_WATCHDOG is not set
 # CONFIG_MEN_A21_WDT is not set
 
+CONFIG_MTK_GPT_COMMON=y
+
 #
 # USB-based Watchdog Cards
 #
