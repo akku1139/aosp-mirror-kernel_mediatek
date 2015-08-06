@@ -233,6 +233,12 @@
 			infracfg = <&infracfg>;
 			clocks = <&topckgen CLK_TOP_MM_SEL>;
 			clock-names = "disp";
+			interrupts =	<0 155 0x8>,
+					<0 156 0x8>,
+					<0 157 0x8>,
+					<0 158 0x8>,
+					<0 159 0x8>,
+					<0 160 0x8>;
 		};
 
 		toprgu: toprgu@10007000 {
