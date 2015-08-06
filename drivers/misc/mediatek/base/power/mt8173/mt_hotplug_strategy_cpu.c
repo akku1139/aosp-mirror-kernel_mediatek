@@ -10,7 +10,12 @@
 
 #include "mt_hotplug_strategy_internal.h"
 
-#define HP_HAVE_SCHED		0
+#define HP_HAVE_SCHED_TPLG		0
+
+#if !HP_HAVE_SCHED_TPLG
+#include <linux/cpumask.h>
+#include <asm/topology.h>
+#endif
 
 /*
  * hps cpu interface - cpumask
@@ -107,18 +112,21 @@ void hps_cpu_get_tlp(unsigned int *avg, unsigned int *iowait_avg)
 void hps_cpu_get_big_little_cpumasks(
 		struct cpumask *big, struct cpumask *little)
 {
-#if HP_HAVE_SCHED
+#if HP_HAVE_SCHED_TPLG
 	sched_get_big_little_cpus(big, little);
 #else
+	unsigned int cpu;
+
 	cpumask_clear(big);
 	cpumask_clear(little);
-	cpumask_set_cpu(0, little);
-	cpumask_set_cpu(1, little);
-	cpumask_set_cpu(2, little);
-	cpumask_set_cpu(3, little);
-	cpumask_set_cpu(4, big);
-	cpumask_set_cpu(5, big);
-#endif
+
+	for_each_possible_cpu(cpu) {
+		if (arch_cpu_is_big(cpu))
+			cpumask_set_cpu(cpu, big);
+		else
+			cpumask_set_cpu(cpu, little);
+	}
+#endif /* HP_HAVE_SCHED_TPLG */
 }
 
 /*
