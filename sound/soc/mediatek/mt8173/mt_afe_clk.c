@@ -459,24 +459,6 @@ void mt_afe_apb_bus_init(void)
 	spin_unlock_irqrestore(&afe_clk_lock, flags);
 }
 
-/*****************************************************************************
- * FUNCTION
- *  mt_afe_mtcmos_audio_on
- *
- * DESCRIPTION
- *  Power on this function , then all register can be access and set.
- *
- *****************************************************************************
- */
-void mt_afe_mtcmos_audio_on(void)
-{
-	mt_afe_spm_set_reg(SCP_AUDIO_PWR_CON, 0xd, 0xffff);
-}
-
-void mt_afe_mtcmos_audio_off(void)
-{
-}
-
 int mt_afe_init_clock(void *dev)
 {
 	int ret = 0;
