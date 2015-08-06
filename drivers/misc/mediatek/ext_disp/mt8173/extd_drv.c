@@ -360,7 +360,7 @@ const struct file_operations hdmi_fops = {
 };
 
 static const struct of_device_id hdmi_of_ids[] = {
-	{.compatible = "mediatek,hdmitx",},
+	{.compatible = "mediatek,mt8173-hdmitx",},
 	{},
 };
 

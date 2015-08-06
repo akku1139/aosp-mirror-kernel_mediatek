@@ -706,14 +706,14 @@ void vSetHDMITxPLL(unsigned char bResIndex, unsigned char bdeepmode)
 	vWriteIoPllMsk(HDMI_CON0, ((HTPLLBR[u4Feq][bdeepmode - 1]) << PLL_BR_SHIFT),
 		       RG_HDMITX_PLL_BR);
 
-	v4valueclk = *((unsigned int *)(HDMI_EFUSE_BASE + 0x4c8));
+	v4valueclk = *((unsigned int *)(DISP_CONFIG2_BASE + 0x4c8));
 	v4valueclk = v4valueclk >> 24;
-	v4valued2 = *((unsigned int *)(HDMI_EFUSE_BASE + 0x4c8));
+	v4valued2 = *((unsigned int *)(DISP_CONFIG2_BASE + 0x4c8));
 	v4valued2 = (v4valued2 & 0x00ff0000) >> 16;
 
-	v4valued1 = *((unsigned int *)(HDMI_EFUSE_BASE + 0x530));
+	v4valued1 = *((unsigned int *)(DISP_CONFIG2_BASE + 0x530));
 	v4valued1 = (v4valued1 & 0x00000fc0) >> 6;
-	v4valued0 = *((unsigned int *)(HDMI_EFUSE_BASE + 0x530));
+	v4valued0 = *((unsigned int *)(DISP_CONFIG2_BASE + 0x530));
 	v4valued0 = v4valued0 & 0x3f;
 
 	if ((v4valueclk == 0) || (v4valued2 == 0) || (v4valued1 == 0) || (v4valued0 == 0)) {

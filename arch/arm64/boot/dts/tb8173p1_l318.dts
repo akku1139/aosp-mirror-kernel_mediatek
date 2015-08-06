@@ -172,6 +172,12 @@
 	status = "okay";
 };
 
+&hdmi0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmi_pins_default>;
+	hdmi_power_control = <&pio6397 37 0>;
+};
+
 &i2c0 {
 	clock-frequency = <400000>;
 	status = "okay";
@@ -376,6 +382,15 @@
 		pins_rst {
 			pinmux = <MT8173_PIN_68_MSDC0_RST___FUNC_MSDC0_RSTB>;
 			bias-pull-up;
+		};
+	};
+
+	hdmi_pins_default: hdmi_pins_default {
+		pins_cmd_dat {
+			pins = <MT6397_PIN_37_HDMISD__FUNC_GPIO37>;
+			slew-rate = <1>;
+			bias-pull-up = <00>;
+			output-high;
 		};
 	};
 

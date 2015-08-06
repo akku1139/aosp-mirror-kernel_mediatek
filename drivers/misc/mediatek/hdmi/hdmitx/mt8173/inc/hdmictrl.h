@@ -61,14 +61,14 @@ enum HDMI_REF_MODULE_ENUM {
 	MMSYS_CONFIG,
 	GPIO_REG,
 	DPI0_REG,
-	EFUSE_REG,
+	DISP_CONFIG2,
 	GIC_REG,
 	PERISYS_REG,
 	HDMI_REF_REG_NUM,
 };
 
 enum HDMI_REF_CLOCK_ENUM {
-	MMSYS_POWER,		/* Must be first,  power of the mmsys */
+	/* MMSYS_POWER, */		/* Must be first,  power of the mmsys */
 	PERI_DDC,
 	MMSYS_HDMI_HDCP,
 	MMSYS_HDMI_HDCP24,
@@ -106,7 +106,7 @@ extern unsigned char hdmi_dpi_output;
 #define HDMICKGEN_BASE (hdmi_ref_reg[TOPCK_GEN])
 #define HDMIPAD_BASE   (hdmi_ref_reg[GPIO_REG])
 #define HDMI_INFRA_SYS (hdmi_ref_reg[INFRA_SYS])
-#define HDMI_EFUSE_BASE (hdmi_ref_reg[EFUSE_REG])
+#define DISP_CONFIG2_BASE (hdmi_ref_reg[DISP_CONFIG2])
 
 
 
