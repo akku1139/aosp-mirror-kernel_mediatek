@@ -87,6 +87,9 @@
 #include <linux/earlysuspend.h>
 #endif
 
+#include <linux/cpumask.h>
+#include <asm/topology.h>
+
 static void __iomem *apmixed_base;	/* 0x10209000 */
 /* #define APMIXED_BASE     ((unsigned long)apmixed_base) */
 #define APMIXED_BASE     apmixed_base
@@ -117,11 +120,6 @@ int tscpu_get_bL_temp(thermal_TS_name ts_name)
 
 /* mt_spm_idle.h */
 void spm_mcdi_wakeup_all_cores(void)
-{
-}
-
-/* sched.h*/
-void sched_get_big_little_cpus(struct cpumask *big, struct cpumask *little)
 {
 }
 
@@ -5888,7 +5886,10 @@ static int __init _mt_cpufreq_pdrv_init(void)
 	{
 		/* mt8173-TBD, wait mt_boot.c ready, sync with jamesjj mt_idle.c */
 		/* chip_ver = mt_get_chip_sw_ver(); */
-		sched_get_big_little_cpus(&cpumask_big, &cpumask_little);
+		cpumask_clear(&cpumask_little);
+		cpumask_clear(&cpumask_big);
+		arch_get_cluster_cpus(&cpumask_little, 0);
+		arch_get_cluster_cpus(&cpumask_big, 1);
 
 		switch (chip_ver) {
 		case CHIP_SW_VER_01:
