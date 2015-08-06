@@ -37,6 +37,13 @@
 		battery = "p1v1_battery";
 	};
 
+	vibrator0:vibrator@0 {
+		compatible = "mediatek,vibrator";
+		vib_timer = <25>;
+		vib_limit = <9>;
+		vib_vol= <5>;
+	};
+
 /* sensor standardization */
 	cust_accel@0 {
 		compatible = "mediatek,mpu6050g";
