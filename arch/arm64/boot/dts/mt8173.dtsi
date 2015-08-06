@@ -646,6 +646,35 @@
 			status = "disabled";
 		};
 
+		mfgsys: mfgsys@13fff000 {
+			compatible = "mediatek,mt8173-mfgsys";
+			reg = <0 0x13fff000 0 0x1000>;
+			#clock-cells = <1>;
+		};
+
+		han: gpu@13000000 {
+			compatible = "mediatek,mt8173-han";
+			reg = <0 0x13000000 0 0xFFFF>,
+			<0 0x13fff000 0 0x1000>;
+			power-domains =  <&scpsys MT8173_POWER_DOMAIN_MFG>;
+			clocks = <&apmixedsys CLK_APMIXED_MMPLL>,
+				<&topckgen CLK_TOP_MEM_MFG_IN_SEL>,
+				<&topckgen CLK_TOP_AXI_MFG_IN_SEL>,
+				<&topckgen CLK_TOP_AXI_SEL>,
+				<&topckgen CLK_TOP_MEM_SEL>,
+				<&topckgen CLK_TOP_MFG_SEL>;
+
+			clock-names = "mmpll_clk",
+					"mfg_mem_in_sel",
+					"mfg_axi_in_sel",
+					"top_axi",
+					"top_mem",
+					"top_mfg";
+			interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_LOW>;
+			interrupt-names = "RGX";
+			clock-frequency = <600000000>;
+		};
+
 		mmsys: mmsys@14000000 {
 			compatible = "mediatek,mt8173-mmsys", "syscon";
 			reg = <0 0x14000000 0 0x1000>;
@@ -1180,6 +1209,7 @@
 		compatible = "mediatek,mt8173-bring-up";
 		clocks =
 			<&apmixedsys CLK_APMIXED_ARMCA15PLL>,
+			<&apmixedsys CLK_APMIXED_MMPLL>,
 			<&topckgen CLK_TOP_MFG_SEL>,
 			<&topckgen CLK_TOP_UART_SEL>,
 			<&topckgen CLK_TOP_USB30_SEL>,
@@ -1191,6 +1221,8 @@
 			<&topckgen CLK_TOP_AUD_2_SEL>,
 			<&topckgen CLK_TOP_MEM_MFG_IN_SEL>,
 			<&topckgen CLK_TOP_AXI_MFG_IN_SEL>,
+			<&topckgen CLK_TOP_AXI_SEL>,
+			<&topckgen CLK_TOP_MEM_SEL>,
 			<&topckgen CLK_TOP_SCAM_SEL>,
 			<&topckgen CLK_TOP_SPINFI_IFR_SEL>,
 			<&topckgen CLK_TOP_DPILVDS_SEL>,
@@ -1335,7 +1367,8 @@
 			"101", "102", "103", "104", "105", "106", "107", "108", "109", "110",
 			"111", "112", "113", "114", "115", "116", "117", "118", "119", "120",
 			"121", "122", "123", "124", "125", "126", "127", "128", "129", "130",
-			"131", "132", "133", "134", "135", "136", "137", "138", "139", "140";
+			"131", "132", "133", "134", "135", "136", "137", "138", "139", "140",
+			"141","142","143";
 	};
 };
 
