@@ -254,6 +254,11 @@
 			#gpio-cells = <2>;
 		};
 
+		mt6397codec: mt6397codec {
+			compatible = "mediatek,mt6397-codec";
+			mediatek,speaker-mode = <0>; /* 0(CLASSD) 1(CLASSAB) */
+		};
+
 		mt6397pmic: mt6397pmic {
 			compatible = "mediatek,mt6397-pmic";
 		};
@@ -450,6 +455,10 @@
 			};
 		};
 	};
+};
+
+&sound {
+	mediatek,board-channel-type = <0>; /* 0(Stereo) 1(MonoLeft) 2(MonoRight) */
 };
 
 &touch {
