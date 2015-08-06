@@ -1,5 +1,4 @@
 #ccflags-y += -I$(srctree)/drivers/misc/mediatek/irq/$(MTK_PLATFORM)/
-
 #obj-y += mt_pm_init.o
 obj-y += mt_wakeup.o
 obj-y += mt_spm.o
