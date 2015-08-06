@@ -1683,7 +1683,7 @@ static int mtkfb_fbinfo_init(struct fb_info *info)
 
 	var.transp.offset = 24;
 	var.transp.length = 8;
-#if 1
+#ifdef CONFIG_MTK_GPU_SUPPORT
 	/* default as BGRA, GPU(default data is BGRA too) will not change this value at home screen */
 	var.red.offset = 16;
 	var.red.length = 8;
