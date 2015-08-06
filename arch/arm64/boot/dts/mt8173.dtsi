@@ -265,54 +265,6 @@
 			};
 		};
 
-		pioE:pinctrl@0x0000C000 {/*External gpio pinctrl*/
-				compatible = "mediatek,mt6397-pinctrl";
-		reg = <0x0000C000 0x0108>;
-				gpio-controller;
-		#gpio-cells = <2>;
-		};
-				pcfg_pull_none: pcfg_pull_none {
-			bias-disable;
-		};
-
-		pcfg_pull_down: pcfg_pull_down {
-			bias-pull-down;
-		};
-
-		pcfg_pull_up: pcfg_pull_up {
-			bias-pull-up;
-		};
-
-		pcfg_output_low: pcfg_output_low {
-			output-low;
-		};
-
-		pcfg_output_high: pcfg_output_high {
-			output-high;
-		};
-
-		pcfg_input_enable: pcfg_input_enable {
-			input-enable;
-		};
-
-		pcfg_input_disable: pcfg_input_disable {
-			input-disable;
-		};
-
-		pcfg_input_pulldisable: pcfg_input_pulldisable {
-			input-enable;
-			bias-disable;
-		};
-
-		pcfg_input_pullup: pcfg_input_pullup {
-			input-enable;
-			bias-pull-up;
-		};
-
-		pcfg_input_pulldown: pcfg_input_pulldown {
-			input-enable;
-			bias-pull-down;
-		};
 		scpsys: scpsys@10006000 {
 			compatible = "mediatek,mt8173-scpsys", "syscon";
 			#power-domain-cells = <1>;
