@@ -20,7 +20,6 @@
 #include <linux/of.h>
 
 #include <mt-plat/mt_io.h>
-#include <mt-plat/mt6735/include/mach/irqs.h>
 #include <mt-plat/sync_write.h>
 
 #include "mt_cpuidle.h"
@@ -61,6 +60,8 @@ static unsigned int c2k_wdt_bit;
 
 #define MAX_CORES 4
 #define MAX_CLUSTER 2
+
+#define GIC_PRIVATE_SIGNALS     (32)
 
 #if defined(CONFIG_ARCH_MT6735)
 #define BIU_NODE		"mediatek,mt6735-mcu_biu"
