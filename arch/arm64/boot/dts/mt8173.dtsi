@@ -997,6 +997,8 @@
 
 	mediatek,battery_common {
 		compatible = "mediatek,battery_common";
+		interrupt-parent = <&pmic>;
+		interrupts = <14 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
 	bring-up {
