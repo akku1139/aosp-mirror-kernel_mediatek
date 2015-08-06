@@ -1240,6 +1240,7 @@
 			compatible = "mediatek,mt8173-venc";
 			reg = <0 0x18002000 0 0x1000>;
 			interrupts = <GIC_SPI 198 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_VENC>;
 		};
 
 		jpgenc@18003000 {
@@ -1284,6 +1285,7 @@
 			compatible = "mediatek,mt8173-venclt";
 			reg = <0 0x19002000 0 0x1000>;
 			interrupts = <GIC_SPI 202 IRQ_TYPE_LEVEL_LOW>;
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_VENC_LT>;
 		};
 
 		keypad: keypad@10010000 {

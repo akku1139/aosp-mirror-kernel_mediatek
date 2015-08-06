@@ -46,6 +46,7 @@
 #include "drv_api.h"
 
 #include <linux/of.h>
+#include <linux/of_device.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/pm_runtime.h>
@@ -209,9 +210,11 @@ KVA_VENCSYS_CG_SET_ADDR;
 #ifdef CONFIG_OF
 static struct clk *clk_smi, *clk_vdec, *clk_vdec_larb, *clk_venc_larb, *clk_venc_clk;
 static struct clk *clk_venc_lt_larb, *clk_venc_lt_clk;
-static struct clk *clk_venc_pwr, *clk_venc_pwr2;
+/* static struct clk *clk_venc_pwr, *clk_venc_pwr2; */
 
 struct platform_device *vdec_pdev;
+struct platform_device *venc_pdev;
+struct platform_device *venclt_pdev;
 
 #endif
 static int venc_enableIRQ(VAL_HW_LOCK_T *prHWLock);
@@ -281,10 +284,12 @@ void venc_power_on(void)
 
 #ifdef CONFIG_OF
 	MODULE_MFV_LOGD("venc_power_on D+\n");
-	clk_prepare(clk_venc_pwr);
-	clk_enable(clk_venc_pwr);
-	clk_prepare(clk_venc_pwr2);
-	clk_enable(clk_venc_pwr2);
+	/* clk_prepare(clk_venc_pwr); */
+	/* clk_enable(clk_venc_pwr); */
+	/* clk_prepare(clk_venc_pwr2); */
+	/* clk_enable(clk_venc_pwr2); */
+	pm_runtime_get_sync(&venc_pdev->dev);
+	pm_runtime_get_sync(&venclt_pdev->dev);
 	clk_prepare(clk_smi);
 	clk_enable(clk_smi);
 	clk_prepare(clk_venc_larb);
@@ -326,10 +331,12 @@ void venc_power_off(void)
 		clk_unprepare(clk_venc_lt_larb);
 		clk_disable(clk_venc_lt_clk);
 		clk_unprepare(clk_venc_lt_clk);
-		clk_disable(clk_venc_pwr);
-		clk_unprepare(clk_venc_pwr);
-		clk_disable(clk_venc_pwr2);
-		clk_unprepare(clk_venc_pwr2);
+		/* clk_disable(clk_venc_pwr); */
+		/* clk_unprepare(clk_venc_pwr); */
+		/* clk_disable(clk_venc_pwr2); */
+		/* clk_unprepare(clk_venc_pwr2); */
+		pm_runtime_put_sync(&venc_pdev->dev);
+		pm_runtime_put_sync(&venclt_pdev->dev);
 #else
 		disable_clock(MT_CG_VENC_VENC, "VENC");
 		disable_clock(MT_CG_VENC_LARB, "VENC");
@@ -2319,8 +2326,8 @@ static int vcodec_probe(struct platform_device *pdev)
 #if 0
 	clk_vdecpwr = devm_clk_get(&pdev->dev, "MT_VDEC_POWER");
 	BUG_ON(IS_ERR(clk_vdecpwr));
-    clk_venc_pwr  = devm_clk_get(&pdev->dev, "MT_VENC_POWER");
-    clk_venc_pwr2  = devm_clk_get(&pdev->dev, "MT_VENC_POWER2");
+	clk_venc_pwr  = devm_clk_get(&pdev->dev, "MT_VENC_POWER");
+	clk_venc_pwr2  = devm_clk_get(&pdev->dev, "MT_VENC_POWER2");
 
 	clk_prepare(clk_vdec);
 	clk_enable(clk_vdec);
@@ -2522,23 +2529,31 @@ static int __init vcodec_driver_init(void)
 		struct device_node *node = NULL;
 
 		node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-venc");
+		venc_pdev = of_find_device_by_node(node);
 		KVA_VENC_BASE = (VAL_ULONG_T) of_iomap(node, 0);
 		VENC_IRQ_ID = irq_of_parse_and_map(node, 0);
 		KVA_VENC_IRQ_STATUS_ADDR = KVA_VENC_BASE + 0x05C;
 		KVA_VENC_IRQ_ACK_ADDR = KVA_VENC_BASE + 0x060;
 		KVA_VENC_SW_PAUSE = KVA_VENC_BASE + VENC_SW_PAUSE;
 		KVA_VENC_SW_HRST_N = KVA_VENC_BASE + VENC_SW_HRST_N;
+		pm_runtime_enable(&venc_pdev->dev);
+		pm_runtime_get_sync(&venc_pdev->dev);
+		pm_runtime_put_sync(&venc_pdev->dev);
 	}
 	{
 		struct device_node *node = NULL;
 
 		node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-venclt");
+		venclt_pdev = of_find_device_by_node(node);
 		KVA_VENC_LT_BASE = (VAL_ULONG_T) of_iomap(node, 0);
 		VENC_LT_IRQ_ID = irq_of_parse_and_map(node, 0);
 		KVA_VENC_LT_IRQ_STATUS_ADDR = KVA_VENC_LT_BASE + 0x05C;
 		KVA_VENC_LT_IRQ_ACK_ADDR = KVA_VENC_LT_BASE + 0x060;
 		KVA_VENC_LT_SW_PAUSE = KVA_VENC_LT_BASE + VENC_SW_PAUSE;
 		KVA_VENC_LT_SW_HRST_N = KVA_VENC_LT_BASE + VENC_SW_HRST_N;
+		pm_runtime_enable(&venclt_pdev->dev);
+		pm_runtime_get_sync(&venclt_pdev->dev);
+		pm_runtime_put_sync(&venclt_pdev->dev);
 	}
 
 	{
