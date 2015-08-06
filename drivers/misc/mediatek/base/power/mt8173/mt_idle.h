@@ -1,7 +1,7 @@
 #ifndef _MT_IDLE_H
 #define _MT_IDLE_H
 
-#define MT_IDLE_EN		0
+#define MT_IDLE_EN		1
 
 enum idle_lock_spm_id {
 	IDLE_SPM_LOCK_VCORE_DVFS = 0,
@@ -253,9 +253,6 @@ extern unsigned int g_SPM_MCDI_Abnormal_WakeUp;
 #if defined(EN_PTP_OD) && EN_PTP_OD
 extern u32 ptp_data[3];
 #endif
-
-extern int mt_irq_mask_all(struct mtk_irq_mask *mask);
-extern int mt_irq_mask_restore(struct mtk_irq_mask *mask);
 
 extern struct kobject *power_kobj;
 
