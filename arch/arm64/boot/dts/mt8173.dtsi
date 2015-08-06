@@ -702,12 +702,11 @@
 			      <0 0x11280000 0 0x20000>;  /* sif-0x11280000 & sif2-0x11290000 */
 			interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_LOW>,  /* xhci */
 				     <GIC_SPI 64 IRQ_TYPE_LEVEL_LOW>;  /* mu3d */
-			reg-vusb33-supply = <&mt6397_usb_reg>;
 			power-domains = <&scpsys MT8173_POWER_DOMAIN_USB>;
 			usb-xtal-clk = <&apmixedsys>;
 			usb-wakeup-ctrl = <&pericfg>;
 			clocks = <&pericfg CLK_PERI_USB0>,
-			<&pericfg CLK_PERI_USB1>;
+				 <&pericfg CLK_PERI_USB1>;
 			clock-names = "peri_usb0", "peri_usb1";
 			num-eps = <9>;
 		};
