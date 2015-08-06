@@ -40,6 +40,17 @@
 	chosen { };
 };
 
+&i2c0 {
+	clock-frequency = <400000>;
+	status = "okay";
+	cap_touch@20 {
+		compatible = "mediatek,cap_touch";
+		reg = <0x20>;
+		interrupt-parent = <&pio>;
+		interrupts = <14 IRQ_TYPE_EDGE_FALLING>;
+	};
+};
+
 &i2c1 {
 	clock-frequency = <400000>;
 	mediatek,use-push-pull;
@@ -146,22 +157,6 @@
 	};
 
 	CTP_pins_eint_output1: eintoutput1 {
-		pins_cmd_dat {
-			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
-			slew-rate = <1>;
-			output-high;
-		};
-	};
-
-	CTP_pins_rst_output0: rstoutput0 {
-		pins_cmd_dat {
-			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
-			slew-rate = <1>;
-			output-low;
-		};
-	};
-
-	CTP_pins_rst_output1: rstoutput1 {
 		pins_cmd_dat {
 			pins = <MT8173_PIN_14_EINT14__FUNC_GPIO14>;
 			slew-rate = <1>;
@@ -282,6 +277,22 @@
 			pins-are-numbered;
 			gpio-controller;
 			#gpio-cells = <2>;
+
+			CTP_pins_rst_output0: rstoutput0 {
+				pins_cmd_dat {
+					pins = <MT6397_PIN_12_COL0__FUNC_GPIO12>;
+					slew-rate = <1>;
+					output-low;
+				};
+			};
+
+			CTP_pins_rst_output1: rstoutput1 {
+				pins_cmd_dat {
+					pins = <MT6397_PIN_12_COL0__FUNC_GPIO12>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
 		};
 
 		mt6397codec: mt6397codec {
