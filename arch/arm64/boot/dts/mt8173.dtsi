@@ -20,7 +20,7 @@
 
 / {
 	compatible = "mediatek,mt8173";
-	interrupt-parent = <&gic>;
+	interrupt-parent = <&sysirq>;
 	#address-cells = <2>;
 	#size-cells = <2>;
 
@@ -349,9 +349,11 @@
 		};
 
 		sysirq: intpol-controller@10200620 {
-			compatible = "mediatek,mt8173-intpol",
-				     "mediatek,mt6577-intpol";
+			compatible = "mediatek,mt8173-sysirq",
+				     "mediatek,mt6577-sysirq";
 			interrupt-controller;
+			#interrupt-cells = <3>;
+			interrupt-parent = <&gic>;
 			reg = <0 0x10200620 0 0x20>;
 		};
 
