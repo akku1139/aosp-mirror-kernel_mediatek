@@ -44,9 +44,6 @@ static unsigned long timer_pos;
 
 static struct mt6397_chip_priv *mt6397_chip;
 
-#define PMIC_IRQ_BASE 512	/* After EINT's irq */
-#define PMIC_IRQ(x) ((x) + PMIC_IRQ_BASE)
-
 static struct mt_wake_event mt6397_event = {
 	.domain = "PMIC"
 };
@@ -55,21 +52,18 @@ static struct mt_wake_event_map pwrkey_wev = {
 	.domain = "PMIC",
 	.code = RG_INT_STATUS_PWRKEY,
 	.we = WEV_PWR,
-	.irq = PMIC_IRQ(RG_INT_STATUS_PWRKEY)
 };
 
 static struct mt_wake_event_map rtc_wev = {
 	.domain = "PMIC",
 	.code = RG_INT_STATUS_RTC,
 	.we = WEV_RTC,
-	.irq = PMIC_IRQ(RG_INT_STATUS_RTC)
 };
 
 static struct mt_wake_event_map charger_wev = {
 	.domain = "PMIC",
 	.code = RG_INT_STATUS_CHRDET,
 	.we = WEV_CHARGER,
-	.irq = PMIC_IRQ(RG_INT_STATUS_CHRDET)
 };
 
 /* ============================================================================== */
@@ -441,7 +435,7 @@ static irqreturn_t homekey_int_handler(int irq, void *dev_id)
 
 static irqreturn_t rtc_int_handler(int irq, void *dev_id)
 {
-	/* RTC driver not ready */
+	/* TODO: mark rtc_irq_handler before rtc driver is ready */
 /*	rtc_irq_handler(); */
 	msleep(100);
 
@@ -570,7 +564,7 @@ static inline void mt6397_do_handle_events(struct mt6397_chip_priv *chip, unsign
 
 	for (event_hw_irq = __ffs(events); events;
 	     events &= ~(1 << event_hw_irq), event_hw_irq = __ffs(events)) {
-		int event_irq = chip->irq_base + event_hw_irq;
+		int event_irq = irq_find_mapping(chip->domain, 0) + event_hw_irq;
 
 		pr_debug("%s: event=%d\n", __func__, event_hw_irq);
 
@@ -691,30 +685,24 @@ static struct irq_chip mt6397_irq_chip = {
 static int mt6397_irq_init(struct mt6397_chip_priv *chip)
 {
 	int i;
-	int ret = irq_alloc_descs(chip->irq_base, chip->irq_base, chip->num_int, numa_node_id());
+	int ret;
 
-	if (ret != chip->irq_base) {
-		pr_info("%s: PMIC alloc desc err: %d\n", __func__, ret);
-		if (ret >= 0)
-			ret = -EBUSY;
-		return ret;
-	}
-
-	chip->domain = irq_domain_add_legacy(NULL, chip->num_int, chip->irq_base, 0,
-					     &irq_domain_simple_ops, chip);
+	chip->domain = irq_domain_add_linear(chip->dev->of_node->parent,
+		MT6397_IRQ_NR, &irq_domain_simple_ops, chip);
 	if (!chip->domain) {
-		ret = -EFAULT;
-		pr_info("%s: PMIC domain add err: %d\n", __func__, ret);
-		return ret;
+		dev_err(chip->dev, "could not create irq domain\n");
+		return -ENOMEM;
 	}
 
 	for (i = 0; i < chip->num_int; i++) {
-		int idx = i + chip->irq_base;
+		int virq = irq_create_mapping(chip->domain, i);
 
-		irq_set_chip_data(idx, chip);
-		irq_set_chip_and_handler(idx, &mt6397_irq_chip, handle_level_irq);
-		set_irq_flags(idx, IRQF_VALID);
-	}
+		irq_set_chip_and_handler(virq, &mt6397_irq_chip,
+			handle_level_irq);
+		irq_set_chip_data(virq, chip);
+		set_irq_flags(virq, IRQF_VALID);
+
+	};
 
 	mt6397_set_event_mask(chip, 0);
 	pr_debug("%s: PMIC: event_mask=%08X; events=%08X\n",
@@ -746,8 +734,7 @@ static int mt6397_irq_handler_init(struct mt6397_chip_priv *chip)
 		int ret, irq;
 		struct mt6397_irq_data *data = &mt6397_irqs[i];
 
-		irq = data->irq_id + chip->irq_base;
-		/* irq = irq_find_mapping(chip->domain, RG_INT_STATUS_PWRKEY); */
+		irq = irq_find_mapping(chip->domain, data->irq_id);
 		ret = request_threaded_irq(irq, NULL, data->action_fn,
 					   IRQF_TRIGGER_HIGH | IRQF_ONESHOT, data->name, chip);
 		if (ret) {
@@ -802,11 +789,6 @@ static int pmic_mt6397_probe(struct platform_device *pdev)
 	chip->irq = mt6397->irq; /* hw irq of EINT */
 	chip->irq_hw_id = (int)irqd_to_hwirq(irq_get_irq_data(mt6397->irq)); /* EINT num */
 
-	spm_register_wakeup_event(&pwrkey_wev);
-	spm_register_wakeup_event(&rtc_wev);
-	spm_register_wakeup_event(&charger_wev);
-
-	chip->irq_base = 512;
 	chip->num_int = 32;
 	chip->int_con[0] = INT_CON0;
 	chip->int_con[1] = INT_CON1;
@@ -825,6 +807,13 @@ static int pmic_mt6397_probe(struct platform_device *pdev)
 	ret = mt6397_irq_handler_init(chip);
 	if (ret)
 		return ret;
+
+	pwrkey_wev.irq = irq_find_mapping(chip->domain, RG_INT_STATUS_PWRKEY);
+	rtc_wev.irq = irq_find_mapping(chip->domain, RG_INT_STATUS_RTC);
+	charger_wev.irq = irq_find_mapping(chip->domain, RG_INT_STATUS_CHRDET);
+	spm_register_wakeup_event(&pwrkey_wev);
+	spm_register_wakeup_event(&rtc_wev);
+	spm_register_wakeup_event(&charger_wev);
 
 	mt6397_chip = chip;
 	register_syscore_ops(&mt6397_syscore_ops);
