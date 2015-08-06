@@ -16,88 +16,25 @@
 #include <linux/of.h>
 #include <linux/debugfs.h>
 #include <sound/soc.h>
+#include "mt6391.h"
+#include <linux/mfd/mt6397/registers.h>
 
 #define MT6397_CODEC_NAME "mt6397-codec"
 #define PMIC6397_E1_CID_CODE 0x1097
 #define ENUM_TO_STR(enum) #enum
 
-#include "mt6391.h"
+#define USE_MT6397_REGMAP
+/* #define USE_PMIC_WRAP_DRIVER */
 
-/*  analog pmic register definition */
-#ifndef CONFIG_FPGA_EARLY_PORTING
-#define USE_PMIC_WRAP_DRIVER
-#ifdef USE_PMIC_WRAP_DRIVER
+#if defined(USE_MT6397_REGMAP)
+#include <linux/mfd/mt6397/core.h>
+#elif defined(USE_PMIC_WRAP_DRIVER)
 #include <mt_pmic_wrap.h>
-#endif
 #include <mt-plat/upmu_common.h>
-#define PMIC_TRIM_ADDRESS1          (EFUSE_DOUT_192_207)
-#define PMIC_TRIM_ADDRESS2          (EFUSE_DOUT_208_223)
-#else
-#define AFE_PMICANA_AUDIO_BASE        (0x0)
-#define TOP_CKPDN                   (AFE_PMICANA_AUDIO_BASE + 0x0102)
-#define TOP_CKPDN_SET               (AFE_PMICANA_AUDIO_BASE + 0x0104)
-#define TOP_CKPDN_CLR               (AFE_PMICANA_AUDIO_BASE + 0x0106)
-#define TOP_CKPDN2                  (AFE_PMICANA_AUDIO_BASE + 0x0108)
-#define TOP_CKPDN2_SET              (AFE_PMICANA_AUDIO_BASE + 0x010a)
-#define TOP_CKPDN2_CLR              (AFE_PMICANA_AUDIO_BASE + 0x010c)
-#define TOP_CKCON1                  (AFE_PMICANA_AUDIO_BASE + 0x0128)
-#define TOP_CKCON3                  (AFE_PMICANA_AUDIO_BASE + 0x01D4)
-#define TEST_CON0                   (AFE_PMICANA_AUDIO_BASE + 0x013A)
-#define TEST_OUT_L                  (AFE_PMICANA_AUDIO_BASE + 0x014E)
-#define PMIC_TRIM_ADDRESS1          (AFE_PMICANA_AUDIO_BASE + 0x01E6)
-#define PMIC_TRIM_ADDRESS2          (AFE_PMICANA_AUDIO_BASE + 0x01E8)
-#define SPK_CON0                    (AFE_PMICANA_AUDIO_BASE + 0x0600)
-#define SPK_CON1                    (AFE_PMICANA_AUDIO_BASE + 0x0602)
-#define SPK_CON2                    (AFE_PMICANA_AUDIO_BASE + 0x0604)
-#define SPK_CON3                    (AFE_PMICANA_AUDIO_BASE + 0x0606)
-#define SPK_CON4                    (AFE_PMICANA_AUDIO_BASE + 0x0608)
-#define SPK_CON5                    (AFE_PMICANA_AUDIO_BASE + 0x060A)
-#define SPK_CON6                    (AFE_PMICANA_AUDIO_BASE + 0x060C)
-#define SPK_CON7                    (AFE_PMICANA_AUDIO_BASE + 0x060E)
-#define SPK_CON8                    (AFE_PMICANA_AUDIO_BASE + 0x0610)
-#define SPK_CON9                    (AFE_PMICANA_AUDIO_BASE + 0x0612)
-#define SPK_CON10                   (AFE_PMICANA_AUDIO_BASE + 0x0614)
-#define SPK_CON11                   (AFE_PMICANA_AUDIO_BASE + 0x0616)
-#define AUDDAC_CON0                 (AFE_PMICANA_AUDIO_BASE + 0x0700)
-#define AUDBUF_CFG0                 (AFE_PMICANA_AUDIO_BASE + 0x0702)
-#define AUDBUF_CFG1                 (AFE_PMICANA_AUDIO_BASE + 0x0704)
-#define AUDBUF_CFG2                 (AFE_PMICANA_AUDIO_BASE + 0x0706)
-#define AUDBUF_CFG3                 (AFE_PMICANA_AUDIO_BASE + 0x0708)
-#define AUDBUF_CFG4                 (AFE_PMICANA_AUDIO_BASE + 0x070a)
-#define IBIASDIST_CFG0              (AFE_PMICANA_AUDIO_BASE + 0x070c)
-#define AUDACCDEPOP_CFG0            (AFE_PMICANA_AUDIO_BASE + 0x070e)
-#define AUD_IV_CFG0                 (AFE_PMICANA_AUDIO_BASE + 0x0710)
-#define AUDCLKGEN_CFG0              (AFE_PMICANA_AUDIO_BASE + 0x0712)
-#define AUDLDO_CFG0                 (AFE_PMICANA_AUDIO_BASE + 0x0714)
-#define AUDLDO_CFG1                 (AFE_PMICANA_AUDIO_BASE + 0x0716)
-#define AUDNVREGGLB_CFG0            (AFE_PMICANA_AUDIO_BASE + 0x0718)
-#define AUD_NCP0                    (AFE_PMICANA_AUDIO_BASE + 0x071a)
-#define AUDPREAMP_CON0              (AFE_PMICANA_AUDIO_BASE + 0x071c)
-#define AUDADC_CON0                 (AFE_PMICANA_AUDIO_BASE + 0x071e)
-#define AUDADC_CON1                 (AFE_PMICANA_AUDIO_BASE + 0x0720)
-#define AUDADC_CON2                 (AFE_PMICANA_AUDIO_BASE + 0x0722)
-#define AUDADC_CON3                 (AFE_PMICANA_AUDIO_BASE + 0x0724)
-#define AUDADC_CON4                 (AFE_PMICANA_AUDIO_BASE + 0x0726)
-#define AUDADC_CON5                 (AFE_PMICANA_AUDIO_BASE + 0x0728)
-#define AUDADC_CON6                 (AFE_PMICANA_AUDIO_BASE + 0x072a)
-#define AUDDIGMI_CON0               (AFE_PMICANA_AUDIO_BASE + 0x072c)
-#define AUDLSBUF_CON0               (AFE_PMICANA_AUDIO_BASE + 0x072e)
-#define AUDLSBUF_CON1               (AFE_PMICANA_AUDIO_BASE + 0x0730)
-#define AUDENCSPARE_CON0            (AFE_PMICANA_AUDIO_BASE + 0x0732)
-#define AUDENCCLKSQ_CON0            (AFE_PMICANA_AUDIO_BASE + 0x0734)
-#define AUDPREAMPGAIN_CON0          (AFE_PMICANA_AUDIO_BASE + 0x0736)
-#define ZCD_CON0                    (AFE_PMICANA_AUDIO_BASE + 0x0738)
-#define ZCD_CON1                    (AFE_PMICANA_AUDIO_BASE + 0x073a)
-#define ZCD_CON2                    (AFE_PMICANA_AUDIO_BASE + 0x073c)
-#define ZCD_CON3                    (AFE_PMICANA_AUDIO_BASE + 0x073e)
-#define ZCD_CON4                    (AFE_PMICANA_AUDIO_BASE + 0x0740)
-#define ZCD_CON5                    (AFE_PMICANA_AUDIO_BASE + 0x0742)
-#define NCP_CLKDIV_CON0             (AFE_PMICANA_AUDIO_BASE + 0x0744)
-#define NCP_CLKDIV_CON1             (AFE_PMICANA_AUDIO_BASE + 0x0746)
-
-#define upmu_set_rg_clksq_en(x)
-#define upmu_get_cid() (0)
 #endif
+
+#define MT6397_TRIM_ADDRESS1    (MT6397_EFUSE_DOUT_192_207)
+#define MT6397_TRIM_ADDRESS2    (MT6397_EFUSE_DOUT_208_223)
 
 
 /* enum definition */
@@ -264,6 +201,7 @@ struct mt6391_priv {
 	int ana_clk_counter;
 	struct mutex ctrl_mutex;
 	struct mutex clk_mutex;
+	struct snd_soc_codec *codec;
 #ifdef CONFIG_DEBUG_FS
 	struct dentry *debugfs;
 #endif
@@ -272,16 +210,31 @@ struct mt6391_priv {
 
 /* Function implementation */
 
-void mt6391_set_reg(uint32_t offset, uint32_t value, uint32_t mask)
+static uint32_t mt6391_get_reg(struct mt6391_priv *codec_data, uint32_t offset)
 {
-#ifdef USE_PMIC_WRAP_DRIVER
+	uint32_t data = 0;
+
+#if defined(USE_MT6397_REGMAP)
+	data = snd_soc_read(codec_data->codec, offset);
+#elif defined(USE_PMIC_WRAP_DRIVER)
+	pwrap_read(offset, &data);
+#endif
+	return data;
+}
+
+static void mt6391_set_reg(struct mt6391_priv *codec_data, uint32_t offset,
+		uint32_t value, uint32_t mask)
+{
+#if defined(USE_MT6397_REGMAP)
+	snd_soc_update_bits(codec_data->codec, offset, mask, value);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 	int ret = 0;
-	uint32_t reg_value = mt6391_get_reg(offset);
+	uint32_t reg_value = mt6391_get_reg(codec_data, offset);
 
 	reg_value &= (~mask);
 	reg_value |= (value & mask);
 	ret = pwrap_write(offset, reg_value);
-	reg_value = mt6391_get_reg(offset);
+	reg_value = mt6391_get_reg(codec_data, offset);
 	if ((reg_value & mask) != (value & mask)) {
 		pr_debug("%s 0x%x-0x%x(0x%x) ret = %d reg_value = 0x%x\n",
 			 __func__, offset, value, mask, ret, reg_value);
@@ -289,119 +242,24 @@ void mt6391_set_reg(uint32_t offset, uint32_t value, uint32_t mask)
 #endif
 }
 
-uint32_t mt6391_get_reg(uint32_t offset)
-{
-	uint32_t data = 0;
-#ifdef USE_PMIC_WRAP_DRIVER
-	int ret = 0;
-
-	ret = pwrap_read(offset, &data);
-#endif
-	return data;
-}
-
-void mt6391_debug_log_print(void)
-{
-	pr_notice("+%s\n", __func__);
-	pr_notice("AFE_UL_DL_CON0	= 0x%x\n", mt6391_get_reg(AFE_UL_DL_CON0));
-	pr_notice("AFE_DL_SRC2_CON0_H	= 0x%x\n", mt6391_get_reg(AFE_DL_SRC2_CON0_H));
-	pr_notice("AFE_DL_SRC2_CON0_L	= 0x%x\n", mt6391_get_reg(AFE_DL_SRC2_CON0_L));
-
-	pr_notice("AFE_DL_SDM_CON0  = 0x%x\n", mt6391_get_reg(AFE_DL_SDM_CON0));
-	pr_notice("AFE_DL_SDM_CON1  = 0x%x\n", mt6391_get_reg(AFE_DL_SDM_CON1));
-	pr_notice("AFE_UL_SRC_CON0_H  = 0x%x\n", mt6391_get_reg(AFE_UL_SRC_CON0_H));
-	pr_notice("AFE_UL_SRC_CON0_L  = 0x%x\n", mt6391_get_reg(AFE_UL_SRC_CON0_L));
-	pr_notice("AFE_UL_SRC_CON1_H  = 0x%x\n", mt6391_get_reg(AFE_UL_SRC_CON1_H));
-	pr_notice("AFE_UL_SRC_CON1_L  = 0x%x\n", mt6391_get_reg(AFE_UL_SRC_CON1_L));
-
-	pr_notice("ANA_AFE_TOP_CON0  = 0x%x\n", mt6391_get_reg(ANA_AFE_TOP_CON0));
-	pr_notice("ANA_AUDIO_TOP_CON0	= 0x%x\n", mt6391_get_reg(ANA_AUDIO_TOP_CON0));
-
-	pr_notice("AFUNC_AUD_CON0	= 0x%x\n", mt6391_get_reg(AFUNC_AUD_CON0));
-	pr_notice("AFUNC_AUD_CON1	= 0x%x\n", mt6391_get_reg(AFUNC_AUD_CON1));
-	pr_notice("AFUNC_AUD_CON2	= 0x%x\n", mt6391_get_reg(AFUNC_AUD_CON2));
-	pr_notice("AFUNC_AUD_CON3	= 0x%x\n", mt6391_get_reg(AFUNC_AUD_CON3));
-	pr_notice("AFUNC_AUD_CON4	= 0x%x\n", mt6391_get_reg(AFUNC_AUD_CON4));
-
-	pr_notice("AFE_PMIC_NEWIF_CFG0  = 0x%x\n", mt6391_get_reg(AFE_PMIC_NEWIF_CFG0));
-	pr_notice("AFE_PMIC_NEWIF_CFG1  = 0x%x\n", mt6391_get_reg(AFE_PMIC_NEWIF_CFG1));
-	pr_notice("AFE_PMIC_NEWIF_CFG2  = 0x%x\n", mt6391_get_reg(AFE_PMIC_NEWIF_CFG2));
-	pr_notice("AFE_PMIC_NEWIF_CFG3  = 0x%x\n", mt6391_get_reg(AFE_PMIC_NEWIF_CFG3));
-	pr_notice("AFE_SGEN_CFG0  = 0x%x\n", mt6391_get_reg(AFE_SGEN_CFG0));
-	pr_notice("AFE_SGEN_CFG1  = 0x%x\n", mt6391_get_reg(AFE_SGEN_CFG1));
-
-	pr_notice("TOP_CKPDN  = 0x%x\n", mt6391_get_reg(TOP_CKPDN));
-	pr_notice("TOP_CKPDN_SET  = 0x%x\n", mt6391_get_reg(TOP_CKPDN_SET));
-	pr_notice("TOP_CKPDN_CLR  = 0x%x\n", mt6391_get_reg(TOP_CKPDN_CLR));
-	pr_notice("TOP_CKPDN2	= 0x%x\n", mt6391_get_reg(TOP_CKPDN2));
-	pr_notice("TOP_CKCON1	= 0x%x\n", mt6391_get_reg(TOP_CKCON1));
-	pr_notice("SPK_CON0  = 0x%x\n", mt6391_get_reg(SPK_CON0));
-	pr_notice("SPK_CON1  = 0x%x\n", mt6391_get_reg(SPK_CON1));
-	pr_notice("SPK_CON2  = 0x%x\n", mt6391_get_reg(SPK_CON2));
-	pr_notice("SPK_CON3  = 0x%x\n", mt6391_get_reg(SPK_CON3));
-	pr_notice("SPK_CON4  = 0x%x\n", mt6391_get_reg(SPK_CON4));
-	pr_notice("SPK_CON5  = 0x%x\n", mt6391_get_reg(SPK_CON5));
-	pr_notice("SPK_CON6  = 0x%x\n", mt6391_get_reg(SPK_CON6));
-	pr_notice("SPK_CON7  = 0x%x\n", mt6391_get_reg(SPK_CON7));
-	pr_notice("SPK_CON8  = 0x%x\n", mt6391_get_reg(SPK_CON8));
-	pr_notice("SPK_CON9  = 0x%x\n", mt6391_get_reg(SPK_CON9));
-	pr_notice("SPK_CON10  = 0x%x\n", mt6391_get_reg(SPK_CON10));
-	pr_notice("SPK_CON11  = 0x%x\n", mt6391_get_reg(SPK_CON11));
-
-	pr_notice("AUDDAC_CON0  = 0x%x\n", mt6391_get_reg(AUDDAC_CON0));
-	pr_notice("AUDBUF_CFG0  = 0x%x\n", mt6391_get_reg(AUDBUF_CFG0));
-	pr_notice("AUDBUF_CFG1  = 0x%x\n", mt6391_get_reg(AUDBUF_CFG1));
-	pr_notice("AUDBUF_CFG2  = 0x%x\n", mt6391_get_reg(AUDBUF_CFG2));
-	pr_notice("AUDBUF_CFG3  = 0x%x\n", mt6391_get_reg(AUDBUF_CFG3));
-	pr_notice("AUDBUF_CFG4  = 0x%x\n", mt6391_get_reg(AUDBUF_CFG4));
-
-	pr_notice("IBIASDIST_CFG0	= 0x%x\n", mt6391_get_reg(IBIASDIST_CFG0));
-	pr_notice("AUDACCDEPOP_CFG0  = 0x%x\n", mt6391_get_reg(AUDACCDEPOP_CFG0));
-	pr_notice("AUD_IV_CFG0  = 0x%x\n", mt6391_get_reg(AUD_IV_CFG0));
-	pr_notice("AUDCLKGEN_CFG0	= 0x%x\n", mt6391_get_reg(AUDCLKGEN_CFG0));
-	pr_notice("AUDLDO_CFG0  = 0x%x\n", mt6391_get_reg(AUDLDO_CFG0));
-	pr_notice("AUDLDO_CFG1  = 0x%x\n", mt6391_get_reg(AUDLDO_CFG1));
-	pr_notice("AUDNVREGGLB_CFG0  = 0x%x\n", mt6391_get_reg(AUDNVREGGLB_CFG0));
-	pr_notice("AUD_NCP0  = 0x%x\n", mt6391_get_reg(AUD_NCP0));
-	pr_notice("AUDPREAMP_CON0	= 0x%x\n", mt6391_get_reg(AUDPREAMP_CON0));
-	pr_notice("AUDADC_CON0  = 0x%x\n", mt6391_get_reg(AUDADC_CON0));
-	pr_notice("AUDADC_CON1  = 0x%x\n", mt6391_get_reg(AUDADC_CON1));
-	pr_notice("AUDADC_CON2  = 0x%x\n", mt6391_get_reg(AUDADC_CON2));
-	pr_notice("AUDADC_CON3  = 0x%x\n", mt6391_get_reg(AUDADC_CON3));
-	pr_notice("AUDADC_CON4  = 0x%x\n", mt6391_get_reg(AUDADC_CON4));
-	pr_notice("AUDADC_CON5  = 0x%x\n", mt6391_get_reg(AUDADC_CON5));
-	pr_notice("AUDADC_CON6  = 0x%x\n", mt6391_get_reg(AUDADC_CON6));
-	pr_notice("AUDDIGMI_CON0  = 0x%x\n", mt6391_get_reg(AUDDIGMI_CON0));
-	pr_notice("AUDLSBUF_CON0  = 0x%x\n", mt6391_get_reg(AUDLSBUF_CON0));
-	pr_notice("AUDLSBUF_CON1  = 0x%x\n", mt6391_get_reg(AUDLSBUF_CON1));
-	pr_notice("AUDENCSPARE_CON0  = 0x%x\n", mt6391_get_reg(AUDENCSPARE_CON0));
-	pr_notice("AUDENCCLKSQ_CON0  = 0x%x\n", mt6391_get_reg(AUDENCCLKSQ_CON0));
-	pr_notice("AUDPREAMPGAIN_CON0	= 0x%x\n", mt6391_get_reg(AUDPREAMPGAIN_CON0));
-	pr_notice("ZCD_CON0  = 0x%x\n", mt6391_get_reg(ZCD_CON0));
-	pr_notice("ZCD_CON1  = 0x%x\n", mt6391_get_reg(ZCD_CON1));
-	pr_notice("ZCD_CON2  = 0x%x\n", mt6391_get_reg(ZCD_CON2));
-	pr_notice("ZCD_CON3  = 0x%x\n", mt6391_get_reg(ZCD_CON3));
-	pr_notice("ZCD_CON4  = 0x%x\n", mt6391_get_reg(ZCD_CON4));
-	pr_notice("ZCD_CON5  = 0x%x\n", mt6391_get_reg(ZCD_CON5));
-	pr_notice("NCP_CLKDIV_CON0  = 0x%x\n", mt6391_get_reg(NCP_CLKDIV_CON0));
-	pr_notice("NCP_CLKDIV_CON1  = 0x%x\n", mt6391_get_reg(NCP_CLKDIV_CON1));
-
-	pr_notice("-%s\n", __func__);
-}
-
-static void mt6391_control_top_clk(uint32_t mask, bool enable)
+static void mt6391_control_top_clk(struct mt6391_priv *codec_data,
+		uint32_t mask, bool enable)
 {
 	/* set pmic register or analog CONTROL_IFACE_PATH */
-#ifdef USE_PMIC_WRAP_DRIVER
-	u32 val;
-	u16 reg = enable ? TOP_CKPDN_CLR : TOP_CKPDN_SET;
+	uint32_t val;
+	uint32_t reg = enable ? MT6397_TOP_CKPDN_CLR : MT6397_TOP_CKPDN_SET;
 
+#if defined(USE_MT6397_REGMAP)
+	snd_soc_update_bits(codec_data->codec, reg, mask, mask);
+	val = snd_soc_read(codec_data->codec, MT6397_TOP_CKPDN);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 	pwrap_write(reg, mask);
-	pwrap_read(TOP_CKPDN, &val);
+	pwrap_read(MT6397_TOP_CKPDN, &val);
+#endif
+
 	if ((val & mask) != (enable ? 0 : mask))
 		pr_err("%s: data mismatch: mask=%04X, val=%04X, enable=%d\n",
-		       __func__, mask, val, enable);
-#endif
+			__func__, mask, val, enable);
 }
 
 static void mt6391_ana_clk_on(struct mt6391_priv *codec_data)
@@ -409,8 +267,12 @@ static void mt6391_ana_clk_on(struct mt6391_priv *codec_data)
 	mutex_lock(&codec_data->clk_mutex);
 	if (codec_data->ana_clk_counter == 0) {
 		pr_debug("+%s ana_clk_counter:%d\n", __func__, codec_data->ana_clk_counter);
+#if defined(USE_MT6397_REGMAP)
+		mt6391_set_reg(codec_data, MT6397_TOP_CKCON1, 0x0010, 0x0010);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 		upmu_set_rg_clksq_en(1);
-		mt6391_control_top_clk(0x0003, true);
+#endif
+		mt6391_control_top_clk(codec_data, 0x0003, true);
 	}
 	codec_data->ana_clk_counter++;
 	mutex_unlock(&codec_data->clk_mutex);
@@ -423,8 +285,12 @@ static void mt6391_ana_clk_off(struct mt6391_priv *codec_data)
 	codec_data->ana_clk_counter--;
 	if (codec_data->ana_clk_counter == 0) {
 		pr_debug("+%s ana_clk_counter:%d\n", __func__, codec_data->ana_clk_counter);
+#if defined(USE_MT6397_REGMAP)
+		mt6391_set_reg(codec_data, MT6397_TOP_CKCON1, 0x0000, 0x0010);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 		upmu_set_rg_clksq_en(0);
-		mt6391_control_top_clk(0x0003, false);
+#endif
+		mt6391_control_top_clk(codec_data, 0x0003, false);
 	} else if (codec_data->ana_clk_counter < 0) {
 		pr_err("%s ana_clk_counter:%d<0\n", __func__, codec_data->ana_clk_counter);
 		codec_data->ana_clk_counter = 0;
@@ -437,7 +303,11 @@ static void mt6391_suspend_clk_on(struct mt6391_priv *codec_data)
 {
 	if (codec_data->ana_clk_counter > 0) {
 		pr_debug("%s ana_clk_counter:%d\n", __func__, codec_data->ana_clk_counter);
+#if defined(USE_MT6397_REGMAP)
+		mt6391_set_reg(codec_data, MT6397_TOP_CKCON1, 0x0010, 0x0010);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 		upmu_set_rg_clksq_en(1);
+#endif
 	}
 }
 
@@ -445,7 +315,11 @@ static void mt6391_suspend_clk_off(struct mt6391_priv *codec_data)
 {
 	if (codec_data->ana_clk_counter > 0) {
 		pr_debug("%s ana_clk_counter:%d\n", __func__, codec_data->ana_clk_counter);
+#if defined(USE_MT6397_REGMAP)
+		mt6391_set_reg(codec_data, MT6397_TOP_CKCON1, 0x0000, 0x0010);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 		upmu_set_rg_clksq_en(0);
+#endif
 	}
 }
 
@@ -548,8 +422,8 @@ static bool mt6391_get_adc_status(struct mt6391_priv *codec_data)
 	return false;
 }
 
-static void mt6391_set_mux(enum mt6391_device_type device_type,
-			enum mt6391_device_mux mux_type)
+static void mt6391_set_mux(struct mt6391_priv *codec_data,
+	enum mt6391_device_type device_type, enum mt6391_device_mux mux_type)
 {
 	uint32_t reg_value = 0;
 
@@ -566,7 +440,7 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 2 << 3;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUDBUF_CFG0, reg_value, 0x000000018);
+		mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, reg_value, 0x000000018);
 		break;
 	case MT6391_DEV_OUT_HEADSETL:
 		if (mux_type == MT6391_MUX_OPEN) {
@@ -587,7 +461,7 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 4 << 5;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUDBUF_CFG0, reg_value, 0x000001e0);
+		mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, reg_value, 0x000001e0);
 		break;
 	case MT6391_DEV_OUT_HEADSETR:
 		if (mux_type == MT6391_MUX_OPEN) {
@@ -608,7 +482,7 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 4 << 9;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUDBUF_CFG0, reg_value, 0x00001e00);
+		mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, reg_value, 0x00001e00);
 		break;
 	case MT6391_DEV_OUT_SPEAKERR:
 	case MT6391_DEV_OUT_SPEAKERL:
@@ -633,7 +507,8 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 4 << 2;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUD_IV_CFG0, reg_value | (reg_value << 8), 0x00001c1c);
+		mt6391_set_reg(codec_data, MT6397_AUD_IV_CFG0,
+			       reg_value | (reg_value << 8), 0x00001c1c);
 		break;
 	case MT6391_DEV_IN_PREAMP_L:
 		if (mux_type == MT6391_MUX_IN_MIC1) {
@@ -646,7 +521,7 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 1 << 2;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUDPREAMP_CON0, reg_value, 0x0000001c);
+		mt6391_set_reg(codec_data, MT6397_AUDPREAMP_CON0, reg_value, 0x0000001c);
 		break;
 	case MT6391_DEV_IN_PREAMP_R:
 		if (mux_type == MT6391_MUX_IN_MIC1) {
@@ -659,7 +534,7 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 1 << 5;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUDPREAMP_CON0, reg_value, 0x000000e0);
+		mt6391_set_reg(codec_data, MT6397_AUDPREAMP_CON0, reg_value, 0x000000e0);
 		break;
 	case MT6391_DEV_IN_ADC1:
 		if (mux_type == MT6391_MUX_IN_MIC1) {
@@ -672,7 +547,7 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 1 << 2;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUDADC_CON0, reg_value, 0x0000001c);
+		mt6391_set_reg(codec_data, MT6397_AUDADC_CON0, reg_value, 0x0000001c);
 		break;
 	case MT6391_DEV_IN_ADC2:
 		if (mux_type == MT6391_MUX_IN_MIC1) {
@@ -685,7 +560,7 @@ static void mt6391_set_mux(enum mt6391_device_type device_type,
 			reg_value = 1 << 5;
 			pr_warn("%s %d %d\n", __func__, device_type, mux_type);
 		}
-		mt6391_set_reg(AUDADC_CON0, reg_value, 0x000000e0);
+		mt6391_set_reg(codec_data, MT6397_AUDADC_CON0, reg_value, 0x000000e0);
 		break;
 	default:
 		break;
@@ -697,26 +572,28 @@ static void mt6391_turn_on_dac(struct mt6391_priv *codec_data)
 	uint32_t rate = codec_data->sample_rate[MT6391_ADDA_DAC];
 
 	pr_debug("%s dac_sample_rate = %d\n", __func__, rate);
-	mt6391_set_reg(AFE_PMIC_NEWIF_CFG0, (mt6391_get_dl_input_mode(rate) << 12),
+	mt6391_set_reg(codec_data, MT6397_AFE_PMIC_NEWIF_CFG0,
+		       (mt6391_get_dl_input_mode(rate) << 12),
 		       0xf000);
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0006, 0xffff);
-	mt6391_set_reg(AFUNC_AUD_CON0, 0xc3a1, 0xffff);
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0003, 0xffff);
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x000b, 0xffff);
-	mt6391_set_reg(AFE_DL_SDM_CON1, 0x001e, 0xffff);
-	mt6391_set_reg(AFE_DL_SRC2_CON0_H, 0x0300 | (mt6391_get_dl_input_mode(rate) << 12),
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0006, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON0, 0xc3a1, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0003, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x000b, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_DL_SDM_CON1, 0x001e, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_DL_SRC2_CON0_H,
+		       0x0300 | (mt6391_get_dl_input_mode(rate) << 12),
 		       0x0ffff);
-	mt6391_set_reg(AFE_UL_DL_CON0, 0x007f, 0xffff);
-	mt6391_set_reg(AFE_DL_SRC2_CON0_L, 0x1801, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_UL_DL_CON0, 0x007f, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_DL_SRC2_CON0_L, 0x1801, 0xffff);
 }
 
 static void mt6391_turn_off_dac(struct mt6391_priv *codec_data)
 {
 	pr_debug("%s\n", __func__);
 
-	mt6391_set_reg(AFE_DL_SRC2_CON0_L, 0x1800, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_DL_SRC2_CON0_L, 0x1800, 0xffff);
 	if (!mt6391_get_ul_status(codec_data))
-		mt6391_set_reg(AFE_UL_DL_CON0, 0x0000, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AFE_UL_DL_CON0, 0x0000, 0xffff);
 }
 
 static void mt6391_spk_auto_trim_offset(struct mt6391_priv *codec_data)
@@ -726,48 +603,58 @@ static void mt6391_spk_auto_trim_offset(struct mt6391_priv *codec_data)
 	uint32_t chip_version = 0;
 	int retry_count = 50;
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
-	mt6391_set_reg(AUDLDO_CFG0, 0x0D92, 0xffff);	/* enable VA28 , VA 33 VBAT ref , set dc */
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x000C, 0xffff);	/* set ACC mode  enable NVREF */
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
+	/* enable VA28 , VA 33 VBAT ref , set dc */
+	mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0D92, 0xffff);
+	/* set ACC mode  enable NVREF */
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x000C, 0xffff);
 	/* enable LDO ; fix me , separate for UL  DL LDO */
-	mt6391_set_reg(AUD_NCP0, 0xE000, 0xE000);
-	mt6391_set_reg(NCP_CLKDIV_CON0, 0x102B, 0xffff);	/* RG DEV ck on */
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0000, 0xffff);	/* NCP on */
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0xE000, 0xE000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON0, 0x102B, 0xffff);	/* RG DEV ck on */
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0000, 0xffff);	/* NCP on */
 	udelay(200);
-	mt6391_set_reg(ZCD_CON0, 0x0301, 0xffff);	/* ZCD setting gain step gain and enable */
-	mt6391_set_reg(IBIASDIST_CFG0, 0x0552, 0xffff);	/* audio bias adjustment */
-	mt6391_set_reg(ZCD_CON4, 0x0505, 0xffff);	/* set DUDIV gain ,iv buffer gain */
-	mt6391_set_reg(AUD_IV_CFG0, 0x1111, 0xffff);	/* set IV buffer on */
+	/* ZCD setting gain step gain and enable */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0301, 0xffff);
+	/* audio bias adjustment */
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x0552, 0xffff);
+	/* set DUDIV gain ,iv buffer gain */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON4, 0x0505, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUD_IV_CFG0, 0x1111, 0xffff);	/* set IV buffer on */
 	udelay(100);
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0001, 0x0001);	/* reset docoder */
-	mt6391_set_reg(AUDDAC_CON0, 0x000f, 0xffff);	/* power on DAC */
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0001, 0x0001);	/* reset docoder */
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x000f, 0xffff);	/* power on DAC */
 	udelay(100);
-	mt6391_set_mux(MT6391_DEV_OUT_SPEAKERR, MT6391_MUX_AUDIO);
-	mt6391_set_mux(MT6391_DEV_OUT_SPEAKERL, MT6391_MUX_AUDIO);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0000, 0x0007);	/* set Mux */
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_SPEAKERR, MT6391_MUX_AUDIO);
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_SPEAKERL, MT6391_MUX_AUDIO);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0000, 0x0007);	/* set Mux */
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 
-	mt6391_set_reg(SPK_CON1, 0, 0x7f00);	/* disable the software register mode */
-	mt6391_set_reg(SPK_CON4, 0, 0x7f00);	/* disable the software register mode */
-	mt6391_set_reg(SPK_CON9, 0x0018, 0xffff);	/* Choose new mode for trim (E2 Trim) */
-	mt6391_set_reg(SPK_CON0, 0x0008, 0xffff);	/* Enable auto trim */
-	mt6391_set_reg(SPK_CON3, 0x0008, 0xffff);	/* Enable auto trim R */
-	mt6391_set_reg(SPK_CON0, 0x3000, 0xf000);	/* set gain */
-	mt6391_set_reg(SPK_CON3, 0x3000, 0xf000);	/* set gain R */
-	mt6391_set_reg(SPK_CON9, 0x0100, 0x0f00);	/* set gain L */
-	mt6391_set_reg(SPK_CON5, (0x1 << 11), 0x7800);	/* set gain R */
-	mt6391_set_reg(SPK_CON0, 0x0001, 0x0001);	/* Enable amplifier & auto trim */
-	mt6391_set_reg(SPK_CON3, 0x0001, 0x0001);	/* Enable amplifier & auto trim R */
+	/* disable the software register mode */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON1, 0, 0x7f00);
+	/* disable the software register mode */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON4, 0, 0x7f00);
+	/* Choose new mode for trim (E2 Trim) */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0018, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0, 0x0008, 0xffff);	/* Enable auto trim */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3, 0x0008, 0xffff);	/* Enable auto trim R */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0, 0x3000, 0xf000);	/* set gain */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3, 0x3000, 0xf000);	/* set gain R */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0100, 0x0f00);	/* set gain L */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON5, (0x1 << 11), 0x7800);	/* set gain R */
+	/* Enable amplifier & auto trim */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0, 0x0001, 0x0001);
+	/* Enable amplifier & auto trim R */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3, 0x0001, 0x0001);
 
 	/* empirical data shows it usually takes 13ms to be ready */
 	usleep_range(15000, 16000);
 
 	do {
-		wait_for_ready = mt6391_get_reg(SPK_CON1);
+		wait_for_ready = mt6391_get_reg(codec_data, MT6397_SPK_CON1);
 		wait_for_ready = ((wait_for_ready & 0x8000) >> 15);
 
 		if (wait_for_ready) {
-			wait_for_ready = mt6391_get_reg(SPK_CON4);
+			wait_for_ready = mt6391_get_reg(codec_data, MT6397_SPK_CON4);
 			wait_for_ready = ((wait_for_ready & 0x8000) >> 15);
 			if (wait_for_ready)
 				break;
@@ -782,29 +669,33 @@ static void mt6391_spk_auto_trim_offset(struct mt6391_priv *codec_data)
 	else
 		pr_warn("%s fail\n", __func__);
 
-	mt6391_set_reg(SPK_CON9, 0x0, 0xffff);
-	mt6391_set_reg(SPK_CON5, 0, 0x7800);	/* set gain R */
-	mt6391_set_reg(SPK_CON0, 0x0000, 0x0001);
-	mt6391_set_reg(SPK_CON3, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON5, 0, 0x7800);	/* set gain R */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3, 0x0000, 0x0001);
 
 	/* get trim offset result */
 	pr_debug("%s GetSPKAutoTrimOffset\n", __func__);
-	mt6391_set_reg(TEST_CON0, 0x0805, 0xffff);
-	reg = mt6391_get_reg(TEST_OUT_L);
+	mt6391_set_reg(codec_data, MT6397_TEST_CON0, 0x0805, 0xffff);
+	reg = mt6391_get_reg(codec_data, MT6397_TEST_OUT_L);
 	codec_data->ispkl_trim = ((reg >> 0) & 0xf);
-	mt6391_set_reg(TEST_CON0, 0x0806, 0xffff);
-	reg = mt6391_get_reg(TEST_OUT_L);
+	mt6391_set_reg(codec_data, MT6397_TEST_CON0, 0x0806, 0xffff);
+	reg = mt6391_get_reg(codec_data, MT6397_TEST_OUT_L);
 	codec_data->ispkl_trim |= (((reg >> 0) & 0x1) << 4);
 	codec_data->spkl_polarity = ((reg >> 1) & 0x1);
-	mt6391_set_reg(TEST_CON0, 0x080E, 0xffff);
-	reg = mt6391_get_reg(TEST_OUT_L);
+	mt6391_set_reg(codec_data, MT6397_TEST_CON0, 0x080E, 0xffff);
+	reg = mt6391_get_reg(codec_data, MT6397_TEST_OUT_L);
 	codec_data->ispkr_trim = ((reg >> 0) & 0xf);
-	mt6391_set_reg(TEST_CON0, 0x080F, 0xffff);
-	reg = mt6391_get_reg(TEST_OUT_L);
+	mt6391_set_reg(codec_data, MT6397_TEST_CON0, 0x080F, 0xffff);
+	reg = mt6391_get_reg(codec_data, MT6397_TEST_OUT_L);
 	codec_data->ispkr_trim |= (((reg >> 0) & 0x1) << 4);
 	codec_data->spkr_polarity = ((reg >> 1) & 0x1);
 
+#if defined(USE_MT6397_REGMAP)
+	chip_version = mt6391_get_reg(codec_data, MT6397_CID);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 	chip_version = upmu_get_cid();
+#endif
 
 	if (chip_version == PMIC6397_E1_CID_CODE) {
 		pr_debug("%s PMIC is MT6397 E1, set speaker R trim code to 0\n", __func__);
@@ -818,24 +709,25 @@ static void mt6391_spk_auto_trim_offset(struct mt6391_priv *codec_data)
 		 __func__, codec_data->spkr_polarity, codec_data->ispkr_trim);
 
 	/* turn off speaker after trim */
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
-	mt6391_set_reg(SPK_CON0, 0x0000, 0xffff);
-	mt6391_set_reg(SPK_CON3, 0x0000, 0xffff);
-	mt6391_set_reg(SPK_CON11, 0x0000, 0xffff);
-	mt6391_set_reg(ZCD_CON0, 0x0101, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON11, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0101, 0xffff);
 
 	/* enable LDO ; fix me , separate for UL  DL LDO */
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0001);
-	mt6391_set_reg(AUDDAC_CON0, 0x0000, 0xffff);	/* RG DEV ck on */
-	mt6391_set_reg(AUD_IV_CFG0, 0x0000, 0xffff);	/* NCP on */
-	mt6391_set_reg(IBIASDIST_CFG0, 0x1552, 0xffff);	/* Audio headset power on */
-	/* mt6391_set_reg(AUDBUF_CFG1, 0x0000, 0x0100); */
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x0000, 0xffff);	/* RG DEV ck on */
+	mt6391_set_reg(codec_data, MT6397_AUD_IV_CFG0, 0x0000, 0xffff);	/* NCP on */
+	/* Audio headset power on */
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x1552, 0xffff);
+	/* mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0000, 0x0100); */
 
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0006, 0xffff);
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0001, 0xffff);	/* fix me */
-	mt6391_set_reg(AUD_NCP0, 0x0000, 0x6000);
-	mt6391_set_reg(AUDLDO_CFG0, 0x0192, 0xffff);
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0006, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0001, 0xffff);	/* fix me */
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x0000, 0x6000);
+	mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0192, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 }
 
 static void mt6391_get_hp_trim_offset(struct mt6391_priv *codec_data)
@@ -844,8 +736,8 @@ static void mt6391_get_hp_trim_offset(struct mt6391_priv *codec_data)
 	bool trim_enable = 0;
 
 	/* get to check if trim happen */
-	reg1 = mt6391_get_reg(PMIC_TRIM_ADDRESS1);
-	reg2 = mt6391_get_reg(PMIC_TRIM_ADDRESS2);
+	reg1 = mt6391_get_reg(codec_data, MT6397_TRIM_ADDRESS1);
+	reg2 = mt6391_get_reg(codec_data, MT6397_TRIM_ADDRESS2);
 	pr_debug("%s reg1 = 0x%x reg2 = 0x%x\n", __func__, reg1, reg2);
 
 	trim_enable = (reg1 >> 11) & 1;
@@ -890,7 +782,7 @@ static void mt6391_set_hp_trim_offset(struct mt6391_priv *codec_data)
 	reg_value |= codec_data->hpl_fine_trim << 9;
 	reg_value |= codec_data->hpr_trim << 4;
 	reg_value |= codec_data->hpl_trim;
-	mt6391_set_reg(AUDBUF_CFG3, reg_value, 0x1fff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG3, reg_value, 0x1fff);
 }
 
 static void mt6391_set_spk_trim_offset(struct mt6391_priv *codec_data)
@@ -901,13 +793,13 @@ static void mt6391_set_spk_trim_offset(struct mt6391_priv *codec_data)
 	reg_value |= codec_data->spkl_polarity << 13;	/* polarity */
 	reg_value |= codec_data->ispkl_trim << 8;	/* polarity */
 	pr_debug("%s reg_value = 0x%x\n", __func__, reg_value);
-	mt6391_set_reg(SPK_CON1, reg_value, 0x7f00);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON1, reg_value, 0x7f00);
 	reg_value = 0;
 	reg_value |= 1 << 14;	/* enable trim function */
 	reg_value |= codec_data->spkr_polarity << 13;	/* polarity */
 	reg_value |= codec_data->ispkr_trim << 8;	/* polarity */
 	pr_debug("%s reg_value = 0x%x\n", __func__, reg_value);
-	mt6391_set_reg(SPK_CON4, reg_value, 0x7f00);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON4, reg_value, 0x7f00);
 }
 
 static void mt6391_set_iv_hp_trim_offset(struct mt6391_priv *codec_data)
@@ -932,7 +824,7 @@ static void mt6391_set_iv_hp_trim_offset(struct mt6391_priv *codec_data)
 
 	reg_value |= codec_data->iv_hpr_trim << 4;
 	reg_value |= codec_data->iv_hpl_trim;
-	mt6391_set_reg(AUDBUF_CFG3, reg_value, 0x1fff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG3, reg_value, 0x1fff);
 }
 
 static void mt6391_turn_on_headphone_amp(struct mt6391_priv *codec_data)
@@ -947,51 +839,51 @@ static void mt6391_turn_on_headphone_amp(struct mt6391_priv *codec_data)
 	if (!mt6391_get_dl_status(codec_data))
 		mt6391_turn_on_dac(codec_data);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
 	mt6391_set_hp_trim_offset(codec_data);
 	/* enable VA28 , VA 33 VBAT ref , set dc */
-	mt6391_set_reg(AUDLDO_CFG0, 0x0D92, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0D92, 0xffff);
 	/* set ACC mode      enable NVREF */
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x000C, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x000C, 0xffff);
 	/* enable LDO ; fix me , separate for UL  DL LDO */
-	mt6391_set_reg(AUD_NCP0, 0xE000, 0xE000);
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0xE000, 0xE000);
 	/* RG DEV ck on */
-	mt6391_set_reg(NCP_CLKDIV_CON0, 0x102b, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON0, 0x102b, 0xffff);
 	/* NCP on */
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0000, 0xffff);
 
 	udelay(200);
 
-	mt6391_set_reg(ZCD_CON0, 0x0101, 0xffff);
-	mt6391_set_reg(AUDACCDEPOP_CFG0, 0x0030, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0008, 0xffff);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x0552, 0xffff);
-	mt6391_set_reg(ZCD_CON2, 0x0c0c, 0xffff);
-	mt6391_set_reg(ZCD_CON3, 0x000F, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG1, 0x0900, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG2, 0x0082, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0101, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDACCDEPOP_CFG0, 0x0030, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0008, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x0552, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, 0x0c0c, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON3, 0x000F, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0900, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0082, 0xffff);
 
-	mt6391_set_reg(AUDBUF_CFG0, 0x0009, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0009, 0xffff);
 
-	mt6391_set_reg(AUDBUF_CFG1, 0x0940, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0940, 0xffff);
 	udelay(200);
-	mt6391_set_reg(AUDBUF_CFG0, 0x000F, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x000F, 0xffff);
 
-	mt6391_set_reg(AUDBUF_CFG1, 0x0100, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0100, 0xffff);
 	udelay(100);
-	mt6391_set_reg(AUDBUF_CFG2, 0x0022, 0xffff);
-	mt6391_set_reg(ZCD_CON2, 0x00c0c, 0xffff);
-	udelay(100);
-
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0001, 0x0001);
-	mt6391_set_reg(AUDDAC_CON0, 0x000F, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0022, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, 0x00c0c, 0xffff);
 	udelay(100);
 
-	mt6391_set_reg(AUDBUF_CFG0, 0x0006, 0x0007);
-	mt6391_set_mux(MT6391_DEV_OUT_HEADSETR, MT6391_MUX_AUDIO);
-	mt6391_set_mux(MT6391_DEV_OUT_HEADSETL, MT6391_MUX_AUDIO);
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0001, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x000F, 0xffff);
+	udelay(100);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0006, 0x0007);
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_HEADSETR, MT6391_MUX_AUDIO);
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_HEADSETL, MT6391_MUX_AUDIO);
+
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 
 	pr_debug("%s done\n", __func__);
 }
@@ -1005,23 +897,23 @@ static void mt6391_turn_off_headphone_amp(struct mt6391_priv *codec_data)
 		return;
 	}
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
-	mt6391_set_reg(ZCD_CON2, 0x0c0c, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0000, 0x1fe7);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x1552, 0xffff); /* RG DEV ck off; */
-	mt6391_set_reg(AUDDAC_CON0, 0x0000, 0xffff);	/* NCP off */
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, 0x0c0c, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0000, 0x1fe7);
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x1552, 0xffff); /* RG DEV ck off; */
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x0000, 0xffff);	/* NCP off */
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0001);
 
 	if (mt6391_get_ul_status(codec_data) == false)
-		mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0006, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0006, 0xffff);
 
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0001, 0xffff);
-	mt6391_set_reg(AUD_NCP0, 0x0000, 0x6000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0001, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x0000, 0x6000);
 
 	if (mt6391_get_ul_status(codec_data) == false)
-		mt6391_set_reg(AUDLDO_CFG0, 0x0192, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0192, 0xffff);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 
 	if (mt6391_get_dl_status(codec_data) == false)
 		mt6391_turn_off_dac(codec_data);
@@ -1039,41 +931,45 @@ static void mt6391_turn_on_voice_amp(struct mt6391_priv *codec_data)
 	if (!mt6391_get_dl_status(codec_data))
 		mt6391_turn_on_dac(codec_data);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
 	/* enable VA28 , VA 33 VBAT ref , set dc */
-	mt6391_set_reg(AUDLDO_CFG0, 0x0D92, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0D92, 0xffff);
 	/* set ACC mode  enable NVREF */
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x000C, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x000C, 0xffff);
 	/* enable LDO ; separate for UL  DL LDO */
-	mt6391_set_reg(AUD_NCP0, 0xE000, 0xE000);
-	mt6391_set_reg(NCP_CLKDIV_CON0, 0x102B, 0xffff); /* RG DEV ck on */
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0000, 0xffff); /* NCP on */
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0xE000, 0xE000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON0, 0x102B, 0xffff); /* RG DEV ck on */
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0000, 0xffff); /* NCP on */
 	/* usleep(1 * 1000); */
 
 	/* ZCD setting gain step gain and enable */
-	mt6391_set_reg(ZCD_CON0, 0x0201, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0201, 0xffff);
 	/* select charge current l; fix me */
-	mt6391_set_reg(AUDACCDEPOP_CFG0, 0x0030, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDACCDEPOP_CFG0, 0x0030, 0xffff);
 	/* set voice playback with headset */
-	mt6391_set_reg(AUDBUF_CFG0, 0x0008, 0xffff);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x0552, 0xffff); /* audio bias adjustment */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0008, 0xffff);
+	/* audio bias adjustment */
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x0552, 0xffff);
 
-	mt6391_set_reg(ZCD_CON3, 0x000F, 0xffff);	/* handset gain , minimun gain */
+	/* handset gain , minimun gain */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON3, 0x000F, 0xffff);
 	/* short HS to vcm and HS output stability enhance */
-	mt6391_set_reg(AUDBUF_CFG2, 0x00A2, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0001, 0xffff);	/* handset gain , minimun gain */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x00A2, 0xffff);
+	/* handset gain , minimun gain */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0001, 0xffff);
 	/* short HS to vcm and HS output stability enhance */
-	mt6391_set_reg(AUDBUF_CFG2, 0x0022, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0022, 0xffff);
 
-	mt6391_set_reg(ZCD_CON3, 0x0002, 0xffff);	/* handset gain , normal gain */
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0001, 0x0001); /* reset decoder */
+	/* handset gain , normal gain */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON3, 0x0002, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0001, 0x0001); /* reset decoder */
 	/* power on audio DAC right channels */
-	mt6391_set_reg(AUDDAC_CON0, 0x0009, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x0009, 0xffff);
 	/* usleep(1000); */
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 
-	mt6391_set_mux(MT6391_DEV_OUT_EARPIECEL, MT6391_MUX_VOICE);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0001, 0x0001);	/* mux selection */
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_EARPIECEL, MT6391_MUX_VOICE);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0001, 0x0001);	/* mux selection */
 	/* usleep(1000); */
 }
 
@@ -1084,27 +980,27 @@ static void mt6391_turn_off_voice_amp(struct mt6391_priv *codec_data)
 		return;
 	}
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
 	/* short HS to vcm and HS output stability enhance */
-	mt6391_set_reg(AUDBUF_CFG2, 0x0022, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0880, 0xffff);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x1552, 0xffff); /* RG DEV ck off */
-	mt6391_set_reg(AUDDAC_CON0, 0x0000, 0xffff);	/* NCP off */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0022, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0880, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x1552, 0xffff); /* RG DEV ck off */
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x0000, 0xffff);	/* NCP off */
 	/* Audio headset power off */
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0001);
 	/* short HS to vcm and HS output stability EnhanceParasNum */
-	mt6391_set_reg(AUDBUF_CFG2, 0x0022, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0022, 0xffff);
 
 	if (mt6391_get_ul_status(codec_data) == false)
-		mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0006, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0006, 0xffff);
 
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0001, 0xffff);
-	mt6391_set_reg(AUD_NCP0, 0x0000, 0x6000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0001, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x0000, 0x6000);
 
 	if (mt6391_get_ul_status(codec_data) == false)
-		mt6391_set_reg(AUDLDO_CFG0, 0x0192, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0192, 0xffff);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 
 	if (!mt6391_get_dl_status(codec_data))
 		mt6391_turn_off_dac(codec_data);
@@ -1123,63 +1019,72 @@ static void mt6391_turn_on_speaker_amp(struct mt6391_priv *codec_data)
 		mt6391_turn_on_dac(codec_data);
 
 	/* here pmic analog control */
-	mt6391_control_top_clk(0x0604, true);	/* enable SPK related CLK */
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_control_top_clk(codec_data, 0x0604, true);	/* enable SPK related CLK */
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
 	mt6391_set_spk_trim_offset(codec_data);
 	/* enable VA28 , VA 33 VBAT ref , set dc */
-	mt6391_set_reg(AUDLDO_CFG0, 0x0D92, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0D92, 0xffff);
 	/* set ACC mode  enable NVREF */
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x000C, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x000C, 0xffff);
 	/* enable LDO ; fix me , separate for UL  DL LDO */
-	mt6391_set_reg(AUD_NCP0, 0xE000, 0xE000);
-	mt6391_set_reg(NCP_CLKDIV_CON0, 0x102B, 0xffff);	/* RG DEV ck on */
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0000, 0xffff);	/* NCP on */
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0xE000, 0xE000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON0, 0x102B, 0xffff);	/* RG DEV ck on */
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0000, 0xffff);	/* NCP on */
 	udelay(200);
 
 	/* ZCD setting gain step gain and enable */
-	mt6391_set_reg(ZCD_CON0, 0x0301, 0xffff);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x0552, 0xffff); /* audio bias adjustment */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0301, 0xffff);
+	/* audio bias adjustment */
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x0552, 0xffff);
 	/* set DUDIV gain ,iv buffer gain */
-	mt6391_set_reg(ZCD_CON4, 0x0505, 0xffff);
-	mt6391_set_reg(AUD_IV_CFG0, 0x1111, 0xffff);	/* set IV buffer on */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON4, 0x0505, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUD_IV_CFG0, 0x1111, 0xffff);	/* set IV buffer on */
 	udelay(100);
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0001, 0x0001); /* reset docoder */
-	mt6391_set_reg(AUDDAC_CON0, 0x000f, 0xffff);	/* power on DAC */
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0001, 0x0001); /* reset docoder */
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x000f, 0xffff);	/* power on DAC */
 	udelay(100);
 
-	mt6391_set_mux(MT6391_DEV_OUT_SPEAKERR, MT6391_MUX_AUDIO);
-	mt6391_set_mux(MT6391_DEV_OUT_SPEAKERL, MT6391_MUX_AUDIO);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0000, 0x0007);	/* set Mux */
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_SPEAKERR, MT6391_MUX_AUDIO);
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_SPEAKERL, MT6391_MUX_AUDIO);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0000, 0x0007);	/* set Mux */
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 
-	mt6391_set_reg(SPK_CON9, 0x0100, 0x0f00);	/* set gain L */
-	mt6391_set_reg(SPK_CON5, (0x1 << 11), 0x7800);	/* set gain R */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0100, 0x0f00);	/* set gain L */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON5, (0x1 << 11), 0x7800);	/* set gain R */
 
 	if (codec_data->speaker_channel_sel == MT6391_CHANNEL_SEL_STEREO) {
-		mt6391_set_reg(SPK_CON0, 0x3001 | (codec_data->speaker_mode << 2), 0xffff);
-		mt6391_set_reg(SPK_CON3, 0x3001 | (codec_data->speaker_mode << 2), 0xffff);
-		mt6391_set_reg(SPK_CON2, 0x0014, 0xffff);
-		mt6391_set_reg(SPK_CON5, 0x0014, 0x07ff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON0,
+			       0x3001 | (codec_data->speaker_mode << 2),
+			       0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON3,
+			       0x3001 | (codec_data->speaker_mode << 2),
+			       0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON2, 0x0014, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON5, 0x0014, 0x07ff);
 		/* SPK gain setting */
-		mt6391_set_reg(SPK_CON9, 0x0800, 0xffff);
-		mt6391_set_reg(SPK_CON5, (0x8 << 11), 0x7800);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0800, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON5, (0x8 << 11), 0x7800);
 	} else if (codec_data->speaker_channel_sel == MT6391_CHANNEL_SEL_MONO_LEFT) {
-		mt6391_set_reg(SPK_CON0, 0x3001 | (codec_data->speaker_mode << 2), 0xffff);
-		mt6391_set_reg(SPK_CON2, 0x0014, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON0,
+			       0x3001 | (codec_data->speaker_mode << 2),
+			       0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON2, 0x0014, 0xffff);
 		/* SPK gain setting */
-		mt6391_set_reg(SPK_CON9, 0x0800, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0800, 0xffff);
 	} else if (codec_data->speaker_channel_sel == MT6391_CHANNEL_SEL_MONO_RIGHT) {
-		mt6391_set_reg(SPK_CON3, 0x3001 | (codec_data->speaker_mode << 2), 0xffff);
-		mt6391_set_reg(SPK_CON5, 0x0014, 0x07ff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON3,
+			       0x3001 | (codec_data->speaker_mode << 2),
+			       0xffff);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON5, 0x0014, 0x07ff);
 		/* SPK gain setting */
-		mt6391_set_reg(SPK_CON5, (0x8 << 11), 0x7800);
+		mt6391_set_reg(codec_data, MT6397_SPK_CON5, (0x8 << 11), 0x7800);
 	} else {
 		pr_err("%s unexpected condition\n", __func__);
 	}
 
 	/* spk output stage enabke and enable */
-	mt6391_set_reg(SPK_CON11, 0x0f00, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON11, 0x0f00, 0xffff);
 	usleep_range(4000, 5000);
 
 	pr_debug("%s done\n", __func__);
@@ -1194,31 +1099,32 @@ static void mt6391_turn_off_speaker_amp(struct mt6391_priv *codec_data)
 		return;
 	}
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
-	mt6391_set_reg(SPK_CON0, 0x0000, 0xffff);
-	mt6391_set_reg(SPK_CON3, 0x0000, 0xffff);
-	mt6391_set_reg(SPK_CON11, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON11, 0x0000, 0xffff);
 	/* enable LDO ; fix me , separate for UL  DL LDO */
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0001);
-	mt6391_set_reg(AUDDAC_CON0, 0x0000, 0xffff);	/* RG DEV ck on */
-	mt6391_set_reg(AUD_IV_CFG0, 0x0000, 0xffff);	/* NCP on */
-	mt6391_set_reg(IBIASDIST_CFG0, 0x1552, 0xffff); /* Audio headset power on */
-	/* mt6391_set_reg(AUDBUF_CFG1, 0x0000, 0x0100); */
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x0000, 0xffff);	/* RG DEV ck on */
+	mt6391_set_reg(codec_data, MT6397_AUD_IV_CFG0, 0x0000, 0xffff);	/* NCP on */
+	/* Audio headset power on */
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x1552, 0xffff);
+	/* mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0000, 0x0100); */
 	if (mt6391_get_ul_status(codec_data) == false)
-		mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0006, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0006, 0xffff);
 
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0001, 0xffff);	/* fix me */
-	mt6391_set_reg(AUD_NCP0, 0x0000, 0x6000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0001, 0xffff);	/* fix me */
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x0000, 0x6000);
 	if (mt6391_get_ul_status(codec_data) == false)
-		mt6391_set_reg(AUDLDO_CFG0, 0x0192, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0192, 0xffff);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
-	mt6391_control_top_clk(0x0604, false);	/* disable SPK related CLK */
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_control_top_clk(codec_data, 0x0604, false);	/* disable SPK related CLK */
 	if (mt6391_get_dl_status(codec_data) == false)
 		mt6391_turn_off_dac(codec_data);
 
-	/* temp solution, set ZCD_CON0 to 0x101 for pop noise */
-	mt6391_set_reg(ZCD_CON0, 0x0101, 0xffff);
+	/* temp solution, set MT6397_ZCD_CON0 to 0x101 for pop noise */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0101, 0xffff);
 
 	pr_debug("%s done\n", __func__);
 }
@@ -1236,71 +1142,78 @@ static void mt6391_turn_on_headset_speaker_amp(struct mt6391_priv *codec_data)
 		mt6391_turn_on_dac(codec_data);
 
 	/* here pmic analog control */
-	mt6391_control_top_clk(0x0604, true);	/* enable SPK related CLK */
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_control_top_clk(codec_data, 0x0604, true);	/* enable SPK related CLK */
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
 	mt6391_set_hp_trim_offset(codec_data);
 	mt6391_set_iv_hp_trim_offset(codec_data);
 	mt6391_set_spk_trim_offset(codec_data);
 
 	/* enable VA28 , VA 33 VBAT ref , set dc */
-	mt6391_set_reg(AUDLDO_CFG0, 0x0D92, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0D92, 0xffff);
 	/* set ACC mode  enable NVREF */
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x000C, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x000C, 0xffff);
 	/* enable LDO ; fix me , separate for UL  DL LDO */
-	mt6391_set_reg(AUD_NCP0, 0xE000, 0xE000);
-	mt6391_set_reg(NCP_CLKDIV_CON0, 0x102B, 0xffff);	/* RG DEV ck on */
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0000, 0xffff);	/* NCP on */
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0xE000, 0xE000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON0, 0x102B, 0xffff);	/* RG DEV ck on */
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0000, 0xffff);	/* NCP on */
 	udelay(200);
 
 	/* ZCD setting gain step gain and enable */
-	mt6391_set_reg(ZCD_CON0, 0x0301, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0301, 0xffff);
 	/* select charge current ; fix me */
-	mt6391_set_reg(AUDACCDEPOP_CFG0, 0x0030, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDACCDEPOP_CFG0, 0x0030, 0xffff);
 	/* set voice playback with headset */
-	mt6391_set_reg(AUDBUF_CFG0, 0x0008, 0xffff);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x0552, 0xffff); /* audio bias adjustment */
-	mt6391_set_reg(ZCD_CON2, 0x0C0C, 0xffff);	/* HP PGA gain */
-	mt6391_set_reg(ZCD_CON3, 0x000F, 0xffff);	/* HP PGA gain */
-	mt6391_set_reg(AUDBUF_CFG1, 0x0900, 0xffff);	/* HP enhance */
-	mt6391_set_reg(AUDBUF_CFG2, 0x0082, 0xffff);	/* HS enahnce */
-	mt6391_set_reg(AUDBUF_CFG0, 0x0009, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG1, 0x0940, 0xffff);	/* HP vcm short */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0008, 0xffff);
+	/* audio bias adjustment */
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x0552, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, 0x0C0C, 0xffff);	/* HP PGA gain */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON3, 0x000F, 0xffff);	/* HP PGA gain */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0900, 0xffff);	/* HP enhance */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0082, 0xffff);	/* HS enahnce */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0009, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0940, 0xffff);	/* HP vcm short */
 	udelay(200);
-	mt6391_set_reg(AUDBUF_CFG0, 0x000F, 0xffff);	/* HP power on */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x000F, 0xffff);	/* HP power on */
 
-	mt6391_set_reg(AUDBUF_CFG1, 0x0100, 0xffff);	/* HP vcm not short */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0100, 0xffff);	/* HP vcm not short */
 	udelay(100);
-	mt6391_set_reg(AUDBUF_CFG2, 0x0022, 0xffff);	/* HS VCM not short */
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0022, 0xffff);	/* HS VCM not short */
 
-	mt6391_set_reg(ZCD_CON2, 0x0808, 0xffff);	/* HP PGA gain */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, 0x0808, 0xffff);	/* HP PGA gain */
 	udelay(100);
-	mt6391_set_reg(ZCD_CON4, 0x0505, 0xffff);	/* HP PGA gain */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON4, 0x0505, 0xffff);	/* HP PGA gain */
 
-	mt6391_set_reg(AUD_IV_CFG0, 0x1111, 0xffff);	/* set IV buffer on */
+	mt6391_set_reg(codec_data, MT6397_AUD_IV_CFG0, 0x1111, 0xffff);	/* set IV buffer on */
 	udelay(100);
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0001, 0x0001); /* reset docoder */
-	mt6391_set_reg(AUDDAC_CON0, 0x000F, 0xffff);	/* power on DAC */
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0001, 0x0001); /* reset docoder */
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x000F, 0xffff);	/* power on DAC */
 	udelay(100);
-	mt6391_set_mux(MT6391_DEV_OUT_SPEAKERR, MT6391_MUX_AUDIO);
-	mt6391_set_mux(MT6391_DEV_OUT_SPEAKERL, MT6391_MUX_AUDIO);
-	mt6391_set_reg(AUDBUF_CFG0, 0x1106, 0x1106);	/* set headhpone mux */
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_SPEAKERR, MT6391_MUX_AUDIO);
+	mt6391_set_mux(codec_data, MT6391_DEV_OUT_SPEAKERL, MT6391_MUX_AUDIO);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x1106, 0x1106);	/* set headhpone mux */
 
-	mt6391_set_reg(SPK_CON9, 0x0100, 0x0f00);	/* set gain L */
-	mt6391_set_reg(SPK_CON5, (0x1 << 11), 0x7800);	/* set gain R */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0100, 0x0f00);	/* set gain L */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON5, (0x1 << 11), 0x7800);	/* set gain R */
 
 	/* speaker gain setting , trim enable , spk enable , class AB or D */
-	mt6391_set_reg(SPK_CON0, 0x3001 | (codec_data->speaker_mode << 2), 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0,
+		       0x3001 | (codec_data->speaker_mode << 2),
+		       0xffff);
 	/* speaker gain setting , trim enable , spk enable , class AB or D */
-	mt6391_set_reg(SPK_CON3, 0x3001 | (codec_data->speaker_mode << 2), 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3,
+		       0x3001 | (codec_data->speaker_mode << 2),
+		       0xffff);
 	/* speaker gain setting , trim enable , spk enable , class AB or D */
-	mt6391_set_reg(SPK_CON2, 0x0014, 0xffff);
-	mt6391_set_reg(SPK_CON5, 0x0014, 0x07ff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON2, 0x0014, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON5, 0x0014, 0x07ff);
 
-	mt6391_set_reg(SPK_CON9, 0x0400, 0xffff);	/* SPK gain setting */
-	mt6391_set_reg(SPK_CON5, (0x4 << 11), 0x7800);	/* SPK-R gain setting */
+	/* SPK gain setting */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON9, 0x0400, 0xffff);
+	/* SPK-R gain setting */
+	mt6391_set_reg(codec_data, MT6397_SPK_CON5, (0x4 << 11), 0x7800);
 	/* spk output stage enabke and enableAudioClockPortDST */
-	mt6391_set_reg(SPK_CON11, 0x0f00, 0xffff);
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON11, 0x0f00, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
 	usleep_range(4000, 5000);
 
 	pr_debug("%s done\n", __func__);
@@ -1315,36 +1228,36 @@ static void mt6391_turn_off_headset_speaker_amp(struct mt6391_priv *codec_data)
 		return;
 	}
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
-	mt6391_set_reg(SPK_CON0, 0x0000, 0xffff);
-	mt6391_set_reg(SPK_CON3, 0x0000, 0xffff);
-	mt6391_set_reg(SPK_CON11, 0x0000, 0xffff);
-	mt6391_set_reg(ZCD_CON2, 0x0C0C, 0x0f0f);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON0, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON3, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON11, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, 0x0C0C, 0x0f0f);
 
-	mt6391_set_reg(AUDBUF_CFG0, 0x0000, 0x0007);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0000, 0x1fe0);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x1552, 0xffff);
-	mt6391_set_reg(AUDDAC_CON0, 0x0000, 0xffff);
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0001);
-	mt6391_set_reg(AUD_IV_CFG0, 0x0010, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG1, 0x0000, 0x0100);
-	mt6391_set_reg(AUDBUF_CFG2, 0x0000, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0000, 0x0007);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0000, 0x1fe0);
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x1552, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_AUD_IV_CFG0, 0x0010, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG1, 0x0000, 0x0100);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG2, 0x0000, 0x0080);
 
 	if (!mt6391_get_ul_status(codec_data))
-		mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0006, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0006, 0xffff);
 
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0001, 0xffff);
-	mt6391_set_reg(AUD_NCP0, 0x0000, 0x6000);
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0001, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x0000, 0x6000);
 	if (!mt6391_get_ul_status(codec_data))
-		mt6391_set_reg(AUDLDO_CFG0, 0x0192, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0192, 0xffff);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
-	mt6391_control_top_clk(0x0604, false);	/* disable SPK related CLK */
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
+	mt6391_control_top_clk(codec_data, 0x0604, false);	/* disable SPK related CLK */
 	if (!mt6391_get_dl_status(codec_data))
 		mt6391_turn_off_dac(codec_data);
 
 	/* ZCD setting gain step gain and enable */
-	mt6391_set_reg(ZCD_CON0, 0x0101, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0101, 0xffff);
 
 	pr_debug("%s done\n", __func__);
 }
@@ -1353,31 +1266,32 @@ static void mt6391_turn_on_dmic(struct mt6391_priv *codec_data)
 {
 	uint32_t rate = codec_data->sample_rate[MT6391_ADDA_ADC];
 	/* pmic digital part */
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0002);
-	mt6391_set_reg(AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0002);
+	mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
 
-	mt6391_control_top_clk(0x0003, true);
-	mt6391_set_reg(ANA_AUDIO_TOP_CON0, 0x0000, 0xffff);
-	mt6391_set_reg(AFE_UL_SRC_CON0_H, 0x00e0 | mt6391_get_ul_voice_mode(rate),
-			0xffff);
-	mt6391_set_reg(AFE_UL_DL_CON0, 0x007f, 0xffff);
-	mt6391_set_reg(AFE_UL_SRC_CON0_L, 0x0023, 0xffff);
+	mt6391_control_top_clk(codec_data, 0x0003, true);
+	mt6391_set_reg(codec_data, MT6397_ANA_AUDIO_TOP_CON0, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_H,
+		       0x00e0 | mt6391_get_ul_voice_mode(rate),
+		       0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_UL_DL_CON0, 0x007f, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_L, 0x0023, 0xffff);
 
 	/* AudioMachineDevice */
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0000, 0x0002);
-	mt6391_set_reg(AUDDIGMI_CON0, 0x0181, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0000, 0x0002);
+	mt6391_set_reg(codec_data, MT6397_AUDDIGMI_CON0, 0x0181, 0xffff);
 }
 
 static void mt6391_turn_off_dmic(struct mt6391_priv *codec_data)
 {
 	/* AudioMachineDevice */
-	mt6391_set_reg(AUDDIGMI_CON0, 0x0080, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDDIGMI_CON0, 0x0080, 0xffff);
 	/* pmic digital part */
-	mt6391_set_reg(AFE_UL_SRC_CON0_H, 0x0000, 0xffff);
-	mt6391_set_reg(AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_H, 0x0000, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
 	if (mt6391_get_dl_status(codec_data) == false) {
-		mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0002, 0x0002);
-		mt6391_set_reg(AFE_UL_DL_CON0, 0x0000, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0002, 0x0002);
+		mt6391_set_reg(codec_data, MT6397_AFE_UL_DL_CON0, 0x0000, 0xffff);
 	}
 }
 
@@ -1386,31 +1300,31 @@ static void mt6391_turn_on_adc(struct mt6391_priv *codec_data, int adc_type)
 	if (!mt6391_get_adc_status(codec_data)) {
 		uint32_t rate = codec_data->sample_rate[MT6391_ADDA_ADC];
 		/* pmic digital part */
-		mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0002);
-		mt6391_set_reg(AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
-		mt6391_set_reg(AUDCLKGEN_CFG0, 0x0002, 0x0002);
-		mt6391_control_top_clk(0x0003, true);
-		mt6391_set_reg(ANA_AUDIO_TOP_CON0, 0x0000, 0xffff);
-		mt6391_set_reg(AFE_UL_SRC_CON0_H,
+		mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0002);
+		mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0002, 0x0002);
+		mt6391_control_top_clk(codec_data, 0x0003, true);
+		mt6391_set_reg(codec_data, MT6397_ANA_AUDIO_TOP_CON0, 0x0000, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_H,
 			    0x0000 | mt6391_get_ul_voice_mode(rate), 0xffff);
-		mt6391_set_reg(AFE_UL_DL_CON0, 0x007f, 0xffff);
-		mt6391_set_reg(AFE_UL_SRC_CON0_L, 0x0001, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AFE_UL_DL_CON0, 0x007f, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_L, 0x0001, 0xffff);
 
 		/* pmic analog part */
-		mt6391_set_reg(AUDNVREGGLB_CFG0, 0x000c, 0xffff);
-		mt6391_set_reg(AUDLDO_CFG0, 0x0D92, 0xffff);
-		mt6391_set_reg(AUD_NCP0, 0x9000, 0x9000);
+		mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x000c, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0D92, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x9000, 0x9000);
 
-		mt6391_set_mux(MT6391_DEV_IN_ADC1, MT6391_MUX_IN_PREAMP_1);
-		mt6391_set_mux(MT6391_DEV_IN_ADC2, MT6391_MUX_IN_PREAMP_2);
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_ADC1, MT6391_MUX_IN_PREAMP_1);
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_ADC2, MT6391_MUX_IN_PREAMP_2);
 
 		/* open power */
-		mt6391_set_reg(AUDPREAMP_CON0, 0x0003, 0x0003);
-		mt6391_set_reg(AUDADC_CON0, 0x0093, 0xffff);
-		mt6391_set_reg(NCP_CLKDIV_CON0, 0x102B, 0x102B);
-		mt6391_set_reg(NCP_CLKDIV_CON1, 0x0000, 0xffff);
-		mt6391_set_reg(AUDDIGMI_CON0, 0x0180, 0x0180);
-		mt6391_set_reg(AUDPREAMPGAIN_CON0, 0x0033, 0x0033);
+		mt6391_set_reg(codec_data, MT6397_AUDPREAMP_CON0, 0x0003, 0x0003);
+		mt6391_set_reg(codec_data, MT6397_AUDADC_CON0, 0x0093, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON0, 0x102B, 0x102B);
+		mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0000, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDDIGMI_CON0, 0x0180, 0x0180);
+		mt6391_set_reg(codec_data, MT6397_AUDPREAMPGAIN_CON0, 0x0033, 0x0033);
 	}
 }
 
@@ -1418,23 +1332,23 @@ static void mt6391_turn_off_adc(struct mt6391_priv *codec_data, int adc_type)
 {
 	if (!mt6391_get_adc_status(codec_data)) {
 		/* pmic analog part */
-		mt6391_set_reg(AUDPREAMP_CON0, 0x0000, 0x0003); /* LDO off */
-		mt6391_set_reg(AUDADC_CON0, 0x00B4, 0xffff);	/* RD_CLK off */
-		mt6391_set_reg(AUDDIGMI_CON0, 0x0080, 0xffff);	/* NCP off */
-		mt6391_set_reg(AUD_NCP0, 0x0000, 0x1000);	/* turn iogg LDO */
-		mt6391_set_reg(AUDLSBUF_CON0, 0x0000, 0x0003);	/* Power Off LSB */
+		mt6391_set_reg(codec_data, MT6397_AUDPREAMP_CON0, 0x0000, 0x0003);
+		mt6391_set_reg(codec_data, MT6397_AUDADC_CON0, 0x00B4, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUDDIGMI_CON0, 0x0080, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x0000, 0x1000);
+		mt6391_set_reg(codec_data, MT6397_AUDLSBUF_CON0, 0x0000, 0x0003);
 		if (mt6391_get_dl_status(codec_data) == false)
-			mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0006, 0xffff);
+			mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0006, 0xffff);
 
 		if (mt6391_get_dl_status(codec_data) == false)
-			mt6391_set_reg(AUDLDO_CFG0, 0x0192, 0xffff);
+			mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0192, 0xffff);
 
-		mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0002);
+		mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0002);
 		/* pmic digital part */
 
-		mt6391_set_reg(AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_AFE_UL_SRC_CON0_L, 0x0000, 0xffff);
 		if (!mt6391_get_dl_status(codec_data))
-			mt6391_set_reg(AFE_UL_DL_CON0, 0x0000, 0xffff);
+			mt6391_set_reg(codec_data, MT6397_AFE_UL_DL_CON0, 0x0000, 0xffff);
 	}
 }
 
@@ -1598,7 +1512,7 @@ static int mt6391_headset_pgal_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 	index = ucontrol->value.integer.value[0];
-	mt6391_set_reg(ZCD_CON2, index, 0x0000000F);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, index, 0x0000000F);
 	codec_data->device_volume[MT6391_VOL_HPOUTL] = index;
 	return 0;
 }
@@ -1628,7 +1542,7 @@ static int mt6391_headset_pgar_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 	index = ucontrol->value.integer.value[0];
-	mt6391_set_reg(ZCD_CON2, index << 8, 0x000000F00);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, index << 8, 0x000000F00);
 	codec_data->device_volume[MT6391_VOL_HPOUTR] = index;
 	return 0;
 }
@@ -1658,7 +1572,7 @@ static int mt6391_handset_pga_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 	index = ucontrol->value.integer.value[0];
-	mt6391_set_reg(ZCD_CON3, index, 0xF);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON3, index, 0xF);
 	codec_data->device_volume[MT6391_VOL_HSOUTL] = index;
 	return 0;
 }
@@ -1688,7 +1602,7 @@ static int mt6391_speaker_pgal_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 	index = ucontrol->value.integer.value[0];
-	mt6391_set_reg(SPK_CON9, index << 8, 0x00000f00);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON9, index << 8, 0x00000f00);
 	codec_data->device_volume[MT6391_VOL_SPKL] = index;
 	return 0;
 }
@@ -1717,7 +1631,7 @@ static int mt6391_speaker_pgar_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 	index = ucontrol->value.integer.value[0];
-	mt6391_set_reg(SPK_CON5, index << 11, 0x00007800);
+	mt6391_set_reg(codec_data, MT6397_SPK_CON5, index << 11, 0x00007800);
 	codec_data->device_volume[MT6391_VOL_SPKR] = index;
 	return 0;
 }
@@ -1749,7 +1663,7 @@ static int mt6391_speaker_oc_flag_get(struct snd_kcontrol *kcontrol,
 {
 	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
-	uint32_t reg_value = mt6391_get_reg(SPK_CON6);
+	uint32_t reg_value = mt6391_get_reg(codec_data, MT6397_SPK_CON6);
 
 	if (codec_data->speaker_mode == MT6391_CLASS_AB)
 		ucontrol->value.integer.value[0] = (reg_value & 0xA000) ? 1 : 0;
@@ -1768,7 +1682,9 @@ static int mt6391_speaker_oc_flag_set(struct snd_kcontrol *kcontrol,
 static int mt6391_dac_newif_sck_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	uint32_t reg_value = mt6391_get_reg(AFE_PMIC_NEWIF_CFG2);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
+	uint32_t reg_value = mt6391_get_reg(codec_data, MT6397_AFE_PMIC_NEWIF_CFG2);
 
 	ucontrol->value.integer.value[0] = (reg_value & 0x8000) ? 1 : 0;
 	return 0;
@@ -1777,10 +1693,13 @@ static int mt6391_dac_newif_sck_get(struct snd_kcontrol *kcontrol,
 static int mt6391_dac_newif_sck_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
+
 	if (ucontrol->value.integer.value[0] == 0)
-		mt6391_set_reg(AFE_PMIC_NEWIF_CFG2, 0 << 15, 1 << 15);
+		mt6391_set_reg(codec_data, MT6397_AFE_PMIC_NEWIF_CFG2, 0 << 15, 1 << 15);
 	else if (ucontrol->value.integer.value[0] == 1)
-		mt6391_set_reg(AFE_PMIC_NEWIF_CFG2, 1 << 15, 1 << 15);
+		mt6391_set_reg(codec_data, MT6397_AFE_PMIC_NEWIF_CFG2, 1 << 15, 1 << 15);
 
 	return 0;
 }
@@ -1905,23 +1824,14 @@ static int mt6391_preamp1_mux_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 
-	if (ucontrol->value.integer.value[0] == 0) {
-		/* mt6391_set_reg(AUDTOP_CON0, 0x0003, 0x0000000f); */
-		/* mt6391_set_mux(MT6391_DEV_IN_PREAMP_L, ); */
-	} else if (ucontrol->value.integer.value[0] == 1) {
-		mt6391_set_mux(MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC1);
-		/* mt6391_set_reg(AUDTOP_CON0, 0, 0x0000000f); */
-	} else if (ucontrol->value.integer.value[0] == 2) {
-		mt6391_set_mux(MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC2);
-		/* mt6391_set_reg(AUDTOP_CON0, 1, 0x0000000f); */
-	} else if (ucontrol->value.integer.value[0] == 3) {
-		mt6391_set_mux(MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC3);
-		/* mt6391_set_reg(AUDTOP_CON3, 0x0100, 0x00000100); */
-		/* mt6391_set_reg(AUDTOP_CON0, 0x4, 0x0000000f); */
-	} else {
-		/* mt6391_set_reg(AUDTOP_CON0, 0, 0x0000000f); */
+	if (ucontrol->value.integer.value[0] == 1)
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC1);
+	else if (ucontrol->value.integer.value[0] == 2)
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC2);
+	else if (ucontrol->value.integer.value[0] == 3)
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC3);
+	else if (ucontrol->value.integer.value[0] != 0)
 		pr_warn("%s unexpected value %ld", __func__, ucontrol->value.integer.value[0]);
-	}
 
 	pr_debug("%s done\n", __func__);
 	codec_data->device_mux[MT6391_MUX_IN_PREAMP_1] = ucontrol->value.integer.value[0];
@@ -1951,22 +1861,16 @@ static int mt6391_preamp2_mux_set(struct snd_kcontrol *kcontrol,
 		pr_err("%s out of bound\n", __func__);
 		return -EINVAL;
 	}
-	if (ucontrol->value.integer.value[0] == 0) {
-		/* mt6391_set_reg(AUDTOP_CON1, 0x0020, 0x000000f0); */
-	} else if (ucontrol->value.integer.value[0] == 1) {
-		mt6391_set_mux(MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC1);
-		/* mt6391_set_reg(AUDTOP_CON3, 0x0200, 0x00000200); */
-		/* mt6391_set_reg(AUDTOP_CON1, 0x0040, 0x000000f0); */
-	} else if (ucontrol->value.integer.value[0] == 2) {
-		mt6391_set_mux(MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC2);
 
-		/* mt6391_set_reg(AUDTOP_CON1, 0x0010, 0x000000f0); */
-	} else if (ucontrol->value.integer.value[0] == 3) {
-		/* mt6391_set_reg(AUDTOP_CON1, 0x0000, 0x000000f0); */
-		mt6391_set_mux(MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC3);
-	} else {
-		/* mt6391_set_reg(AUDTOP_CON1, 0x0000, 0x000000f0); */
-	}
+	if (ucontrol->value.integer.value[0] == 1)
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC1);
+	else if (ucontrol->value.integer.value[0] == 2)
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC2);
+	else if (ucontrol->value.integer.value[0] == 3)
+		mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC3);
+	else if (ucontrol->value.integer.value[0] != 0)
+		pr_warn("%s unexpected value %ld", __func__, ucontrol->value.integer.value[0]);
+
 	pr_debug("%s done\n", __func__);
 	codec_data->device_mux[MT6391_MUX_IN_PREAMP_2] = ucontrol->value.integer.value[0];
 	return 0;
@@ -1997,7 +1901,7 @@ static int mt6391_preamp1_gain_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 	index = ucontrol->value.integer.value[0];
-	mt6391_set_reg(AUDPREAMPGAIN_CON0, index << 0, 0x00000007);
+	mt6391_set_reg(codec_data, MT6397_AUDPREAMPGAIN_CON0, index << 0, 0x00000007);
 	codec_data->device_volume[MT6391_VOL_MICAMPL] = index;
 	return 0;
 }
@@ -2028,7 +1932,7 @@ static int mt6391_preamp2_gain_set(struct snd_kcontrol *kcontrol,
 		return -EINVAL;
 	}
 	index = ucontrol->value.integer.value[0];
-	mt6391_set_reg(AUDPREAMPGAIN_CON0, index << 4, 0x00000070);
+	mt6391_set_reg(codec_data, MT6397_AUDPREAMPGAIN_CON0, index << 4, 0x00000070);
 	codec_data->device_volume[MT6391_VOL_MICAMPR] = index;
 	return 0;
 }
@@ -2125,13 +2029,13 @@ static int mt6391_loopback_set(struct snd_kcontrol *kcontrol,
 		if (set_value == CODEC_LOOPBACK_HEADSET_MIC_TO_SPK ||
 		    set_value == CODEC_LOOPBACK_HEADSET_MIC_TO_HP ||
 		    set_value == CODEC_LOOPBACK_HEADSET_MIC_TO_EXTDAC) {
-			mt6391_set_mux(MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC2);
-			mt6391_set_mux(MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC2);
+			mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC2);
+			mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC2);
 			codec_data->device_mux[MT6391_MUX_IN_PREAMP_1] = 2;
 			codec_data->device_mux[MT6391_MUX_IN_PREAMP_2] = 2;
 		} else {
-			mt6391_set_mux(MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC1);
-			mt6391_set_mux(MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC3);
+			mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_L, MT6391_MUX_IN_MIC1);
+			mt6391_set_mux(codec_data, MT6391_DEV_IN_PREAMP_R, MT6391_MUX_IN_MIC3);
 			codec_data->device_mux[MT6391_MUX_IN_PREAMP_1] = 1;
 			codec_data->device_mux[MT6391_MUX_IN_PREAMP_2] = 3;
 		}
@@ -2193,13 +2097,13 @@ static int mt6391_dac_sgen_set(struct snd_kcontrol *kcontrol,
 	}
 
 	if (ucontrol->value.integer.value[0]) {
-		mt6391_set_reg(ANA_AFE_TOP_CON0, 0x1, 0x1);
-		/* mt6391_set_reg(AFE_SGEN_CFG0, 0x80, 0x80); */
-		mt6391_set_reg(AFE_SGEN_CFG0, 0x4480, 0xff80);
-		mt6391_set_reg(AFE_SGEN_CFG1, 0x0101, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_ANA_AFE_TOP_CON0, 0x1, 0x1);
+		/* mt6391_set_reg(codec_data, MT6397_AFE_SGEN_CFG0, 0x80, 0x80); */
+		mt6391_set_reg(codec_data, MT6397_AFE_SGEN_CFG0, 0x4480, 0xff80);
+		mt6391_set_reg(codec_data, MT6397_AFE_SGEN_CFG1, 0x0101, 0xffff);
 	} else {
-		mt6391_set_reg(ANA_AFE_TOP_CON0, 0x0, 0x1);
-		mt6391_set_reg(AFE_SGEN_CFG0, 0x0, 0x80);
+		mt6391_set_reg(codec_data, MT6397_ANA_AFE_TOP_CON0, 0x0, 0x1);
+		mt6391_set_reg(codec_data, MT6397_AFE_SGEN_CFG0, 0x0, 0x80);
 	}
 
 	codec_data->dac_sgen_switch = ucontrol->value.integer.value[0];
@@ -2228,12 +2132,12 @@ static int mt6391_adc_sgen_set(struct snd_kcontrol *kcontrol,
 	}
 
 	if (ucontrol->value.integer.value[0]) {
-		mt6391_set_reg(ANA_AFE_TOP_CON0, 0x2, 0x2);
-		mt6391_set_reg(AFE_SGEN_CFG0, 0x80, 0x80);
-		mt6391_set_reg(AFE_SGEN_CFG1, 0x0101, 0xffff);
+		mt6391_set_reg(codec_data, MT6397_ANA_AFE_TOP_CON0, 0x2, 0x2);
+		mt6391_set_reg(codec_data, MT6397_AFE_SGEN_CFG0, 0x80, 0x80);
+		mt6391_set_reg(codec_data, MT6397_AFE_SGEN_CFG1, 0x0101, 0xffff);
 	} else {
-		mt6391_set_reg(ANA_AFE_TOP_CON0, 0x0, 0x2);
-		mt6391_set_reg(AFE_SGEN_CFG0, 0x0, 0x80);
+		mt6391_set_reg(codec_data, MT6397_ANA_AFE_TOP_CON0, 0x0, 0x2);
+		mt6391_set_reg(codec_data, MT6397_AFE_SGEN_CFG0, 0x0, 0x80);
 	}
 
 	codec_data->adc_sgen_switch = ucontrol->value.integer.value[0];
@@ -2513,145 +2417,125 @@ static const struct snd_kcontrol_new mt6391_factory_controls[] = {
 };
 
 #ifdef CONFIG_DEBUG_FS
-static ssize_t mt6391_debug_read(struct file *file, char __user *buf,
+struct mt6391_reg_attr {
+	uint32_t offset;
+	char *name;
+};
+
+#define DUMP_REG_ENTRY(reg) {reg, #reg}
+
+static const struct mt6391_reg_attr dump_reg_list[] = {
+	DUMP_REG_ENTRY(MT6397_AFE_UL_DL_CON0),
+	DUMP_REG_ENTRY(MT6397_AFE_DL_SRC2_CON0_H),
+	DUMP_REG_ENTRY(MT6397_AFE_DL_SRC2_CON0_L),
+	DUMP_REG_ENTRY(MT6397_AFE_DL_SDM_CON0),
+	DUMP_REG_ENTRY(MT6397_AFE_DL_SDM_CON1),
+	DUMP_REG_ENTRY(MT6397_AFE_UL_SRC_CON0_H),
+	DUMP_REG_ENTRY(MT6397_AFE_UL_SRC_CON0_L),
+	DUMP_REG_ENTRY(MT6397_AFE_UL_SRC_CON1_H),
+	DUMP_REG_ENTRY(MT6397_AFE_UL_SRC_CON1_L),
+	DUMP_REG_ENTRY(MT6397_ANA_AFE_TOP_CON0),
+	DUMP_REG_ENTRY(MT6397_AFUNC_AUD_CON0),
+	DUMP_REG_ENTRY(MT6397_AFUNC_AUD_CON1),
+	DUMP_REG_ENTRY(MT6397_AFUNC_AUD_CON2),
+	DUMP_REG_ENTRY(MT6397_AFUNC_AUD_CON3),
+	DUMP_REG_ENTRY(MT6397_AFUNC_AUD_CON4),
+	DUMP_REG_ENTRY(MT6397_AFUNC_AUD_MON0),
+	DUMP_REG_ENTRY(MT6397_AFUNC_AUD_MON1),
+	DUMP_REG_ENTRY(MT6397_AUDRC_TUNE_MON0),
+	DUMP_REG_ENTRY(MT6397_AFE_UP8X_FIFO_CFG0),
+	DUMP_REG_ENTRY(MT6397_AFE_UP8X_FIFO_LOG_MON0),
+	DUMP_REG_ENTRY(MT6397_AFE_UP8X_FIFO_LOG_MON1),
+	DUMP_REG_ENTRY(MT6397_AFE_DL_DC_COMP_CFG0),
+	DUMP_REG_ENTRY(MT6397_AFE_DL_DC_COMP_CFG1),
+	DUMP_REG_ENTRY(MT6397_AFE_DL_DC_COMP_CFG2),
+	DUMP_REG_ENTRY(MT6397_AFE_PMIC_NEWIF_CFG0),
+	DUMP_REG_ENTRY(MT6397_AFE_PMIC_NEWIF_CFG1),
+	DUMP_REG_ENTRY(MT6397_AFE_PMIC_NEWIF_CFG2),
+	DUMP_REG_ENTRY(MT6397_AFE_PMIC_NEWIF_CFG3),
+	DUMP_REG_ENTRY(MT6397_AFE_SGEN_CFG0),
+	DUMP_REG_ENTRY(MT6397_AFE_SGEN_CFG1),
+	DUMP_REG_ENTRY(MT6397_TOP_CKPDN),
+	DUMP_REG_ENTRY(MT6397_TOP_CKPDN2),
+	DUMP_REG_ENTRY(MT6397_TOP_CKCON1),
+	DUMP_REG_ENTRY(MT6397_TOP_CKCON3),
+	DUMP_REG_ENTRY(MT6397_SPK_CON0),
+	DUMP_REG_ENTRY(MT6397_SPK_CON1),
+	DUMP_REG_ENTRY(MT6397_SPK_CON2),
+	DUMP_REG_ENTRY(MT6397_SPK_CON3),
+	DUMP_REG_ENTRY(MT6397_SPK_CON4),
+	DUMP_REG_ENTRY(MT6397_SPK_CON5),
+	DUMP_REG_ENTRY(MT6397_SPK_CON6),
+	DUMP_REG_ENTRY(MT6397_SPK_CON7),
+	DUMP_REG_ENTRY(MT6397_SPK_CON8),
+	DUMP_REG_ENTRY(MT6397_SPK_CON9),
+	DUMP_REG_ENTRY(MT6397_SPK_CON10),
+	DUMP_REG_ENTRY(MT6397_SPK_CON11),
+	DUMP_REG_ENTRY(MT6397_AUDDAC_CON0),
+	DUMP_REG_ENTRY(MT6397_AUDBUF_CFG0),
+	DUMP_REG_ENTRY(MT6397_AUDBUF_CFG1),
+	DUMP_REG_ENTRY(MT6397_AUDBUF_CFG2),
+	DUMP_REG_ENTRY(MT6397_AUDBUF_CFG3),
+	DUMP_REG_ENTRY(MT6397_AUDBUF_CFG4),
+	DUMP_REG_ENTRY(MT6397_IBIASDIST_CFG0),
+	DUMP_REG_ENTRY(MT6397_AUDACCDEPOP_CFG0),
+	DUMP_REG_ENTRY(MT6397_AUD_IV_CFG0),
+	DUMP_REG_ENTRY(MT6397_AUDCLKGEN_CFG0),
+	DUMP_REG_ENTRY(MT6397_AUDLDO_CFG0),
+	DUMP_REG_ENTRY(MT6397_AUDLDO_CFG1),
+	DUMP_REG_ENTRY(MT6397_AUDNVREGGLB_CFG0),
+	DUMP_REG_ENTRY(MT6397_AUD_NCP0),
+	DUMP_REG_ENTRY(MT6397_AUDPREAMP_CON0),
+	DUMP_REG_ENTRY(MT6397_AUDADC_CON0),
+	DUMP_REG_ENTRY(MT6397_AUDADC_CON1),
+	DUMP_REG_ENTRY(MT6397_AUDADC_CON2),
+	DUMP_REG_ENTRY(MT6397_AUDADC_CON3),
+	DUMP_REG_ENTRY(MT6397_AUDADC_CON4),
+	DUMP_REG_ENTRY(MT6397_AUDADC_CON5),
+	DUMP_REG_ENTRY(MT6397_AUDADC_CON6),
+	DUMP_REG_ENTRY(MT6397_AUDDIGMI_CON0),
+	DUMP_REG_ENTRY(MT6397_AUDLSBUF_CON0),
+	DUMP_REG_ENTRY(MT6397_AUDLSBUF_CON1),
+	DUMP_REG_ENTRY(MT6397_AUDENCSPARE_CON0),
+	DUMP_REG_ENTRY(MT6397_AUDENCCLKSQ_CON0),
+	DUMP_REG_ENTRY(MT6397_AUDPREAMPGAIN_CON0),
+	DUMP_REG_ENTRY(MT6397_ZCD_CON0),
+	DUMP_REG_ENTRY(MT6397_ZCD_CON1),
+	DUMP_REG_ENTRY(MT6397_ZCD_CON2),
+	DUMP_REG_ENTRY(MT6397_ZCD_CON3),
+	DUMP_REG_ENTRY(MT6397_ZCD_CON4),
+	DUMP_REG_ENTRY(MT6397_ZCD_CON5),
+	DUMP_REG_ENTRY(MT6397_NCP_CLKDIV_CON0),
+	DUMP_REG_ENTRY(MT6397_NCP_CLKDIV_CON1),
+};
+
+
+static ssize_t mt6391_debug_read(struct file *file, char __user *user_buf,
 				size_t count, loff_t *pos)
 {
-	const int size = 4096;
-	char buffer[size];
+	struct mt6391_priv *codec_data = file->private_data;
+	ssize_t ret, i;
+	char *buf;
 	int n = 0;
 
-	pr_notice("%s\n", __func__);
+	if (*pos < 0 || !count)
+		return -EINVAL;
 
-	n += scnprintf(buffer + n, size - n, "UL_DL_CON0 = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_DL_CON0));
-	n += scnprintf(buffer + n, size - n, "DL_SRC2_CON0_H = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SRC2_CON0_H));
-	n += scnprintf(buffer + n, size - n, "DL_SRC2_CON0_L = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SRC2_CON0_L));
-	n += scnprintf(buffer + n, size - n, "DL_SDM_CON0 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SDM_CON0));
-	n += scnprintf(buffer + n, size - n, "DL_SDM_CON1 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_SDM_CON1));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON0_H = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON0_H));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON0_L = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON0_L));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON1_H = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON1_H));
-	n += scnprintf(buffer + n, size - n, "UL_SRC_CON1_L = 0x%x\n",
-		       mt6391_get_reg(AFE_UL_SRC_CON1_L));
-	n += scnprintf(buffer + n, size - n, "ANA_AFE_TOP_CON0 = 0x%x\n",
-		       mt6391_get_reg(ANA_AFE_TOP_CON0));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON0 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON0));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON1 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON1));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON2 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON2));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON3 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON3));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_CON4 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_CON4));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_MON0 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_MON0));
-	n += scnprintf(buffer + n, size - n, "AFUNC_AUD_MON1 = 0x%x\n",
-		       mt6391_get_reg(AFUNC_AUD_MON1));
-	n += scnprintf(buffer + n, size - n, "AUDRC_TUNE_MON0 = 0x%x\n",
-		       mt6391_get_reg(AUDRC_TUNE_MON0));
-	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_UP8X_FIFO_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_LOG_MON0 = 0x%x\n",
-		       mt6391_get_reg(AFE_UP8X_FIFO_LOG_MON0));
-	n += scnprintf(buffer + n, size - n, "AFE_UP8X_FIFO_LOG_MON1 = 0x%x\n",
-		       mt6391_get_reg(AFE_UP8X_FIFO_LOG_MON1));
-	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_DC_COMP_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG1 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_DC_COMP_CFG1));
-	n += scnprintf(buffer + n, size - n, "AFE_DL_DC_COMP_CFG2 = 0x%x\n",
-		       mt6391_get_reg(AFE_DL_DC_COMP_CFG2));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG1 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG1));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG2 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG2));
-	n += scnprintf(buffer + n, size - n, "AFE_PMIC_NEWIF_CFG3 = 0x%x\n",
-		       mt6391_get_reg(AFE_PMIC_NEWIF_CFG3));
-	n += scnprintf(buffer + n, size - n, "AFE_SGEN_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AFE_SGEN_CFG0));
-	n += scnprintf(buffer + n, size - n, "AFE_SGEN_CFG1 = 0x%x\n",
-		       mt6391_get_reg(AFE_SGEN_CFG1));
-	n += scnprintf(buffer + n, size - n, "======PMIC analog registers====\n");
-	n += scnprintf(buffer + n, size - n, "TOP_CKPDN = 0x%x\n", mt6391_get_reg(TOP_CKPDN));
-	n += scnprintf(buffer + n, size - n, "TOP_CKPDN2 = 0x%x\n", mt6391_get_reg(TOP_CKPDN2));
-	n += scnprintf(buffer + n, size - n, "TOP_CKCON1 = 0x%x\n", mt6391_get_reg(TOP_CKCON1));
-	n += scnprintf(buffer + n, size - n, "TOP_CKCON3 = 0x%x\n", mt6391_get_reg(TOP_CKCON3));
-	n += scnprintf(buffer + n, size - n, "SPK_CON0 = 0x%x\n", mt6391_get_reg(SPK_CON0));
-	n += scnprintf(buffer + n, size - n, "SPK_CON1 = 0x%x\n", mt6391_get_reg(SPK_CON1));
-	n += scnprintf(buffer + n, size - n, "SPK_CON2 = 0x%x\n", mt6391_get_reg(SPK_CON2));
-	n += scnprintf(buffer + n, size - n, "SPK_CON3 = 0x%x\n", mt6391_get_reg(SPK_CON3));
-	n += scnprintf(buffer + n, size - n, "SPK_CON4 = 0x%x\n", mt6391_get_reg(SPK_CON4));
-	n += scnprintf(buffer + n, size - n, "SPK_CON5 = 0x%x\n", mt6391_get_reg(SPK_CON5));
-	n += scnprintf(buffer + n, size - n, "SPK_CON6 = 0x%x\n", mt6391_get_reg(SPK_CON6));
-	n += scnprintf(buffer + n, size - n, "SPK_CON7 = 0x%x\n", mt6391_get_reg(SPK_CON7));
-	n += scnprintf(buffer + n, size - n, "SPK_CON8 = 0x%x\n", mt6391_get_reg(SPK_CON8));
-	n += scnprintf(buffer + n, size - n, "SPK_CON9 = 0x%x\n", mt6391_get_reg(SPK_CON9));
-	n += scnprintf(buffer + n, size - n, "SPK_CON10 = 0x%x\n", mt6391_get_reg(SPK_CON10));
-	n += scnprintf(buffer + n, size - n, "SPK_CON11 = 0x%x\n", mt6391_get_reg(SPK_CON11));
-	n += scnprintf(buffer + n, size - n, "AUDDAC_CON0 = 0x%x\n", mt6391_get_reg(AUDDAC_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG0 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG1 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG1));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG2 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG2));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG3 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG3));
-	n += scnprintf(buffer + n, size - n, "AUDBUF_CFG4 = 0x%x\n", mt6391_get_reg(AUDBUF_CFG4));
-	n += scnprintf(buffer + n, size - n, "IBIASDIST_CFG0 = 0x%x\n",
-		       mt6391_get_reg(IBIASDIST_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDACCDEPOP_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AUDACCDEPOP_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUD_IV_CFG0 = 0x%x\n", mt6391_get_reg(AUD_IV_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDCLKGEN_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AUDCLKGEN_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDLDO_CFG0 = 0x%x\n", mt6391_get_reg(AUDLDO_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUDLDO_CFG1 = 0x%x\n", mt6391_get_reg(AUDLDO_CFG1));
-	n += scnprintf(buffer + n, size - n, "AUDNVREGGLB_CFG0 = 0x%x\n",
-		       mt6391_get_reg(AUDNVREGGLB_CFG0));
-	n += scnprintf(buffer + n, size - n, "AUD_NCP0 = 0x%x\n", mt6391_get_reg(AUD_NCP0));
-	n += scnprintf(buffer + n, size - n, "AUDPREAMP_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDPREAMP_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON0 = 0x%x\n", mt6391_get_reg(AUDADC_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON1 = 0x%x\n", mt6391_get_reg(AUDADC_CON1));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON2 = 0x%x\n", mt6391_get_reg(AUDADC_CON2));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON3 = 0x%x\n", mt6391_get_reg(AUDADC_CON3));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON4 = 0x%x\n", mt6391_get_reg(AUDADC_CON4));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON5 = 0x%x\n", mt6391_get_reg(AUDADC_CON5));
-	n += scnprintf(buffer + n, size - n, "AUDADC_CON6 = 0x%x\n", mt6391_get_reg(AUDADC_CON6));
-	n += scnprintf(buffer + n, size - n, "AUDDIGMI_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDDIGMI_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDLSBUF_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDLSBUF_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDLSBUF_CON1 = 0x%x\n",
-		       mt6391_get_reg(AUDLSBUF_CON1));
-	n += scnprintf(buffer + n, size - n, "AUDENCSPARE_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDENCSPARE_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDENCCLKSQ_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDENCCLKSQ_CON0));
-	n += scnprintf(buffer + n, size - n, "AUDPREAMPGAIN_CON0 = 0x%x\n",
-		       mt6391_get_reg(AUDPREAMPGAIN_CON0));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON0 = 0x%x\n", mt6391_get_reg(ZCD_CON0));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON1 = 0x%x\n", mt6391_get_reg(ZCD_CON1));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON2 = 0x%x\n", mt6391_get_reg(ZCD_CON2));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON3 = 0x%x\n", mt6391_get_reg(ZCD_CON3));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON4 = 0x%x\n", mt6391_get_reg(ZCD_CON4));
-	n += scnprintf(buffer + n, size - n, "ZCD_CON5 = 0x%x\n", mt6391_get_reg(ZCD_CON5));
-	n += scnprintf(buffer + n, size - n, "NCP_CLKDIV_CON0 = 0x%x\n",
-		       mt6391_get_reg(NCP_CLKDIV_CON0));
-	n += scnprintf(buffer + n, size - n, "NCP_CLKDIV_CON1 = 0x%x\n",
-		       mt6391_get_reg(NCP_CLKDIV_CON1));
+	buf = kmalloc(count, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
 
-	pr_notice("%s len = %d\n", __func__, n);
+	for (i = 0; i < ARRAY_SIZE(dump_reg_list); i++) {
+		n += scnprintf(buf + n, count - n, "%s = 0x%x\n",
+			dump_reg_list[i].name,
+			mt6391_get_reg(codec_data, dump_reg_list[i].offset));
+	}
 
-	return simple_read_from_buffer(buf, count, pos, buffer, n);
+	ret = simple_read_from_buffer(user_buf, count, pos, buf, n);
+
+	kfree(buf);
+
+	return ret;
 }
 
 static const struct file_operations mt6391_debug_ops = {
@@ -2737,23 +2621,25 @@ static struct snd_soc_dai_driver mt6391_codec_dai_drvs[] = {
 	 },
 };
 
-static void mt6391_codec_init_reg(struct snd_soc_codec *codec)
+static void mt6391_codec_init_reg(struct mt6391_priv *codec_data)
 {
 	pr_debug("%s\n", __func__);
 
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0080, 0x0080);
-	mt6391_set_reg(ZCD_CON2, 0x0c0c, 0xffff);
-	mt6391_set_reg(AUDBUF_CFG0, 0x0000, 0x1fe7);
-	mt6391_set_reg(IBIASDIST_CFG0, 0x1552, 0xffff);	/* RG DEV ck off; */
-	mt6391_set_reg(AUDDAC_CON0, 0x0000, 0xffff);	/* NCP off */
-	mt6391_set_reg(AUDCLKGEN_CFG0, 0x0000, 0x0001);
-	mt6391_set_reg(AUDNVREGGLB_CFG0, 0x0006, 0xffff);	/* need check */
-	mt6391_set_reg(NCP_CLKDIV_CON1, 0x0001, 0xffff);	/* fix me */
-	mt6391_set_reg(AUD_NCP0, 0x0000, 0x6000);
-	mt6391_set_reg(AUDLDO_CFG0, 0x0192, 0xffff);
-	mt6391_set_reg(AFUNC_AUD_CON2, 0x0000, 0x0080);
-	mt6391_set_reg(ZCD_CON0, 0x0101, 0xffff);	/* ZCD setting gain step gain and enable */
-	mt6391_set_reg(AFE_PMIC_NEWIF_CFG2, 1 << 15, 1 << 15);	/* sck inverse */
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0080, 0x0080);
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON2, 0x0c0c, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AUDBUF_CFG0, 0x0000, 0x1fe7);
+	mt6391_set_reg(codec_data, MT6397_IBIASDIST_CFG0, 0x1552, 0xffff);	/* RG DEV ck off; */
+	mt6391_set_reg(codec_data, MT6397_AUDDAC_CON0, 0x0000, 0xffff);	/* NCP off */
+	mt6391_set_reg(codec_data, MT6397_AUDCLKGEN_CFG0, 0x0000, 0x0001);
+	mt6391_set_reg(codec_data, MT6397_AUDNVREGGLB_CFG0, 0x0006, 0xffff);	/* need check */
+	mt6391_set_reg(codec_data, MT6397_NCP_CLKDIV_CON1, 0x0001, 0xffff);	/* fix me */
+	mt6391_set_reg(codec_data, MT6397_AUD_NCP0, 0x0000, 0x6000);
+	mt6391_set_reg(codec_data, MT6397_AUDLDO_CFG0, 0x0192, 0xffff);
+	mt6391_set_reg(codec_data, MT6397_AFUNC_AUD_CON2, 0x0000, 0x0080);
+	/* ZCD setting gain step gain and enable */
+	mt6391_set_reg(codec_data, MT6397_ZCD_CON0, 0x0101, 0xffff);
+	/* sck inverse */
+	mt6391_set_reg(codec_data, MT6397_AFE_PMIC_NEWIF_CFG2, 1 << 15, 1 << 15);
 }
 
 static int mt6391_codec_probe(struct snd_soc_codec *codec)
@@ -2762,15 +2648,27 @@ static int mt6391_codec_probe(struct snd_soc_codec *codec)
 
 	pr_info("%s\n", __func__);
 
-	upmu_set_rg_clksq_en(1);
-	mt6391_control_top_clk(0x0607, true);
+	codec_data->codec = codec;
 
-	mt6391_codec_init_reg(codec);
+#if defined(USE_MT6397_REGMAP)
+	mt6391_set_reg(codec_data, MT6397_TOP_CKCON1, 0x0010, 0x0010);
+#elif defined(USE_PMIC_WRAP_DRIVER)
+	upmu_set_rg_clksq_en(1);
+#endif
+
+	mt6391_control_top_clk(codec_data, 0x0607, true);
+
+	mt6391_codec_init_reg(codec_data);
 	mt6391_get_hp_trim_offset(codec_data);
 	mt6391_spk_auto_trim_offset(codec_data);
 
+#if defined(USE_MT6397_REGMAP)
+	mt6391_set_reg(codec_data, MT6397_TOP_CKCON1, 0x0000, 0x0010);
+#elif defined(USE_PMIC_WRAP_DRIVER)
 	upmu_set_rg_clksq_en(0);
-	mt6391_control_top_clk(0x0607, false);
+#endif
+
+	mt6391_control_top_clk(codec_data, 0x0607, false);
 
 	snd_soc_add_codec_controls(codec, mt6391_dl_codec_controls,
 				ARRAY_SIZE(mt6391_dl_codec_controls));
@@ -2781,7 +2679,7 @@ static int mt6391_codec_probe(struct snd_soc_codec *codec)
 
 #ifdef CONFIG_DEBUG_FS
 	codec_data->debugfs = debugfs_create_file("mt6391reg", S_IFREG | S_IRUGO,
-					NULL, NULL, &mt6391_debug_ops);
+					NULL, codec_data, &mt6391_debug_ops);
 #endif
 	return 0;
 }
@@ -2812,9 +2710,20 @@ static int mt6391_codec_resume(struct snd_soc_codec *codec)
 	return 0;
 }
 
+#if defined(USE_MT6397_REGMAP)
+static struct regmap *mt6391_codec_get_regmap(struct device *dev)
+{
+	struct mt6397_chip *mt6397;
+
+	mt6397 = dev_get_drvdata(dev->parent);
+
+	return mt6397->regmap;
+}
+#else
 static unsigned int mt6391_read(struct snd_soc_codec *codec, unsigned int reg)
 {
-	unsigned int val = mt6391_get_reg(reg);
+	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	unsigned int val = mt6391_get_reg(codec_data, reg);
 
 	pr_debug("%s reg = 0x%x val = 0x%x", __func__, reg, val);
 	return val;
@@ -2822,18 +2731,25 @@ static unsigned int mt6391_read(struct snd_soc_codec *codec, unsigned int reg)
 
 static int mt6391_write(struct snd_soc_codec *codec, unsigned int reg, unsigned int value)
 {
+	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+
 	pr_debug("%s reg = 0x%x value= 0x%x\n", __func__, reg, value);
-	mt6391_set_reg(reg, value, 0xffffffff);
+	mt6391_set_reg(codec_data, reg, value, 0xffffffff);
 	return 0;
 }
+#endif
 
 static struct snd_soc_codec_driver mt6391_codec_driver = {
 	.probe = mt6391_codec_probe,
 	.remove = mt6391_codec_remove,
 	.suspend = mt6391_codec_suspend,
 	.resume = mt6391_codec_resume,
+#if defined(USE_MT6397_REGMAP)
+	.get_regmap = mt6391_codec_get_regmap,
+#else
 	.read = mt6391_read,
 	.write = mt6391_write,
+#endif
 };
 
 static int mt6391_dev_probe(struct platform_device *pdev)
