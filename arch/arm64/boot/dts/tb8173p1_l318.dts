@@ -102,7 +102,7 @@
 		/*gpio_combo_ldo_en_pin = <&pio 0xffff 0>;	/*0) GPIO_COMBO_LDO_EN_PIN */
 		/*gpio_combo_pmuv28_en_pin = <&pio 0xffff 0>;	/* 1) GPIO_COMBO_PMUV28_EN_PIN */
 		gpio_combo_pmu_en_pin = <&pio 69 0>;		/* 2) GPIO_COMBO_PMU_EN_PIN */
-		gpio_combo_rst_pin = <&pio6397 12 0>;		/* 3) GPIO_COMBO_RST_PIN is ext pin on 6397 */
+		gpio_combo_rst_pin = <&pio 38 0>;		/* 3) GPIO_COMBO_RST_PIN pin */
 		/*gpio_combo_bgf_eint_pin = <&pio 0xffff 0>;	/* 4) GPIO_COMBO_BGF_EINT_PIN */
 		gpio_wifi_eint_pin = <&pio 2 0>;		/* 5) GPIO_WIFI_EINT_PIN */
 		/*gpio_all_eint_pin = <&pio 0xffff 0>;		/* 6) GPIO_ALL_EINT_PIN */
@@ -530,6 +530,13 @@
 		};
 	};
 
+	pcfg_combo_rst_pull_dis_cfgs:cfg_gpio38_mode1_pull_dis{
+		combo_pins {
+			pinmux = <MT8173_PIN_38_CONN_RST__FUNC_GPIO38>;
+			bias-disable;
+		};
+	};
+
 	pcfg_combo_wifi_eint_in_pull_dis_cfgs:cfg_gpio2_mode1_in_pull_dis{
 		combo_pins {
 			pinmux = <MT8173_PIN_2_EINT2__FUNC_GPIO2>;
@@ -653,12 +660,6 @@
 			};
 
 			/* ++++++ Connectivity GPIOEXT configs ++++++ */
-			pcfg_combo_rst_pull_dis_cfgs:cfg_gpio12_mode1_pull_dis{
-				combo_pins {
-					pinmux = <MT6397_PIN_12_COL0__FUNC_GPIO12>;
-					bias-disable;
-				};
-			};
 
 			pcfg_combo_gps_lna_pull_dis_cfgs:cfg_gpio17_mode1_pull_dis{
 				combo_pins {
