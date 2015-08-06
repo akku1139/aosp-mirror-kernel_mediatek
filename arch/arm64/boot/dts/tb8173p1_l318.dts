@@ -131,6 +131,16 @@
 
 &pio {
 
+	audio_pins_default: audio_pins_default {
+		pins_merge_interface {
+			pinmux = <MT8173_PIN_33_DAICLK__FUNC_MRG_CLK>,
+				<MT8173_PIN_34_DAIPCMIN__FUNC_MRG_DI>,
+				<MT8173_PIN_35_DAIPCMOUT__FUNC_MRG_DO>,
+				<MT8173_PIN_36_DAISYNC__FUNC_MRG_SYNC>;
+			bias-disable;
+		};
+	};
+
 	bq24297_int_pin: bq24297_int_pin {
 		pinmux = <MT8173_PIN_9_EINT9__FUNC_GPIO9>;
 		input-enable;
@@ -500,6 +510,8 @@
 
 &sound {
 	mediatek,board-channel-type = <0>; /* 0(Stereo) 1(MonoLeft) 2(MonoRight) */
+	pinctrl-names = "default";
+	pinctrl-0 = <&audio_pins_default>;
 };
 
 &touch {
