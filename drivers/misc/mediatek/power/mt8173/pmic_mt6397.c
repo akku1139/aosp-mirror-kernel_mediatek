@@ -144,6 +144,53 @@ unsigned int pmic_config_interface(unsigned int RegNum, unsigned int val, unsign
 	return return_value;
 }
 
+/* ============================================================================== */
+/* PMIC read/write APIs : nolock */
+/* ============================================================================== */
+unsigned int pmic_read_interface_nolock(unsigned int RegNum, unsigned int *val, unsigned int MASK, unsigned int SHIFT)
+{
+	unsigned int return_value = 0;
+	unsigned int pmic_reg = 0;
+	unsigned int rdata;
+
+	return_value = pwrap_wacs2(0, (RegNum), 0, &rdata);
+	pmic_reg = rdata;
+	if (return_value != 0) {
+		pr_err("[Power/PMIC]" "[pmic_read_interface] Reg[%x]= pmic_wrap read data fail\n", RegNum);
+		return return_value;
+	}
+
+	pmic_reg &= (MASK << SHIFT);
+	*val = (pmic_reg >> SHIFT);
+
+	return return_value;
+}
+
+unsigned int pmic_config_interface_nolock(unsigned int RegNum, unsigned int val, unsigned int MASK, unsigned int SHIFT)
+{
+	unsigned int return_value = 0;
+	unsigned int pmic_reg = 0;
+	unsigned int rdata;
+
+	return_value = pwrap_wacs2(0, (RegNum), 0, &rdata);
+	pmic_reg = rdata;
+	if (return_value != 0) {
+		pr_err("[Power/PMIC]" "[pmic_config_interface] Reg[%x]= pmic_wrap read data fail\n", RegNum);
+		return return_value;
+	}
+
+	pmic_reg &= ~(MASK << SHIFT);
+	pmic_reg |= (val << SHIFT);
+
+	return_value = pwrap_wacs2(1, (RegNum), pmic_reg, &rdata);
+	if (return_value != 0) {
+		pr_err("[Power/PMIC]" "[pmic_config_interface] Reg[%x]= pmic_wrap read data fail\n", RegNum);
+		return return_value;
+	}
+
+	return return_value;
+}
+
 unsigned int upmu_get_reg_value(unsigned int reg)
 {
 	unsigned int ret = 0;
@@ -1149,6 +1196,93 @@ static int pmic_mt6397_probe(struct platform_device *pdev)
 	return 0;
 }
 
+static int pmic_mt6397_remove(struct platform_device *dev)
+{
+	pr_debug("[Power/PMIC] " "******** MT6397 pmic driver remove!! ********\n");
+
+	return 0;
+}
+
+static void pmic_mt6397_shutdown(struct platform_device *dev)
+{
+	pr_debug("[Power/PMIC] " "******** MT6397 pmic driver shutdown!! ********\n");
+}
+
+static int pmic_mt6397_suspend(struct platform_device *pdev, pm_message_t state)
+{
+	struct mt6397_chip_priv *chip = dev_get_drvdata(&pdev->dev);
+	u32 ret = 0;
+	u32 events;
+
+	mt6397_set_suspended(chip, true);
+	disable_irq(chip->irq);
+
+	events = mt6397_get_events(chip);
+	if (events)
+		dev_err(&pdev->dev, "%s: PMIC events: %08X\n", __func__, events);
+
+	/* Set PMIC CA7, CA15 TRANS_EN to disable(0x0) before system into sleep mode. */
+	ret =
+	    pmic_config_interface(VCA15_CON18, 0x0, PMIC_VCA15_VOSEL_TRANS_EN_MASK,
+				  PMIC_VCA15_VOSEL_TRANS_EN_SHIFT);
+	ret =
+	    pmic_config_interface(VPCA7_CON18, 0x0, PMIC_VPCA7_VOSEL_TRANS_EN_MASK,
+				  PMIC_VPCA7_VOSEL_TRANS_EN_SHIFT);
+	pr_info("[Power/PMIC] Suspend: Reg[0x%x]=0x%x\n", VCA15_CON18,
+		upmu_get_reg_value(VCA15_CON18));
+	pr_info("[Power/PMIC] Suspend: Reg[0x%x]=0x%x\n", VPCA7_CON18,
+		upmu_get_reg_value(VPCA7_CON18));
+
+	return 0;
+}
+
+static int pmic_mt6397_resume(struct platform_device *pdev)
+{
+	struct mt6397_chip_priv *chip = dev_get_drvdata(&pdev->dev);
+	u32 ret = 0;
+	int i;
+
+	/* pr_info("[Power/PMIC] ******** MT6397 pmic driver resume!! ********\n" ); */
+
+	/* Set PMIC CA7, CA15 TRANS_EN to falling enable(0x1) after system resume. */
+	ret =
+	    pmic_config_interface(VCA15_CON18, 0x1, PMIC_VCA15_VOSEL_TRANS_EN_MASK,
+				  PMIC_VCA15_VOSEL_TRANS_EN_SHIFT);
+	ret =
+	    pmic_config_interface(VPCA7_CON18, 0x1, PMIC_VPCA7_VOSEL_TRANS_EN_MASK,
+				  PMIC_VPCA7_VOSEL_TRANS_EN_SHIFT);
+	pr_info("[Power/PMIC] Resume: Reg[0x%x]=0x%x\n", VCA15_CON18,
+		upmu_get_reg_value(VCA15_CON18));
+	pr_info("[Power/PMIC] Resume: Reg[0x%x]=0x%x\n", VPCA7_CON18,
+		upmu_get_reg_value(VPCA7_CON18));
+
+	mt6397_set_suspended(chip, false);
+
+	/* amnesty for all blocked events on resume */
+	for (i = 0; i < ARRAY_SIZE(chip->stat); ++i) {
+		if (chip->stat[i].blocked) {
+			chip->stat[i].blocked = false;
+			enable_irq(i + chip->irq_base);
+			pr_debug("%s: restored blocked PMIC event%d\n", __func__, i);
+		}
+		if (chip->stat[i].wake_blocked) {
+			chip->stat[i].wake_blocked = false;
+			irq_set_irq_wake(i + chip->irq_base, true);
+			pr_debug("%s: restored blocked PMIC wake src %d\n", __func__, i);
+		}
+	}
+
+	if (chip->wakeup_event) {
+		mt6397_do_handle_events(chip, chip->wakeup_event);
+		chip->wakeup_event = 0;
+	}
+
+	enable_irq(chip->irq);
+
+	return 0;
+}
+
+
 static const struct of_device_id mt6397_pmic_of_match[] = {
 	{ .compatible = "mediatek,mt6397-pmic", },
 	{ }
@@ -1161,6 +1295,10 @@ static struct platform_driver pmic_mt6397_driver = {
 		.of_match_table = mt6397_pmic_of_match,
 	},
 	.probe	= pmic_mt6397_probe,
+	.remove = pmic_mt6397_remove,
+	.shutdown = pmic_mt6397_shutdown,
+	.suspend = pmic_mt6397_suspend,
+	.resume = pmic_mt6397_resume,
 };
 
 module_platform_driver(pmic_mt6397_driver);
