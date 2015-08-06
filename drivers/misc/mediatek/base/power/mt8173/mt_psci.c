@@ -67,6 +67,14 @@ static int mt_psci_cpu_kill(unsigned int cpu)
 	return !spm_mtcmos_ctrl_cpu(cpu, STA_POWER_DOWN, 1);
 }
 
+#ifdef CONFIG_CPU_IDLE
+static int mt_psci_cpu_init_idle(struct device_node *cpu_node,
+				 unsigned int cpu)
+{
+	return cpu_psci_ops.cpu_init_idle(cpu_node, cpu);
+}
+#endif
+
 #ifdef CONFIG_ARM64_CPU_SUSPEND
 
 static int mt_psci_cpu_suspend(unsigned long flags)
@@ -95,6 +103,9 @@ const struct cpu_operations mt_cpu_psci_ops = {
 	.cpu_disable = mt_psci_cpu_disable,
 	.cpu_die = mt_psci_cpu_die,
 	.cpu_kill = mt_psci_cpu_kill,
+#endif
+#ifdef CONFIG_CPU_IDLE
+	.cpu_init_idle	= mt_psci_cpu_init_idle,
 #endif
 #ifdef CONFIG_ARM64_CPU_SUSPEND
 	.cpu_suspend = mt_psci_cpu_suspend,
