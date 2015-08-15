@@ -23,6 +23,7 @@
 #include <linux/gpio.h>
 #include <linux/of.h>
 #include <linux/of_irq.h>
+#include <linux/pm_runtime.h>
 
 /* #define DEBUG_IRQ_STATUS */
 #ifdef DEBUG_IRQ_STATUS
@@ -56,6 +57,9 @@ static struct mt_afe_suspend_reg suspend_reg;
 static bool aud_drv_suspend_status;
 static unsigned int audio_irq_id = MT8173_AFE_MCU_IRQ_LINE;
 static unsigned int board_channel_type;
+
+static struct device *mach_dev;
+static bool audio_power_status;
 
 
 /*
@@ -118,7 +122,13 @@ int mt_afe_platform_init(void *dev)
 	if (ret)
 		return ret;
 
-	mt_afe_mtcmos_audio_on();
+	pm_runtime_enable(dev);
+
+	ret = pm_runtime_get_sync(dev);
+	if (ret < 0) {
+		pr_warn("%s pm_runtime_get_sync fail %d\n", __func__, ret);
+		return ret;
+	}
 
 	mt_afe_power_off_default_clock();
 
@@ -128,13 +138,23 @@ int mt_afe_platform_init(void *dev)
 
 	mt_afe_init_control(dev);
 
+	mach_dev = dev;
+
+	audio_power_status = true;
+
 	return ret;
 }
 
 void mt_afe_platform_deinit(void *dev)
 {
 	mt_afe_reg_unmap();
-	mt_afe_mtcmos_audio_off();
+
+	if (audio_power_status) {
+		pm_runtime_put_sync(dev);
+		audio_power_status = false;
+	}
+
+	pm_runtime_disable(dev);
 	mt_afe_deinit_clock(dev);
 }
 
@@ -1277,26 +1297,49 @@ int mt_afe_disable_merge_i2s(void)
 
 void mt_afe_suspend(void)
 {
-	if (!aud_drv_suspend_status) {
-		pr_notice("+%s\n", __func__);
-		mt_afe_store_reg(&suspend_reg);
-		mt_afe_suspend_clk_off();
-		mt_afe_mtcmos_audio_off();
-		aud_drv_suspend_status = true;
-		pr_notice("-%s\n", __func__);
+	if (aud_drv_suspend_status)
+		return;
+
+	pr_notice("+%s\n", __func__);
+
+	mt_afe_store_reg(&suspend_reg);
+
+	mt_afe_suspend_clk_off();
+
+	if (audio_power_status) {
+		pm_runtime_put_sync(mach_dev);
+		audio_power_status = false;
 	}
+
+	aud_drv_suspend_status = true;
+
+	pr_notice("-%s\n", __func__);
 }
 
 void mt_afe_resume(void)
 {
-	if (aud_drv_suspend_status) {
-		pr_notice("+%s\n", __func__);
-		mt_afe_mtcmos_audio_on();
-		mt_afe_suspend_clk_on();
-		mt_afe_recover_reg(&suspend_reg);
-		aud_drv_suspend_status = false;
-		pr_notice("-%s\n", __func__);
+	if (!aud_drv_suspend_status)
+		return;
+
+	pr_notice("+%s\n", __func__);
+
+	if (!audio_power_status) {
+		int ret = pm_runtime_get_sync(mach_dev);
+
+		if (ret < 0)
+			pr_warn("%s pm_runtime_get_sync fail %d\n", __func__, ret);
+		else
+			audio_power_status = true;
+
 	}
+
+	mt_afe_suspend_clk_on();
+
+	mt_afe_recover_reg(&suspend_reg);
+
+	aud_drv_suspend_status = false;
+
+	pr_notice("-%s\n", __func__);
 }
 
 struct mt_afe_mem_control_t *mt_afe_get_mem_ctx(enum mt_afe_mem_context mem_context)

@@ -15,9 +15,6 @@
 
 void mt_afe_apb_bus_init(void);
 
-void mt_afe_mtcmos_audio_on(void);
-void mt_afe_mtcmos_audio_off(void);
-
 int mt_afe_init_clock(void *dev);
 void mt_afe_deinit_clock(void *dev);
 void mt_afe_power_off_default_clock(void);

@@ -564,6 +564,7 @@
 					"top_apll1_ck",
 					"top_apll2_ck",
 					"clk26m";
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_AUDIO>;
 		};
 
 		mediatek,mt8173-soc-dl1-pcm@11220000 {
