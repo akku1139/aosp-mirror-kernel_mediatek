@@ -287,8 +287,8 @@ static const char *const mt_pcm_i2s0_awb_clock_function[] = { "Normal", "Low Jit
 
 static int i2s0_awb_clock_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_i2s0_awb_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_i2s0_awb_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->i2s0_clock_mode;
 	return 0;
@@ -296,8 +296,8 @@ static int i2s0_awb_clock_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
 
 static int i2s0_awb_clock_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_i2s0_awb_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_i2s0_awb_priv *priv = snd_soc_component_get_drvdata(component);
 
 	priv->i2s0_clock_mode = ucontrol->value.integer.value[0];
 	return 0;

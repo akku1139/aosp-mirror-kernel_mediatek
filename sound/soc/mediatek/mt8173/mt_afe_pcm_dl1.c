@@ -426,8 +426,8 @@ static const char *const mt_pcm_dl1_playback_mux_function[] = {
 
 static int dl1_playback_mux_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_dl1_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_dl1_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->playback_mux;
 	return 0;
@@ -435,8 +435,8 @@ static int dl1_playback_mux_get(struct snd_kcontrol *kcontrol, struct snd_ctl_el
 
 static int dl1_playback_mux_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_dl1_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_dl1_priv *priv = snd_soc_component_get_drvdata(component);
 
 	priv->playback_mux = ucontrol->value.integer.value[0];
 	return 0;
@@ -446,8 +446,8 @@ static const char *const mt_pcm_dl1_i2s0_clock_function[] = { "Normal", "Low Jit
 
 static int dl1_i2s0_clock_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_dl1_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_dl1_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->i2s0_clock_mode;
 	return 0;
@@ -455,8 +455,8 @@ static int dl1_i2s0_clock_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
 
 static int dl1_i2s0_clock_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_dl1_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_dl1_priv *priv = snd_soc_component_get_drvdata(component);
 
 	priv->i2s0_clock_mode = ucontrol->value.integer.value[0];
 	return 0;

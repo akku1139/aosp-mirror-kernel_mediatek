@@ -31,8 +31,8 @@ static int mt_pcm_mrgrx_close(struct snd_pcm_substream *substream);
 static int audio_mrgrx_volume_get(struct snd_kcontrol *kcontrol,
 				  struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_mrgrx_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_mrgrx_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->mrgrx_volume;
 	return 0;
@@ -41,8 +41,8 @@ static int audio_mrgrx_volume_get(struct snd_kcontrol *kcontrol,
 static int audio_mrgrx_volume_set(struct snd_kcontrol *kcontrol,
 				  struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_mrgrx_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_mrgrx_priv *priv = snd_soc_component_get_drvdata(component);
 
 	priv->mrgrx_volume = ucontrol->value.integer.value[0];
 
@@ -63,8 +63,8 @@ static const struct soc_enum wcn_stub_audio_ctr_Enum[] = {
 
 static int audio_wcn_cmb_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_mrgrx_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_mrgrx_priv *priv = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = priv->audio_wcn_cmb;
 	return 0;
@@ -72,8 +72,8 @@ static int audio_wcn_cmb_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_
 
 static int audio_wcn_cmb_set(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_platform *platform = snd_kcontrol_chip(kcontrol);
-	struct mt_pcm_mrgrx_priv *priv = snd_soc_platform_get_drvdata(platform);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt_pcm_mrgrx_priv *priv = snd_soc_component_get_drvdata(component);
 
 	priv->audio_wcn_cmb = ucontrol->value.integer.value[0];
 	/* mtk_wcn_cmb_stub_audio_ctrl((CMB_STUB_AIF_X) priv->audio_wcn_cmb); */
