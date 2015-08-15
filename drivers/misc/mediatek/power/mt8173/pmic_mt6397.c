@@ -544,7 +544,7 @@ static irqreturn_t rtc_int_handler(int irq, void *dev_id)
 #ifdef CONFIG_MTK_ACCDET
 static irqreturn_t accdet_int_handler(int irq, void *dev_id)
 {
-	kal_uint32 ret = 0;
+	int ret = 0;
 
 	pr_info("%s:\n", __func__);
 

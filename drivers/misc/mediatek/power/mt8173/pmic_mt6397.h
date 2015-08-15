@@ -3,6 +3,8 @@
 
 extern void kpd_pwrkey_pmic_handler(unsigned long pressed);
 extern void kpd_pmic_rstkey_handler(unsigned long pressed);
+extern int accdet_irq_handler(void);
+extern void accdet_auxadc_switch(int enable);
 
 struct mt6397_event_stat {
 	u64 last;
