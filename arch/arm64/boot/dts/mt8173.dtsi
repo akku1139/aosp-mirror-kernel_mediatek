@@ -314,6 +314,16 @@
 			reg = <0 0x10200000 0 0x1000>;
 		};
 
+		cpuxgpt: cpuxgpt@10200000 {
+			compatible = "mediatek,mt8173-cpuxgpt";
+			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 57 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 59 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 60 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
+		};
+
 		m4u: mmsys_iommu@10205000 {
 			cell-index = <0>;
 			compatible = "mediatek,mt8173-m4u";
