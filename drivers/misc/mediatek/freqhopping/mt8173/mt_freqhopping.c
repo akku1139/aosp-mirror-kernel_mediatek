@@ -31,10 +31,12 @@
 
 
 #include "mach/mt_freqhopping.h"
+#if 0	/* L318_Need_Related_File */
 #include "mt_cpufreq.h"
+#endif	/* L318_Need_Related_File */
 #include "mach/mt_fhreg.h"
 #include "sync_write.h"
-#if 0				/* L318_Need_Related_File */
+#if 0	/* L318_Need_Related_File */
 /* #include "mach/mt_clkmgr.h" */
 #include "mach/mt_typedefs.h"
 #include "mach/mt_gpio.h"
@@ -42,7 +44,7 @@
 #include "mach/emi_bwl.h"
 #include "mach/sync_write.h"
 #include "mach/mt_sleep.h"
-#endif				/* L318_Need_Related_File */
+#endif	/* L318_Need_Related_File */
 
 #include <mt_freqhopping_drv.h>
 /* #include <mach/mt_clkmgr.h> */

@@ -153,7 +153,7 @@ struct freqhopping_ioctl {
 };
 
 int freqhopping_config(unsigned int pll_id, unsigned long vco_freq, unsigned int enable);
-int mt_freqhopping_init(void);
+void mt_freqhopping_init(void);
 void mt_freqhopping_pll_init(void);
 int mt_h2l_mempll(void);
 int mt_l2h_mempll(void);
