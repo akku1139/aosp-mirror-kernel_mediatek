@@ -1178,6 +1178,10 @@
 			interrupts = <GIC_SPI 154 IRQ_TYPE_EDGE_FALLING>;
 		};
 
+		accdet: accdet@ {
+			compatible = "mediatek,mt8173-accdet";
+		};
+
 		touch: touch@ {
 			compatible = "mediatek,mt8173-touch";
 			vtouch-supply = <&mt6397_vgp6_reg>;
