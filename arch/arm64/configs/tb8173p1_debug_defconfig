@@ -1152,6 +1152,29 @@ CONFIG_MTK_SCHED_RQAVG_US=y
 # CONFIG_MT_CPU_AFFINITY is not set
 
 #
+# MT load balance and schedule enhancement
+#
+# CONFIG_MT_LOAD_BALANCE_ENHANCEMENT is not set
+# CONFIG_MTK_COMPAT is not set
+# CONFIG_MT_SCHED_INTEROP is not set
+# CONFIG_MT_SCHED_TRACE is not set
+# CONFIG_MT_DEBUG_PREEMPT is not set
+
+#
+# MTK Cluster MultiProcessor Scheduler
+#
+# CONFIG_MTK_SCHED_CMP is not set
+# CONFIG_HAVE_MTK_IN_HOUSE_TEE_SUPPORT is not set
+# CONFIG_MTK_FMRADIO is not set
+# CONFIG_MTK_FM is not set
+# CONFIG_MTK_FM_SUPPORT is not set
+# CONFIG_HAVE_AEE_FEATURE is not set
+# CONFIG_MTK_AEE_FEATURE is not set
+# CONFIG_MTK_AEE_AED is not set
+# CONFIG_MTK_AEE_IPANIC is not set
+# CONFIG_MTK_AEE_POWERKEY_HANG_DETECT is not set
+
+#
 # SCSI device support
 #
 CONFIG_SCSI_MOD=y
