@@ -934,7 +934,6 @@ static int m4u_clock_off(void)
     return 0;
 }
 */
-#ifndef M4U_TEE_SERVICE_ENABLE
 
 /* from smi */
 int larb_clock_on(unsigned int larb)
@@ -1002,6 +1001,7 @@ int larb_clock_off(unsigned int larb)
 }
 /* end from smi */
 
+#ifndef M4U_TEE_SERVICE_ENABLE
 static int larb_clock_all_on(void)
 {
 	int i;

@@ -1263,9 +1263,9 @@ static int MTK_M4U_flush(struct file *filp, fl_owner_t a_id)
 
 #ifdef M4U_TEE_SERVICE_ENABLE
 
-#include "tz_cross/trustzone.h"
+#include "trustzone/tz_cross/trustzone.h"
 #include "trustzone/kree/system.h"
-#include "tz_cross/ta_m4u.h"
+#include "trustzone/tz_cross/ta_m4u.h"
 
 bool m4u_tee_en = false;
 static KREE_SESSION_HANDLE m4u_session;
@@ -1827,7 +1827,7 @@ static int m4u_probe(struct platform_device *pdev)
 #ifdef M4U_TEE_SERVICE_ENABLE
 		if (!m4u_tee_en) {
 			m4u_buf_info_t *pMvaInfo;
-			unsigned int mva;
+			unsigned int mva = 0;
 			unsigned int securitymemorysize = 0;
 
 			m4u_session_init();
