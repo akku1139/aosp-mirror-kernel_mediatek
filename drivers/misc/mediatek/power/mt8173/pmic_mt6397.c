@@ -161,6 +161,58 @@ void upmu_set_reg_value(unsigned int reg, unsigned int reg_val)
 	ret = pmic_config_interface(reg, reg_val, 0xFFFF, 0x0);
 }
 
+/* ============================================================================== */
+/* pmic dev_attr APIs */
+/* ============================================================================== */
+unsigned int g_reg_value = 0;
+static ssize_t show_pmic_access(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	pr_info("[Power/PMIC][show_pmic_access] 0x%x\n", g_reg_value);
+	return sprintf(buf, "%04X\n", g_reg_value);
+}
+
+static ssize_t store_pmic_access(struct device *dev, struct device_attribute *attr, const char *buf,
+				 size_t size)
+{
+	int ret = 0;
+	char *pvalue = "\n";
+	char *addr = NULL;
+	unsigned long reg_value = 0;
+	unsigned long reg_address = 0;
+
+	strcpy(pvalue, buf);
+	pr_info("[Power/PMIC][store_pmic_access]\n");
+	if (buf != NULL && size != 0) {
+		pr_info("[Power/PMIC]" "[store_pmic_access] buf is %s and size is %lu\n", buf, size);
+		addr = strsep(&pvalue, " ");
+
+		if (kstrtoul(addr, 16, &reg_address))
+			return -EINVAL;
+
+#ifdef CONFIG_PM_DEBUG
+		if ((size >= 10) && (strncmp(buf, "hard_reset", 10) == 0)) {
+			pr_info("[Power/PMIC]" "[store_pmic_access] Simulate long press Power Key\n");
+			arch_reset(0, NULL);
+		} else
+#endif
+		if (size > 7) {
+			if (kstrtoul(pvalue, 16, &reg_value))
+				return -EINVAL;
+			pr_info("[Power/PMIC]" "[store_pmic_access] write PMU reg 0x%lx with value 0x%lx !\n",
+				reg_address, reg_value);
+			ret = pmic_config_interface(reg_address, reg_value, 0xFFFF, 0x0);
+		} else {
+			ret = pmic_read_interface(reg_address, &g_reg_value, 0xFFFF, 0x0);
+			pr_info("[Power/PMIC]" "[store_pmic_access] read PMU reg 0x%lx with value 0x%x !\n",
+				reg_address, g_reg_value);
+			pr_info("[Power/PMIC]" "[store_pmic_access] Please use \"cat pmic_access\" to get value\r\n");
+		}
+	}
+	return size;
+}
+
+static DEVICE_ATTR(pmic_access, 0664, show_pmic_access, store_pmic_access);	/* 664 */
+
 /* mt6397 irq chip clear event status for given event mask. */
 static void mt6397_ack_events_locked(struct mt6397_chip_priv *chip, unsigned int event_mask)
 {
@@ -1029,12 +1081,14 @@ void pmic_charger_watchdog_enable(bool enable)
 static int pmic_mt6397_probe(struct platform_device *pdev)
 {
 	unsigned int ret_val;
+	int ret_device_file = 0;
 	struct mt6397_chip_priv *chip;
 	int ret;
 	struct mt6397_chip *mt6397 = dev_get_drvdata(pdev->dev.parent);
 
 	pr_debug("[Power/PMIC] ******** MT6397 pmic driver probe!! ********\n");
 
+	ret_device_file = device_create_file(&(pdev->dev), &dev_attr_pmic_access);
 	/* get PMIC CID */
 	ret_val = upmu_get_cid();
 	pr_debug("[Power/PMIC] MT6397 PMIC CID=0x%x\n", ret_val);
