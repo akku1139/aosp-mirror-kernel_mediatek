@@ -8,11 +8,12 @@
 #include "ddp_reg.h"
 #include "ddp_ovl.h"
 #include "primary_display.h"
-#ifdef CONFIG_MTK_SEC_VIDEO_PATH_SUPPORT
-#include "m4u_port.h"
 #ifdef CONFIG_MTK_HDMI_SUPPORT
 #include "extd_ddp.h"
 #endif
+
+#ifdef CONFIG_MTK_SEC_VIDEO_PATH_SUPPORT
+#include "m4u_port.h"
 #endif
 
 #define OVL_NUM                   (2)
