@@ -237,6 +237,16 @@
 					bias-disable;
 				};
 			};
+
+			spi_pins_a: spi1 {
+				pins_spi {
+					pinmux = <MT8173_PIN_102_MSDC2_DAT2__FUNC_SPI_CK_1_>,
+						 <MT8173_PIN_103_MSDC2_DAT3__FUNC_SPI_MI_1_>,
+						 <MT8173_PIN_104_MSDC2_CLK__FUNC_SPI_MO_1_>,
+						 <MT8173_PIN_105_MSDC2_CMD__FUNC_SPI_CS_1_>;
+					bias-disable;
+				};
+			};
 		};
 
 		scpsys: scpsys@10006000 {
@@ -437,6 +447,20 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <&i2c2_pins_a>;
 			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		spi: spi@1100a000 {
+			compatible = "mediatek,mt8173-spi";
+			reg = <0 0x1100a000 0 0x1000>;
+			interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_LOW>;
+			clocks = <&pericfg CLK_PERI_SPI0>;
+			clock-names = "main";
+			pinctrl-names = "default";
+			pinctrl-0 = <&spi_pins_a>;
+			pad-select = <1>;
+			#address-cells = <0x1>;
 			#size-cells = <0>;
 			status = "disabled";
 		};
