@@ -1729,6 +1729,7 @@
 			led_mode = <5>;
 			data = <>;
 			pwm_config = <0 0 0 0 0>;
+			gpios = <&pio6397 14 0>;
 		};
 /* led end*/
 	};

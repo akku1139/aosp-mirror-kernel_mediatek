@@ -46,5 +46,16 @@ extern struct cust_mt65xx_led *mt_get_cust_led_list(void);
 extern int disp_bls_set_backlight(int level_1024);
 extern int mtkfb_set_backlight_level(unsigned int level);
 #endif
+#ifndef CONFIG_TB8173_EVB
+#define BACKLIGHT_SUPPORT_LP8557
+
+#ifndef FALSE
+#define FALSE (0)
+#endif
+#ifndef TRUE
+#define TRUE  (1)
+#endif
+
+#endif
 
 #endif
