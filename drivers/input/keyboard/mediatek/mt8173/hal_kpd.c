@@ -196,13 +196,13 @@ void long_press_reboot_function_setting(void)
 #ifdef CONFIG_ONEKEY_REBOOT_NORMAL_MODE
 		upmu_set_rg_pwrkey_rst_en(0x01);
 		upmu_set_rg_homekey_rst_en(0x00);
-		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
+		upmu_set_rg_pwrkey_rst_td(CONFIG_KPD_PMIC_LPRST_TD);
 #endif
 
 #ifdef TWOKEY_REBOOT_NORMAL_MODE
 		upmu_set_rg_pwrkey_rst_en(0x01);
 		upmu_set_rg_homekey_rst_en(0x01);
-		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
+		upmu_set_rg_pwrkey_rst_td(CONFIG_KPD_PMIC_LPRST_TD);
 #endif
 #else
 		kpd_info("disable normal mode LPRST\n");
