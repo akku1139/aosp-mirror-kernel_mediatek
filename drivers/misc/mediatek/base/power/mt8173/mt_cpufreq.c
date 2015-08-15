@@ -89,6 +89,7 @@
 
 #include <linux/cpumask.h>
 #include <asm/topology.h>
+#include <mach/mt_thermal.h>
 
 static void __iomem *apmixed_base;	/* 0x10209000 */
 /* #define APMIXED_BASE     ((unsigned long)apmixed_base) */
@@ -113,10 +114,6 @@ struct clk *clk_pllca57;
 #endif
 
 #if 1	/* L318_Need_Related_File Dummy code */
-int tscpu_get_bL_temp(thermal_TS_name ts_name)
-{
-	return 0;
-}
 
 /* mt_spm_idle.h */
 void spm_mcdi_wakeup_all_cores(void)

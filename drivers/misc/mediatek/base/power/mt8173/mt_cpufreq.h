@@ -234,28 +234,4 @@ extern void __iomem *pwrap_base;
 #define PWRAP_BASE_ADDR     PWRAP_BASE
 #endif
 
-
-#if 1	/* L318_Need_Related_File Dummy code */
-
-/* mt_thermal.h */
-typedef enum {
-	THERMAL_BANK0 = 0,
-	THERMAL_BANK1 = 1,
-	THERMAL_BANK2 = 2,
-	THERMAL_BANK3 = 3,
-	ROME_BANK_NUM
-} thermal_bank_name;
-
-typedef enum {
-	THERMAL_CA7 = 0,
-	THERMAL_CA15 = 1,
-	THERMAL_GPU = 2,
-	THERMAL_CORE = 3,
-	ROME_TS_NUM
-} thermal_TS_name;
-
-
-#endif	/* L318_Need_Related_File Dummy code */
-
-
 #endif				/* __MT_CPUFREQ_H__ */
