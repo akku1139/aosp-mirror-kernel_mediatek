@@ -1,8 +1,6 @@
 #ifndef __DISP_ASSERT_LAYER_H__
 #define __DISP_ASSERT_LAYER_H__
 #include <linux/types.h>
-#include "../dispsys/ddp_info.h"
-#include "../dispsys/ddp_path.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -12,8 +10,6 @@ extern "C" {
 	extern struct mutex OverlaySettingMutex;
 	extern atomic_t OverlaySettingDirtyFlag;
 	extern atomic_t OverlaySettingApplied;
-
-	extern OVL_CONFIG_STRUCT cached_layer_config[DDP_OVL_LAYER_MUN];
 
 	typedef enum {
 		DAL_STATUS_OK = 0,
