@@ -21,15 +21,15 @@ extern void mt_idle_init(void);
 
 #else /* !MT_IDLE_EN */
 
-static void idle_lock_spm(enum idle_lock_spm_id id) {}
-static void idle_unlock_spm(enum idle_lock_spm_id id) {}
+static inline void idle_lock_spm(enum idle_lock_spm_id id) {}
+static inline void idle_unlock_spm(enum idle_lock_spm_id id) {}
 
-static void enable_dpidle_by_bit(int id) {}
-static void disable_dpidle_by_bit(int id) {}
-static void enable_soidle_by_bit(int id) {}
-static void disable_soidle_by_bit(int id) {}
+static inline void enable_dpidle_by_bit(int id) {}
+static inline void disable_dpidle_by_bit(int id) {}
+static inline void enable_soidle_by_bit(int id) {}
+static inline void disable_soidle_by_bit(int id) {}
 
-static void mt_idle_init(void) {}
+static inline void mt_idle_init(void) {}
 
 #endif /* MT_IDLE_EN */
 
