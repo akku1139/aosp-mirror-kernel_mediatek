@@ -1574,70 +1574,70 @@ const char *dpmgr_module_name_spy(DISP_MODULE_ENUM module)
 {
 	switch (module) {
 	case DISP_MODULE_CONFIG:
-		return "mediatek,DISP_CONFIG";
+		return "mediatek,mt8173-mmsys";
 	case DISP_MODULE_UFOE:
-		return "mediatek,DISP_UFOE";
+		return "mediatek,mt8173-disp_ufoe";
 	case DISP_MODULE_AAL:
-		return "mediatek,DISP_AAL";
+		return "mediatek,mt8173-disp_aal";
 	case DISP_MODULE_COLOR0:
 	case DISP_MODULE_COLOR1:
-		return "mediatek,DISP_COLOR";
+		return "mediatek,mt8173-disp_color";
 	case DISP_MODULE_RDMA0:
 	case DISP_MODULE_RDMA1:
 	case DISP_MODULE_RDMA2:
-		return "mediatek,DISP_RDMA";
+		return "mediatek,mt8173-disp_rdma";
 	case DISP_MODULE_WDMA0:
 	case DISP_MODULE_WDMA1:
-		return "mediatek,DISP_WDMA";
+		return "mediatek,mt8173-disp_wdma";
 	case DISP_MODULE_OVL0:
 	case DISP_MODULE_OVL1:
-		return "mediatek,DISP_OVL";
+		return "mediatek,mt8173-disp_ovl";
 	case DISP_MODULE_GAMMA:
-		return "mediatek,DISP_GAMMA";
+		return "mediatek,mt8173-disp_gamma";
 	case DISP_MODULE_PWM0:
 	case DISP_MODULE_PWM1:
-		return "mediatek,DISP_PWM";
+		return "mediatek,mt8173-disp_pwm";
 	case DISP_MODULE_OD:
-		return "mediatek,DISP_OD";
+		return "mediatek,mt8173-disp_od";
 	case DISP_MODULE_MERGE:
-		return "mediatek,DISP_MERGE";
+		return "mediatek,mt8173-disp_merge";
 	case DISP_MODULE_SPLIT0:
 	case DISP_MODULE_SPLIT1:
-		return "mediatek,DISP_SPLIT";
+		return "mediatek,mt8173-disp_split";
 	case DISP_MODULE_DSI0:
-		return "mediatek,DSI0";
+		return "mediatek,mt8173-disp_dsi0";
 	case DISP_MODULE_DSI1:
-		return "mediatek,DSI1";
+		return "mediatek,mt8173-disp_dsi1";
 	case DISP_MODULE_DSIDUAL:
 		return "mediatek,DISP_DSIDUAL";
 	case DISP_MODULE_DPI0:
-		return "mediatek,DPI0";
+		return "mediatek,mt8173-disp_dpi0";
 	case DISP_MODULE_DPI1:
-		return "mediatek,DPI1";
+		return "mediatek,mt8173-disp_dpi1";
 	case DISP_MODULE_SMI_LARB0:
-		return "mediatek,SMI_LARB0";
+		return "mediatek,mt8173-smi_larb0";
 	case DISP_MODULE_SMI_COMMON:
-		return "mediatek,SMI_COMMON";
+		return "mediatek,mt8173-smi-common";
 	case DISP_MODULE_CMDQ:
-		return "mediatek,DISP_CMDQ";
+		return "mediatek,mt8173-gce";
 	case DISP_MODULE_MIPITX0:
-		return "mediatek,MIPITX0";
+		return "mediatek,mt8173-disp_mipitx0";
 	case DISP_MODULE_MIPITX1:
-		return "mediatek,MIPITX1";
+		return "mediatek,mt8173-disp_mipitx1";
 	case DISP_MODULE_MUTEX:
-		return "mediatek,MM_MUTEX";
+		return "mediatek,mt8173-disp_mutex";
 	case DISP_MODULE_CONFIG2:
-		return "mediatek,DISP_CONFIG2";
+		return "mediatek,mt8173-disp_config2";
 	case DISP_MODULE_CONFIG3:
-		return "mediatek,DISP_CONFIG3";
+		return "mediatek,mt8173-disp_config3";
 	case DISP_MODULE_IO_DRIVING:
-		return "mediatek,DISP_IO_DRIVING";
+		return "mediatek,mt8173-disp_io_driving";
 	case DISP_MODULE_TVDPLL_CFG6:
-		return "mediatek,DISP_TVDPLL_CFG6";
+		return "mediatek,mt8173-disp_tvdpll_cfg6";
 	case DISP_MODULE_TVDPLL_CON0:
-		return "mediatek,DISP_TVDPLL_CON0";
+		return "mediatek,mt8173-disp_tvdpll_con0";
 	case DISP_MODULE_TVDPLL_CON1:
-		return "mediatek,DISP_TVDPLL_CON1";
+		return "mediatek,mt8173-disp_tvdpll_con1";
 	case DISP_MODULE_UNKNOWN:
 		return "mediatek,DISP_UNKNOWN";
 	default:
