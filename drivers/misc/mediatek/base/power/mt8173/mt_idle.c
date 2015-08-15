@@ -292,6 +292,43 @@ enum subsys_id {
 	NR_SYSS,
 };
 
+int __attribute__((weak)) gpt_check_and_ack_irq(unsigned int id)
+{
+	return 0;
+}
+
+int __attribute__((weak)) gpt_get_cmp(unsigned int id, unsigned int *ptr)
+{
+	return 0;
+}
+
+int __attribute__((weak)) gpt_get_cnt(unsigned int id, unsigned int *ptr)
+{
+	return 0;
+}
+
+int __attribute__((weak)) gpt_set_cmp(unsigned int id, unsigned int val)
+{
+	return 0;
+}
+
+int __attribute__((weak)) request_gpt(unsigned int id, unsigned int mode,
+		unsigned int clksrc, unsigned int clkdiv, unsigned int cmp,
+		void (*func)(unsigned long), unsigned int flags)
+{
+	return 0;
+}
+
+int __attribute__((weak)) start_gpt(unsigned int id)
+{
+	return 0;
+}
+
+int __attribute__((weak)) stop_gpt(unsigned int id)
+{
+	return 0;
+}
+
 unsigned long __attribute__((weak)) localtimer_get_counter(void)
 {
 	return 0;
