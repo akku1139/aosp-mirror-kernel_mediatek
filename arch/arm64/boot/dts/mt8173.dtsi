@@ -84,6 +84,14 @@
 			clock-frequency = <1000000000>;
 		};
 	};
+	mtcpufreq@0x10001000 {
+		compatible = "mediatek,MT_CPUFREQ";
+		reg-vpca53-supply = <&mt6397_vpca15_reg>;
+		reg-ext-vpca57-supply = <&da9212_vcpu_reg>;
+		reg-vsramca57-supply = <&mt6397_vsramca7_reg>;
+		reg-vcore-supply = <&mt6397_vcore_reg>;
+		reg-vgpu-supply = <&da9212_vgpu_reg>;
+	};
 
 	psci {
 		compatible  = "arm,psci";
