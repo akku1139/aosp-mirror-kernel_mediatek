@@ -109,6 +109,14 @@ static struct snd_soc_dai_link mt8173_evb_dais[] = {
 	 .codec_name = "snd-soc-dummy",
 	 .codec_dai_name = "snd-soc-dummy-dai",
 	 },
+	 {
+	 .name = "MultiMedia_DL2",
+	 .stream_name = MT_SOC_DL2_STREAM_NAME,
+	 .cpu_dai_name = MT_SOC_DL2_CPU_DAI_NAME,
+	 .platform_name = MT_SOC_DL2_PCM,
+	 .codec_name = "mt6397-codec",
+	 .codec_dai_name = "mt6397-codec-tx-dai",
+	 },
 	{
 	 .name = "PLATOFRM_CONTROL",
 	 .stream_name = MT_SOC_ROUTING_STREAM_NAME,

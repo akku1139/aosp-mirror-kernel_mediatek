@@ -622,6 +622,10 @@
 			compatible = "mediatek,mt8173-soc-dl1-pcm";
 		};
 
+		mediatek,mt8173-soc-dl2-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-dl2-pcm";
+		};
+
 		mediatek,mt8173-soc-ul1-pcm@11220000 {
 			compatible = "mediatek,mt8173-soc-ul1-pcm";
 		};
