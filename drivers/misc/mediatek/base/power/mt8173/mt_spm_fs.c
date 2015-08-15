@@ -67,12 +67,12 @@ static ssize_t dpidle_pcm_show(struct kobject *kobj, struct kobj_attribute *attr
 	return show_pcm_desc(__spm_dpidle.pcmdesc, buf);
 }
 
-/* wait mcdi/sodi ready
 static ssize_t sodi_pcm_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return show_pcm_desc(__spm_sodi.pcmdesc, buf);
 }
 
+/* wait mcdi ready
 static ssize_t mcdi_pcm_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return show_pcm_desc(__spm_mcdi.pcmdesc, buf);
@@ -153,12 +153,12 @@ static ssize_t dpidle_ctrl_show(struct kobject *kobj, struct kobj_attribute *att
 	return show_pwr_ctrl(__spm_dpidle.pwrctrl, buf);
 }
 
-/* wait mcdi/sodi ready
 static ssize_t sodi_ctrl_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return show_pwr_ctrl(__spm_sodi.pwrctrl, buf);
 }
 
+/* wait mcdi ready
 static ssize_t mcdi_ctrl_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return show_pwr_ctrl(__spm_mcdi.pwrctrl, buf);
@@ -285,13 +285,13 @@ static ssize_t dpidle_ctrl_store(struct kobject *kobj, struct kobj_attribute *at
 	return store_pwr_ctrl(__spm_dpidle.pwrctrl, buf, count);
 }
 
-/* wait mcdi/sodi ready
 static ssize_t sodi_ctrl_store(struct kobject *kobj, struct kobj_attribute *attr,
 			       const char *buf, size_t count)
 {
 	return store_pwr_ctrl(__spm_sodi.pwrctrl, buf, count);
 }
 
+/* wait mcdi ready
 static ssize_t mcdi_ctrl_store(struct kobject *kobj, struct kobj_attribute *attr,
 			       const char *buf, size_t count)
 {
@@ -397,8 +397,8 @@ static ssize_t golden_dump_show(struct kobject *kobj, struct kobj_attribute *att
  */
 DEFINE_ATTR_RO(suspend_pcm);
 DEFINE_ATTR_RO(dpidle_pcm);
-/* TODO: wait mcdi & sodi ready
 DEFINE_ATTR_RO(sodi_pcm);
+/* TODO: wait mcdi ready
 DEFINE_ATTR_RO(mcdi_pcm);
 */
 #if 0
@@ -406,8 +406,8 @@ DEFINE_ATTR_RO(ddrdfs_pcm);
 #endif
 DEFINE_ATTR_RW(suspend_ctrl);
 DEFINE_ATTR_RW(dpidle_ctrl);
-/* TODO: wait mcdi & sodi ready
 DEFINE_ATTR_RW(sodi_ctrl);
+/* TODO: wait mcdi ready
 DEFINE_ATTR_RW(mcdi_ctrl);
 */
 #if 0
@@ -420,8 +420,8 @@ static struct attribute *spm_attrs[] = {
 	/* for spm_lp_scen.pcmdesc */
 	__ATTR_OF(suspend_pcm),
 	__ATTR_OF(dpidle_pcm),
-/* TODO: wait mcdi & sodi ready
 	__ATTR_OF(sodi_pcm),
+/* TODO: wait mcdi ready
 	__ATTR_OF(mcdi_pcm),
 */
 #if 0
@@ -430,8 +430,8 @@ static struct attribute *spm_attrs[] = {
 	/* for spm_lp_scen.pwrctrl */
 	__ATTR_OF(suspend_ctrl),
 	__ATTR_OF(dpidle_ctrl),
-/* TODO: wait mcdi & sodi ready
 	__ATTR_OF(sodi_ctrl),
+/* TODO: wait mcdi ready
 	__ATTR_OF(mcdi_ctrl),
 */
 #if 0

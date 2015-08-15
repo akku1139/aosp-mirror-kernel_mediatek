@@ -277,8 +277,8 @@ static int __init spm_module_init(void)
 
 	spm_suspend_init();
 	spm_dpidle_init();
-/* TODO: enable sodi/mcdi when ready */
-/*	spm_sodi_init(); */
+	spm_sodi_init();
+/* TODO: enable mcdi when ready */
 /*	spm_mcdi_init(); */
 
 	return r;

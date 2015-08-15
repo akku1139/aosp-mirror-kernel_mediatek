@@ -7,6 +7,7 @@ obj-y += mt_spm_internal.o
 obj-$(CONFIG_ARCH_MT8173) += mt_sleep.o
 obj-$(CONFIG_ARCH_MT8173) += mt_spm_sleep.o
 obj-$(CONFIG_ARCH_MT8173) += mt_spm_dpidle.o
+obj-$(CONFIG_ARCH_MT8173) += mt_spm_sodi.o
 obj-$(CONFIG_ARCH_MT8173) += mt_spm_fs.o
 
 obj-y += mt_static_power.o
