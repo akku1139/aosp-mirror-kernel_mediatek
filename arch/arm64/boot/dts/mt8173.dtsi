@@ -650,6 +650,14 @@
 		};
 	};
 
+	mediatek,battery_meter {
+		compatible = "mediatek,battery_meter";
+	};
+
+	mediatek,battery_common {
+		compatible = "mediatek,battery_common";
+	};
+
 	bring-up {
 		compatible = "mediatek,mt8173-bring-up";
 		clocks =
