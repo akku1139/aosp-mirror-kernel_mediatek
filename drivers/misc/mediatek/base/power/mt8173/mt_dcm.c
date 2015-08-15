@@ -8,6 +8,7 @@
 
 #include "mt_dcm.h"
 
+#define DCM_HAVE_CHIP_VER	0
 #define DCM_SYS_POWER		1
 #define DCM_CPU_2		1
 #define INFRA_DCM		0
@@ -25,7 +26,7 @@
 #define dcm_setl(addr, val)	dcm_writel(addr, dcm_readl(addr) | (val))
 #define dcm_clrl(addr, val)	dcm_writel(addr, dcm_readl(addr) & ~(val))
 
-#if 1 /* TODO: remove it when mt_get_chip_id() done */
+#if !DCM_HAVE_CHIP_VER /* TODO: remove it when mt_get_chip_id() done */
 
 enum CHIP_SW_VER {
 	CHIP_SW_VER_01 = 0x0000,
@@ -37,17 +38,13 @@ __weak enum CHIP_SW_VER mt_get_chip_sw_ver(void)
 	return CHIP_SW_VER_02;
 }
 
-#endif
+#endif /* !DCM_HAVE_CHIP_VER */
 
 static void __iomem *topckgen_base;	/* 0x10000000 */
 static void __iomem *infrasys_base;	/* 0x10001000 */
 static void __iomem *perisys_base;	/* 0x10003000 */
-static void __iomem *mmsys_base;	/* 0x14000000 */
-static void __iomem *vdecsys_base;	/* 0x16000000 */
-static void __iomem *venc_base;		/* 0x18002000 */
-static void __iomem *venc_lt_base;	/* 0x19002000 */
-
 static void __iomem *dramc0_base;	/* 0x10004000 */
+static void __iomem *scpsys_base;	/* 0x10006000 */
 static void __iomem *pwrap_base;	/* 0x1000D000 */
 static void __iomem *dramc1_base;	/* 0x10011000 */
 static void __iomem *mcucfg_base;	/* 0x10200000 */
@@ -64,16 +61,20 @@ static void __iomem *msdc0_base;	/* 0x11230000 */
 static void __iomem *msdc1_base;	/* 0x11240000 */
 static void __iomem *msdc2_base;	/* 0x11250000 */
 static void __iomem *msdc3_base;	/* 0x11260000 */
+static void __iomem *mmsys_base;	/* 0x14000000 */
 static void __iomem *smi_larb0_base;	/* 0x14021000 */
 static void __iomem *smi_common_base;	/* 0x14022000 */
+static void __iomem *smi_larb4_base;	/* 0x14027000 */
 static void __iomem *smi_larb2_base;	/* 0x15001000 */
 static void __iomem *cam1_base;		/* 0x15004000 */
 static void __iomem *fdvt_base;		/* 0x1500B000 */
+static void __iomem *vdecsys_base;	/* 0x16000000 */
 static void __iomem *smi_larb1_base;	/* 0x16010000 */
-static void __iomem *smi_larb4_base;	/* 0x14027000 */
 static void __iomem *smi_larb3_base;	/* 0x18001000 */
+static void __iomem *venc_base;		/* 0x18002000 */
 static void __iomem *jpgenc_base;	/* 0x18003000 */
 static void __iomem *jpgdec_base;	/* 0x18004000 */
+static void __iomem *venc_lt_base;	/* 0x19002000 */
 static void __iomem *smi_larb5_base;	/* 0x19001000 */
 
 #define TOPCKGEN_REG(ofs)	(topckgen_base + ofs)
@@ -112,6 +113,7 @@ static void __iomem *smi_larb5_base;	/* 0x19001000 */
 #define JPGENC_REG(ofs)		(jpgenc_base + ofs)
 #define JPGDEC_REG(ofs)		(jpgdec_base + ofs)
 #define SMI_LARB5_REG(ofs)	(smi_larb5_base + ofs)
+#define SCP_REG(ofs)		(scpsys_base + ofs)
 
 #define USB0_DCM		USB0_REG(0x700)
 
@@ -215,60 +217,63 @@ static void __iomem *smi_larb5_base;	/* 0x19001000 */
 
 #define VDEC_DCM_CON		VDEC_REG(0x18)
 
+#define SPM_PWR_STATUS		SCP_REG(0x060c)
+#define SPM_PWR_STATUS_2ND	SCP_REG(0x0610)
+
 static DEFINE_MUTEX(dcm_lock);
 
 static uint32_t dcm_reg_init;
 static uint32_t dcm_sta;
 
-struct clk *sys_vde;
-struct clk *sys_ven;
-struct clk *sys_isp;
-struct clk *sys_dis;
-struct clk *sys_ven2;
 struct clk *mm_sel;
-
-enum {
-	SYS_VDE		= 0,
-	SYS_MFG		= 1,
-	SYS_VEN		= 2,
-	SYS_ISP		= 3,
-	SYS_DIS		= 4,
-	SYS_VEN2	= 5,
-	SYS_AUD		= 6,
-	SYS_MFG_2D	= 7,
-	SYS_MFG_ASYNC	= 8,
-	SYS_USB		= 9,
-	NR_SYSS		= 10,
-};
 
 #define MT_MUX_MM	0
 
-static int subsys_is_on(int id)
+#define DIS_PWR_STA_MASK		BIT(3)
+#define MFG_PWR_STA_MASK		BIT(4)
+#define ISP_PWR_STA_MASK		BIT(5)
+#define VDE_PWR_STA_MASK		BIT(7)
+#define VEN2_PWR_STA_MASK		BIT(20)
+#define VEN_PWR_STA_MASK		BIT(21)
+#define MFG_2D_PWR_STA_MASK		BIT(22)
+#define MFG_ASYNC_PWR_STA_MASK		BIT(23)
+#define AUDIO_PWR_STA_MASK		BIT(24)
+#define USB_PWR_STA_MASK		BIT(25)
+
+enum subsys_id {
+	SYS_VDE,
+	SYS_MFG,
+	SYS_VEN,
+	SYS_ISP,
+	SYS_DIS,
+	SYS_VEN2,
+	SYS_AUDIO,
+	SYS_MFG_2D,
+	SYS_MFG_ASYNC,
+	SYS_USB,
+	NR_SYSS,
+};
+
+static int subsys_is_on(enum subsys_id id)
 {
-	struct clk *c = NULL;
+	u32 pwr_sta_mask[] = {
+		VDE_PWR_STA_MASK,
+		MFG_PWR_STA_MASK,
+		VEN_PWR_STA_MASK,
+		ISP_PWR_STA_MASK,
+		DIS_PWR_STA_MASK,
+		VEN2_PWR_STA_MASK,
+		AUDIO_PWR_STA_MASK,
+		MFG_2D_PWR_STA_MASK,
+		MFG_ASYNC_PWR_STA_MASK,
+		USB_PWR_STA_MASK,
+	};
 
-	switch (id) {
-	case SYS_VDE:
-		c = sys_vde;
-		break;
-	case SYS_VEN:
-		c = sys_ven;
-		break;
-	case SYS_ISP:
-		c = sys_isp;
-		break;
-	case SYS_DIS:
-		c = sys_dis;
-		break;
-	case SYS_VEN2:
-		c = sys_ven2;
-		break;
-	}
+	u32 mask = pwr_sta_mask[id];
+	u32 sta = dcm_readl(SPM_PWR_STATUS);
+	u32 sta_s = dcm_readl(SPM_PWR_STATUS_2ND);
 
-	if (!c)
-		return 0;
-
-	return __clk_is_enabled(c);
+	return (sta & mask) && (sta_s & mask);
 }
 
 static void enable_mux(int id, char *name)
@@ -423,12 +428,12 @@ void dcm_enable(uint32_t type)
 	if (!dcm_reg_init)
 		return;
 
-	dcm_info("[%s]type:0x%08x\n", __func__, type);
+	dcm_dbg("[%s]type:0x%08x\n", __func__, type);
 
 	mutex_lock(&dcm_lock);
 
 	if (type & CPU_DCM) {
-		dcm_info("[%s][CPU_DCM]=0x%08x\n", __func__, CPU_DCM);
+		dcm_dbg("[%s][CPU_DCM]=0x%08x\n", __func__, CPU_DCM);
 
 		dcm_writel(BUS_FABRIC_DCM_CTRL, 0xffeffdaf);
 		dcm_setl(L2C_SRAM_CTRL, BIT(0));
@@ -451,8 +456,8 @@ void dcm_enable(uint32_t type)
 	}
 
 	if (type & IFR_DCM) {
-		dcm_info("[%s][IFR_DCM]=0x%08x\n", __func__, IFR_DCM);
-		dcm_info("[%s] ver: %d\n", __func__, ver);
+		dcm_dbg("[%s][IFR_DCM]=0x%08x\n", __func__, IFR_DCM);
+		dcm_dbg("[%s] ver: %d\n", __func__, ver);
 
 		dcm_clrl(CA7_CKDIV1, 0x0000001F);
 
@@ -481,7 +486,7 @@ void dcm_enable(uint32_t type)
 	}
 
 	if (type & PER_DCM) {
-		dcm_info("[%s][PER_DCM]=0x%08x\n", __func__, PER_DCM);
+		dcm_dbg("[%s][PER_DCM]=0x%08x\n", __func__, PER_DCM);
 
 		dcm_setl(PERI_GLOBALCON_DCMCTL, 0x000000F3);
 		dcm_clrl(PERI_GLOBALCON_DCMCTL, 0x00001F00);
@@ -516,7 +521,7 @@ void dcm_enable(uint32_t type)
 	}
 
 	if (type & SMI_DCM) {
-		dcm_info("[%s][SMI_DCM]=0x%08x\n", __func__, SMI_DCM);
+		dcm_dbg("[%s][SMI_DCM]=0x%08x\n", __func__, SMI_DCM);
 
 		dcm_writel(SMI_COMMON_SMI_DCM, 0x00000001);
 
@@ -524,7 +529,7 @@ void dcm_enable(uint32_t type)
 	}
 
 	if (type & EMI_DCM) {
-		dcm_info("[%s][EMI_DCM]=0x%08x\n", __func__, EMI_DCM);
+		dcm_dbg("[%s][EMI_DCM]=0x%08x\n", __func__, EMI_DCM);
 
 		dcm_setl(EMI_CONM, 0x40000000);
 		dcm_clrl(EMI_CONM, 0xBF000000);
@@ -533,7 +538,7 @@ void dcm_enable(uint32_t type)
 	}
 
 	if (type & DIS_DCM) {
-		dcm_info("[%s][DIS_DCM]=0x%08x,subsys_is_on(SYS_DIS)=%d\n",
+		dcm_dbg("[%s][DIS_DCM]=0x%08x,subsys_is_on(SYS_DIS)=%d\n",
 			__func__, DIS_DCM, subsys_is_on(SYS_DIS));
 
 		if (subsys_is_on(SYS_DIS)) {
@@ -554,7 +559,7 @@ void dcm_enable(uint32_t type)
 
 	if (type & ISP_DCM) {
 		/* video encoder : sensor=>ISP=>VENC */
-		dcm_info("[%s][ISP_DCM]=0x%08x,SYS_(ISP,VEN,VEN2)=(%d,%d,%d)\n",
+		dcm_dbg("[%s][ISP_DCM]=0x%08x,SYS_(ISP,VEN,VEN2)=(%d,%d,%d)\n",
 			__func__, ISP_DCM, subsys_is_on(SYS_ISP),
 			subsys_is_on(SYS_VEN), subsys_is_on(SYS_VEN2));
 
@@ -587,7 +592,7 @@ void dcm_enable(uint32_t type)
 	}
 
 	if (type & VDE_DCM) {
-		dcm_info("[%s][VDE_DCM]=0x%08x,subsys_is_on(SYS_VDE)=%d\n",
+		dcm_dbg("[%s][VDE_DCM]=0x%08x,subsys_is_on(SYS_VDE)=%d\n",
 			__func__, VDE_DCM, subsys_is_on(SYS_VDE));
 
 		if (subsys_is_on(SYS_VDE)) {
@@ -609,12 +614,12 @@ void dcm_disable(uint32_t type)
 	if (!dcm_reg_init)
 		return;
 
-	dcm_info("[%s]type:0x%08x\n", __func__, type);
+	dcm_dbg("[%s]type:0x%08x\n", __func__, type);
 
 	mutex_lock(&dcm_lock);
 
 	if (type & CPU_DCM) {
-		dcm_info("[%s][CPU_DCM]=0x%08x\n", __func__, CPU_DCM);
+		dcm_dbg("[%s][CPU_DCM]=0x%08x\n", __func__, CPU_DCM);
 
 		dcm_writel(BUS_FABRIC_DCM_CTRL, 0x00000000);
 		dcm_clrl(L2C_SRAM_CTRL, BIT(0));
@@ -631,7 +636,7 @@ void dcm_disable(uint32_t type)
 	}
 
 	if (type & PER_DCM) {
-		dcm_info("[%s][PER_DCM]=0x%08x\n", __func__, PER_DCM);
+		dcm_dbg("[%s][PER_DCM]=0x%08x\n", __func__, PER_DCM);
 
 		dcm_clrl(PERI_GLOBALCON_DCMCTL, 0x00001FF3);
 		dcm_clrl(PERI_GLOBALCON_DCMDBC, 0x0000000F);
@@ -665,7 +670,7 @@ void dcm_disable(uint32_t type)
 	}
 
 	if (type & IFR_DCM) {
-		dcm_info("[%s][IFR_DCM]=0x%08x\n", __func__, IFR_DCM);
+		dcm_dbg("[%s][IFR_DCM]=0x%08x\n", __func__, IFR_DCM);
 
 		/* turn off DRAMC DCM before TOP_DCMCTL */
 
@@ -689,7 +694,7 @@ void dcm_disable(uint32_t type)
 	}
 
 	if (type & SMI_DCM) {
-		dcm_info("[%s][SMI_DCM]=0x%08x\n", __func__, SMI_DCM);
+		dcm_dbg("[%s][SMI_DCM]=0x%08x\n", __func__, SMI_DCM);
 
 		dcm_clrl(SMI_COMMON_SMI_DCM, 0x00000001);
 
@@ -697,7 +702,7 @@ void dcm_disable(uint32_t type)
 	}
 
 	if (type & DIS_DCM) {
-		dcm_info("[%s][DIS_DCM]=0x%08x\n", __func__, DIS_DCM);
+		dcm_dbg("[%s][DIS_DCM]=0x%08x\n", __func__, DIS_DCM);
 
 		dcm_writel(MMSYS_HW_DCM_DIS0, 0xFFFFFFFF);
 		dcm_writel(MMSYS_HW_DCM_DIS_SET0, 0xFFFFFFFF);
@@ -715,7 +720,7 @@ void dcm_disable(uint32_t type)
 	}
 
 	if (type & ISP_DCM) {
-		dcm_info("[%s][ISP_DCM]=0x%08x\n", __func__, ISP_DCM);
+		dcm_dbg("[%s][ISP_DCM]=0x%08x\n", __func__, ISP_DCM);
 
 		if (subsys_is_on(SYS_ISP) &&
 		    subsys_is_on(SYS_VEN) &&
@@ -746,7 +751,7 @@ void dcm_disable(uint32_t type)
 	}
 
 	if (type & VDE_DCM) {
-		dcm_info("[%s][VDE_DCM]=0x%08x\n", __func__, VDE_DCM);
+		dcm_dbg("[%s][VDE_DCM]=0x%08x\n", __func__, VDE_DCM);
 
 		dcm_setl(VDEC_DCM_CON, 0x00000001);
 
@@ -756,7 +761,7 @@ void dcm_disable(uint32_t type)
 	}
 
 	if (type & EMI_DCM) {
-		dcm_info("[%s][EMI_DCM]=0x%08x\n", __func__, EMI_DCM);
+		dcm_dbg("[%s][EMI_DCM]=0x%08x\n", __func__, EMI_DCM);
 
 		dcm_setl(EMI_CONM, 0xFF000000);
 
@@ -949,11 +954,6 @@ static struct device_node * __init get_dcm_node(void)
 static int __init init_clk(struct device_node *node)
 {
 	struct clk **pclk[] = {
-		&sys_vde,
-		&sys_ven,
-		&sys_isp,
-		&sys_dis,
-		&sys_ven2,
 		&mm_sel,
 	};
 
@@ -975,6 +975,7 @@ static int __init init_reg_base(struct device_node *node)
 		&infrasys_base,
 		&perisys_base,
 		&dramc0_base,
+		&scpsys_base,
 		&pwrap_base,
 		&dramc1_base,
 		&mcucfg_base,
@@ -1035,11 +1036,7 @@ static int __init init_from_dt(void)
 	if (err) {
 		WARN(1, "init_clk(): %d", err);
 
-		dcm_info("sys_vde  : [%p]\n", sys_vde);
-		dcm_info("sys_ven  : [%p]\n", sys_ven);
-		dcm_info("sys_isp  : [%p]\n", sys_isp);
-		dcm_info("sys_dis  : [%p]\n", sys_dis);
-		dcm_info("sys_ven2  : [%p]\n", sys_ven2);
+		dcm_info("mm_sel: [%p]\n", mm_sel);
 
 		return err;
 	}
@@ -1052,6 +1049,7 @@ static int __init init_from_dt(void)
 		dcm_info("INFRASYS_BASE  : [%p]\n", infrasys_base);
 		dcm_info("PERISYS_BASE   : [%p]\n", perisys_base);
 		dcm_info("DRAMC0_BASE    : [%p]\n", dramc0_base);
+		dcm_info("SCPSYS_BASE    : [%p]\n", scpsys_base);
 		dcm_info("PWRAP_BASE     : [%p]\n", pwrap_base);
 		dcm_info("DRAMC1_BASE    : [%p]\n", dramc1_base);
 		dcm_info("MCUCFG_BASE    : [%p]\n", mcucfg_base);
@@ -1095,8 +1093,6 @@ static int __init dcm_init(void)
 	/* dcm_init() must be called after CCF init or init_clk() fail. */
 
 	int err = 0;
-
-	dcm_info("[%s]entry!! ALL_DCM=%d\n", __func__, ALL_DCM);
 
 	err = init_from_dt();
 	if (err) {
