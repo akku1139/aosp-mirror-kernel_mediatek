@@ -296,6 +296,8 @@
 };
 
 &pio {
+	pinctrl-names = "default";
+	pinctrl-0 = <&state_default>;
 
 	alsps_intpin_cfg: alspspincfg {
 		pins_cmd_dat {
