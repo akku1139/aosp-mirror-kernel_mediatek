@@ -829,6 +829,58 @@
 			interrupts = <GIC_SPI 197 IRQ_TYPE_LEVEL_LOW>;
 		};
 
+		hdmi0: hdmi@14025000 {
+			compatible = "mediatek,mt8173-hdmitx";
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+			reg  =	<0 0x14025000 0 0x1000>, /* HDMI Shell */
+				<0 0x11012000 0 0x10>, /* HDMI DDC  */
+				<0 0x10013000 0 0xbc>; /* HDMI CEC  */
+			interrupts = <GIC_SPI 167 IRQ_TYPE_LEVEL_LOW>;
+
+			clocks =
+				<&pericfg CLK_PERI_I2C5>,
+				<&mmsys CLK_MM_HDMI_HDCP>,
+				<&mmsys CLK_MM_HDMI_HDCP24M>,
+				<&infracfg CLK_INFRA_CEC>,
+				<&mmsys CLK_MM_HDMI_PIXEL>,
+				<&mmsys CLK_MM_HDMI_PLLCK>,
+				<&mmsys CLK_MM_HDMI_AUDIO>,
+				<&mmsys CLK_MM_HDMI_SPDIF>,
+				<&topckgen CLK_TOP_HDMI_SEL>,
+				<&topckgen CLK_TOP_HDMITX_DIG_CTS>,
+				<&topckgen CLK_TOP_HDMITXPLL_D2>,
+				<&topckgen CLK_TOP_HDMITXPLL_D3>,
+				<&topckgen CLK_TOP_HDCP_SEL>,
+				<&topckgen CLK_TOP_SYSPLL4_D2>,
+				<&topckgen CLK_TOP_SYSPLL3_D4>,
+				<&topckgen CLK_TOP_UNIVPLL2_D4>,
+				<&topckgen CLK_TOP_HDCP_24M_SEL>,
+				<&topckgen CLK_TOP_UNIVPLL_D26>,
+				<&topckgen CLK_TOP_UNIVPLL_D52>,
+				<&topckgen CLK_TOP_UNIVPLL2_D8>;
+			clock-names =
+				"peri_ddc_pdn",
+				"mmsys_hdmi_hdcp",
+				"mmsys_hdmi_hdcp24",
+				"cec_pdn",
+				"mmsys_hdmi_pll",
+				"mmsys_hdmi_pixel",
+				"mmsys_hdmi_audio",
+				"mmsys_hdmi_spidif",
+				"top_hdmi_sel",
+				"top_hdmisel_dig_cts",
+				"top_hdmisel_d2",
+				"top_hdmisel_d3",
+				"top_hdcp_sel",
+				"top_hdcpsel_sys4d2",
+				"top_hdcpsel_sys3d4",
+				"top_hdcpsel_univ2d2",
+				"top_hdcp24_sel",
+				"top_hdcp24sel_univpd26",
+				"top_hdcp24sel_univpd52",
+				"top_hdcp24sel_univp2d8";
+		};
+
 		DISP_PWM@1401e000 {
 			compatible = "mediatek,mt8173-disp_pwm";
 			reg = <0 0x1401e000 0 0x2000>;

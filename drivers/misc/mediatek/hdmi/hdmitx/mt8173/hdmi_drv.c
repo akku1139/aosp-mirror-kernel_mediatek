@@ -37,6 +37,7 @@
 #include <linux/clk.h>
 #include "hdmitx.h"
 #include <linux/of_gpio.h>
+#include <linux/pm_runtime.h>
 
 #include "hdmi_ctrl.h"
 #include "hdmictrl.h"
@@ -176,7 +177,7 @@ struct clk *hdmi_ref_clock[HDMI_SEL_CLOCK_NUM] = { 0 };
 unsigned int hdmi_irq;
 /* 5v ddc power control pin*/
 int hdmi_power_control_pin;
-
+struct platform_device *hdmi_pdev;
 struct hdmi_internal_device {
 	/* base address of HDMI registers */
 	void __iomem *regs[HDMI_REG_NUM];
@@ -652,8 +653,8 @@ void set_dpi_res(unsigned char arg)
 const char *hdmi_use_clock_name_spy(enum HDMI_REF_CLOCK_ENUM module)
 {
 	switch (module) {
-	case MMSYS_POWER:
-		return "mmsys_power";	/* Must be power on first, power off last */
+	/* case MMSYS_POWER: */
+	/*	return "mmsys_power";	 Must be power on first, power off last */
 	case INFRA_SYS_CEC:
 		return "cec_pdn";	/* cec module clock */
 	case MMSYS_HDMI_PLL:
@@ -708,23 +709,23 @@ const char *hdmi_use_module_name_spy(enum HDMI_REF_MODULE_ENUM module)
 {
 	switch (module) {
 	case AP_CCIF0:
-		return "mediatek,AP_CCIF0";	/* TVD//PLL */
+		return "mediatek,mt8173-apmixedsys";	/* TVD//PLL */
 	case TOPCK_GEN:
-		return "mediatek,TOPCKGEN";
+		return "mediatek,mt8173-topckgen";
 	case INFRA_SYS:
-		return "mediatek,INFRACFG_AO";
+		return "mediatek,mt8173-infracfg";
 	case MMSYS_CONFIG:
-		return "mediatek,MMSYS_CONFIG";
+		return "mediatek,mt8173-mmsys";
 	case GPIO_REG:
-		return "mediatek,GPIO";
+		return "mediatek,mt8173-pinctrl";
 	case DPI0_REG:
-		return "mediatek,DPI0";
-	case EFUSE_REG:
-		return "mediatek,EFUSEC";
+		return "mediatek,mt8173-disp_dpi0";
+	case DISP_CONFIG2:
+		return "mediatek,mt8173-disp_config2";
 	case GIC_REG:
-		return "mediatek,MCUCFG";
+		return "arm,gic-400";
 	case PERISYS_REG:
-		return "mediatek,PERICFG";
+		return "mediatek,mt8173-perisys-iommu";
 
 	case HDMI_REF_REG_NUM:
 		return "mediatek,HDMI_UNKNOWN";
@@ -916,6 +917,7 @@ void read_hdmi2x_reg(void)
 
 void read_dpi_reg(void)
 {
+	int i = 0;
 	HDMI_PLUG_FUNC();
 	HDMI_PLUG_LOG("0x%08x = 0x%08x\n", 0x10209000, dReadHdmiANA(0x0));
 	HDMI_PLUG_LOG("0x%08x = 0x%08x\n", 0x10209040, dReadHdmiANA(0x40));
@@ -929,6 +931,9 @@ void read_dpi_reg(void)
 	HDMI_PLUG_LOG("0x%08x = 0x%08x\n", 0x10000134, dReadHdmiTOPCK(0x134));
 	HDMI_PLUG_LOG("0x%08x = 0x%08x\n", 0x14000900, dReadHdmiSYS(0x900));
 	HDMI_PLUG_LOG("0x%08x = 0x%08x\n", 0x14000904, dReadHdmiSYS(0x904));
+	for (i = 0; i < 0x7c; i += 4)
+		HDMI_PLUG_LOG("0x%08x = 0x%08x\n", i, *(unsigned int *)(hdmi_ref_reg[DPI0_REG] + i));
+
 
 }
 int hdmi_internal_video_config(HDMI_VIDEO_RESOLUTION vformat, enum HDMI_VIDEO_INPUT_FORMAT vin,
@@ -947,7 +952,8 @@ int hdmi_internal_video_config(HDMI_VIDEO_RESOLUTION vformat, enum HDMI_VIDEO_IN
 		av_hdmiset(HDMI2_SET_VIDEO_RES_CHG, &_stAvdAVInfo, 1);
 		if (get_boot_mode() != FACTORY_BOOT)
 			av_hdmiset(HDMI2_SET_HDCP_INITIAL_AUTH, &_stAvdAVInfo, 1);
-		else {
+	} else {
+	      pr_err("hdmi_internal_video_config\n");
 			av_hdmiset(HDMI_SET_TURN_OFF_TMDS, &_stAvdAVInfo, 1);
 			av_hdmiset(HDMI_SET_VPLL, &_stAvdAVInfo, 1);
 			av_hdmiset(HDMI_SET_SOFT_NCTS, &_stAvdAVInfo, 1);
@@ -955,7 +961,6 @@ int hdmi_internal_video_config(HDMI_VIDEO_RESOLUTION vformat, enum HDMI_VIDEO_IN
 			if (get_boot_mode() != FACTORY_BOOT)
 				av_hdmiset(HDMI_SET_HDCP_INITIAL_AUTH, &_stAvdAVInfo, 1);
 		}
-	}
 
 	hdmistate_debug = 0;
 	return 0;
@@ -1075,6 +1080,7 @@ void print_clock_reg(void)
 {
 	HDMI_PLUG_LOG("read bit12/13/14/15/19/20: 0x14000110 = 0x%08x\n", dReadHdmiSYS(MMSYS_CG_CON1));
 	HDMI_PLUG_LOG("read bit18: 0x10001044 = 0x%08x\n", dReadINFRASYS(0x44));
+	HDMI_PLUG_LOG("read bit18: 0x10001048 = 0x%08x\n", dReadINFRASYS(0x48));
 	HDMI_PLUG_LOG("read bit30: 0x10003018 = 0x%08x\n", dReadPeriSYS(0x18));
 }
 
@@ -1104,6 +1110,7 @@ int hdmi_internal_power_on(void)
 		clk_prepare(hdmi_ref_clock[INFRA_SYS_CEC]);
 		clk_enable(hdmi_ref_clock[INFRA_SYS_CEC]);
 	}
+
 	hdmi_clock_enable(true);
 	print_clock_reg();
 
@@ -1292,7 +1299,7 @@ void hdmi_read(unsigned int u2Reg, unsigned int *p4Data)
 		break;
 
 	case 0x10206000:
-		internal_hdmi_read(hdmi_ref_reg[EFUSE_REG] + u2Reg - 0x10206000, p4Data);
+		internal_hdmi_read(hdmi_ref_reg[DISP_CONFIG2] + u2Reg - 0x10206000, p4Data);
 		break;
 
 	case 0x10003000:
@@ -1350,7 +1357,7 @@ void vWriteReg(unsigned int u2Reg, unsigned int u4Data)
 		break;
 
 	case 0x10206000:
-		internal_hdmi_write(hdmi_ref_reg[EFUSE_REG] + u2Reg - 0x10206000, u4Data);
+		internal_hdmi_write(hdmi_ref_reg[DISP_CONFIG2] + u2Reg - 0x10206000, u4Data);
 		break;
 
 	case 0x10003000:
@@ -1429,8 +1436,7 @@ void read_cec_reg(void)
 static irqreturn_t hdmi_irq_handler(int irq, void *dev_id)
 {
 	unsigned char port_hpd_value;
-
-	/*read_cec_reg();*/
+	HDMI_DRV_LOG();
 	vClear_cec_irq();
 	vCec_clear_INT_onstandby();
 
@@ -1673,6 +1679,7 @@ void hdmi_timer_impl(void)
 	if ((hdmi2_debug == 0) && (hdmi_hotplugstate == HDMI_STATE_HOT_PLUGIN_AND_POWER_ON)
 	    && (hdmi_dpi_output == 1)) {
 		hdmi2_debug++;
+		pr_err("HDMI Debug Output\n");
 		TVD_config_pll(resolution_v);
 		set_dpi_res(resolution_v);
 
@@ -1763,7 +1770,7 @@ void hdmi_irq_impl(void)
 		else if (hdmi2_force_output == 2)
 			hdcp2_version_flag = FALSE;	/* force hdmi1 */
 
-		u4data = *((unsigned int *)(HDMI_EFUSE_BASE + 0x44));
+		u4data = *((unsigned int *)(DISP_CONFIG2_BASE + 0x44));
 		if ((u4data & 0x40) && (hdcp2_version_flag == TRUE)) {
 			HDMI_PLUG_LOG("chip don't support hdcp2\n");
 			hdcp2_version_flag = FALSE;
@@ -1920,6 +1927,7 @@ void hdmi_clock_enable(bool bEnable)
 
 	if (bEnable) {
 		HDMI_DRV_LOG("Enable hdmi clocks\n");
+
 		for (i = 0; i < TOP_HDMI_SEL; i++) {
 			if (!((i == PERI_DDC) || (i == INFRA_SYS_CEC))) {
 				clk_prepare(hdmi_ref_clock[i]);
@@ -1928,6 +1936,7 @@ void hdmi_clock_enable(bool bEnable)
 		}
 	} else {
 		HDMI_DRV_LOG("Disable hdmi clocks\n");
+
 		for (i = TOP_HDMI_SEL - 1; i >= 0; i--) {
 			if (!((i == PERI_DDC) || (i == INFRA_SYS_CEC))) {
 				clk_disable(hdmi_ref_clock[i]);
@@ -1949,6 +1958,9 @@ void hdmi_clock_probe(struct platform_device *pdev)
 		return;
 	}
 
+	pm_runtime_enable(&pdev->dev);
+	hdmi_pdev = pdev;
+
 
 	for (i = 0; i < HDMI_SEL_CLOCK_NUM; i++) {
 		hdmi_ref_clock[i] = devm_clk_get(&pdev->dev, hdmi_use_clock_name_spy(i));
@@ -1965,6 +1977,9 @@ int hdmi_internal_probe(struct platform_device *pdev, unsigned long u8Res)
 	unsigned int reg_value;
 	/*struct device *dev = &pdev->dev; */
 	struct device_node *np;
+	struct pinctrl *pinctrl;
+	struct pinctrl_state *pins_default;
+
 
 	HDMI_DRV_LOG("[hdmi_internal_probe] probe start\n");
 
@@ -1989,10 +2004,28 @@ int hdmi_internal_probe(struct platform_device *pdev, unsigned long u8Res)
 	hdmi_irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
 
 	/* Get 5V DDC Power Control Pin */
-	hdmi_power_control_pin = of_get_gpio(pdev->dev.of_node, 0);
+	pinctrl = devm_pinctrl_get(&pdev->dev);
+	if (IS_ERR(pinctrl)) {
+		ret = PTR_ERR(pinctrl);
+		dev_err(&pdev->dev, "hdmi power control pin, failure of setting\n");
+	}
+
+	pins_default = pinctrl_lookup_state(pinctrl, "default");
+	if (IS_ERR(pins_default)) {
+		ret = PTR_ERR(pins_default);
+		dev_err(&pdev->dev, "cannot find hdmi pinctrl default");
+	}
+
+	pinctrl_select_state(pinctrl, pins_default);
+
+
+	np = of_find_compatible_node(NULL, NULL, "mediatek,hdmitx");
+
+	hdmi_power_control_pin = of_get_named_gpio(np, "hdmi_power_control", 0);
 	ret = gpio_request(hdmi_power_control_pin, "hdmi power control pin");
 	if (ret)
 		pr_err("hdmi power control pin, failure of setting\n");
+
 
 	/* Get PLL/TOPCK/INFRA_SYS/MMSSYS /GPIO/EFUSE  phy base address and iomap virtual address */
 	for (i = 0; i < HDMI_REF_REG_NUM; i++) {
@@ -2029,7 +2062,7 @@ int hdmi_internal_probe(struct platform_device *pdev, unsigned long u8Res)
 			HDMI_DRV_LOG("request interrupt failed.\n");
 		}
 	}
-	HDMI_EnableIrq();
+	/* HDMI_EnableIrq(); */
 
 	hdmi_is_boot_time = 1;
 	atomic_set(&hdmi_irq_event, 1);

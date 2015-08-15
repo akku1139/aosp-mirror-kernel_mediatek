@@ -1,4 +1,10 @@
 # include $(srctree)/drivers/misc/mediatek/Makefile.custom
+ccflags-y += -I$(srctree)/drivers/misc/mediatek/video/ \
+             -I$(srctree)/drivers/misc/mediatek/video/$(CONFIG_MTK_PLATFORM) \
+             -I$(srctree)/drivers/misc/mediatek/video/$(CONFIG_MTK_PLATFORM)/videox/ \
+             -I$(srctree)/drivers/staging/android \
+             -I$(srctree)/drivers/misc/mediatek/dispsys/$(CONFIG_MTK_PLATFORM) \
+             -I$(srctree)/drivers/misc/mediatek/include/mt-plat/
 
 ifeq ($(CONFIG_MTK_INTERNAL_HDMI_SUPPORT), y)
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/hdmi/hdmitx/$(CONFIG_MTK_PLATFORM)/inc/

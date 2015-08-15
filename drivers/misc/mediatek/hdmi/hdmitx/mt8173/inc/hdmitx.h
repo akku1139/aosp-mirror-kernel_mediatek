@@ -3,8 +3,8 @@
 #ifndef HDMITX_H
 #define     HDMITX_H
 
-/* #include "mtkfb.h" */
-/* #include "disp_session.h" */
+#include "mtkfb.h"
+#include "disp_session.h"
 
 /*#define HDMI_DRV "/dev/hdmitx"*/
 typedef enum {
@@ -637,10 +637,10 @@ typedef struct {
 } CEC_USR_CMD_T;
 
 
-struct READ_REG_VALUE {
+typedef struct  {
 	unsigned int u1address;
 	unsigned int pu1Data;
-};
+} READ_REG_VALUE;
 
 typedef struct {
 	unsigned char e_hdmi_aud_in;
