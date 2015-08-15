@@ -1340,8 +1340,6 @@ static S32 raw_to_temperature_roomt(U32 ret, thermal_sensor_name ts_name)
 
 	xtoomt = g_x_roomt[ts_name];
 
-	pr_debug("raw_to_temperature_room,ts_name=%d,xtoomt=%d\n", ts_name, xtoomt);
-
 	if (ret == 0)
 		return 0;
 
@@ -1367,7 +1365,6 @@ static S32 raw_to_temperature_roomt(U32 ret, thermal_sensor_name ts_name)
 	/* t_current = (format_1 * 10) + format_4; // uint = 0.1 deg */
 	t_current = format_1 + format_4;	/* uint = 0.1 deg */
 
-	pr_debug("raw_to_temperature_room,t_current=%d\n", t_current);
 	return t_current;
 }
 
@@ -1571,7 +1568,6 @@ static int read_tc_raw_and_temp(u32 *tempmsr_name, thermal_sensor_name ts_name,
 	temp = (tempmsr_name != 0) ? raw_to_temperature_roomt(raw, ts_name) : 0;
 
 	*ts_raw = raw;
-	pr_debug("read_tc_raw_temp,ts_raw=%d,temp=%d\n", *ts_raw, temp * 100);
 
 	return (temp * 100);
 }
@@ -1581,8 +1577,6 @@ static int read_tc_raw_and_temp(u32 *tempmsr_name, thermal_sensor_name ts_name,
 
 static void read_each_bank_TS(thermal_bank_name bank_num)
 {
-
-	pr_debug("read_each_bank_TS,bank_num=%d\n", bank_num);
 
 	switch (bank_num) {
 	case THERMAL_BANK0:
@@ -3670,7 +3664,6 @@ static int mtktscpu_switch_bank(thermal_bank_name bank)
 {
 	pr_debug("mtktscpu_switch_bank bank=%d\n", bank);
 
-	pr_debug("PTPCORESEL =0x%lx\n", (unsigned long)PTPCORESEL);
 	switch (bank) {
 	case THERMAL_BANK0:	/* bank0,CA7 (TS2 TS3) */
 		thermal_clrl(PTPCORESEL, 0xF);	/* bank0 */
