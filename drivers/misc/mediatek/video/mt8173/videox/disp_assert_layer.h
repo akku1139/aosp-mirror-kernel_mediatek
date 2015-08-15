@@ -45,6 +45,7 @@ extern "C" {
 	DAL_STATUS DAL_OnDispPowerOn(void);
 	DAL_STATUS DAL_LowMemoryOn(void);
 	DAL_STATUS DAL_LowMemoryOff(void);
+	DAL_STATUS DAL_SetScreenColor(DAL_COLOR color);
 #ifdef __cplusplus
 }
 #endif
