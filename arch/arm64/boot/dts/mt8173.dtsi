@@ -432,8 +432,9 @@
 			reg = <0 0x11230000 0 0x1000>;
 			interrupts = <GIC_SPI 71 IRQ_TYPE_LEVEL_LOW>;
 			clocks = <&pericfg CLK_PERI_MSDC30_0>,
-				 <&topckgen CLK_TOP_MSDC50_0_H_SEL>;
-			clock-names = "source", "hclk";
+				 <&topckgen CLK_TOP_MSDC50_0_H_SEL>,
+				 <&topckgen CLK_TOP_MSDCPLL_D2>;
+			clock-names = "source", "hclk", "400Mhz_clk";
 			status = "disabled";
 		};
 
