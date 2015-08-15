@@ -71,7 +71,6 @@ typedef unsigned char BOOL;
 #define MTKCAM_USING_DTGPIO
 #ifdef MTKCAM_USING_DTGPIO	/* Device Tree GPIO */
 #include <linux/of_gpio.h>
-#include <linux/pinctrl/consumer.h>
 #else
 #error "ERROR: MTKCAM_USING_DTGPIO is not defined"
 #endif
@@ -3151,7 +3150,7 @@ static int CAMERA_HW_i2c_remove2(struct i2c_client *client)
 ********************************************************************************/
 #ifdef CONFIG_OF
 static const struct of_device_id CAMERA_HW_i2c_of_ids[] = {
-	{.compatible = "mediatek,camera_hw_i2c",},
+	{.compatible = "mediatek,CAMERA_HW_i2C",},
 	{}
 };
 #endif
@@ -3170,10 +3169,10 @@ struct i2c_driver CAMERA_HW_i2c_driver = {
 	.id_table = CAMERA_HW_i2c_id,
 };
 
-#if 1
+#if 0
 #ifdef CONFIG_OF
 static const struct of_device_id CAMERA_HW2_i2c_driver_of_ids[] = {
-	{.compatible = "mediatek,camera_hw2_i2c",},
+	{.compatible = "mediatek,CAMERA_HW2_i2C",},
 	{}
 };
 #endif
@@ -3185,7 +3184,7 @@ struct i2c_driver CAMERA_HW_i2c_driver2 = {
 	.driver = {
 		   .name = CAMERA_HW_DRVNAME2,
 		   .owner = THIS_MODULE,
-#if 1
+#if 0
 #ifdef CONFIG_OF
 		   .of_match_table = CAMERA_HW2_i2c_driver_of_ids,
 #endif
@@ -3382,21 +3381,18 @@ EXPORT_SYMBOL(CAMERA_Regulator_powerdown);
 #endif
 
 #ifdef MTKCAM_USING_DTGPIO
+
 enum CAMERA_GPIO {
 	CAMERA_GPIO_RST,
 	CAMERA_GPIO_PDN,
 	CAMERA_GPIO_LDO,
 	CAMERA_GPIO_COUNT,
 };
-
 struct Mtkcam_GPIO {
 	const char *names;
 	int num;
 	bool bisvalid;
 };
-
-#if 1
-
 struct Mtkcam_GPIO cam_gpio[2][CAMERA_GPIO_COUNT] = {
 	{/*	{.names,         .num, .bisvalid} */
 		{"cam-1-gpio-rst", -1, 0},
@@ -3410,7 +3406,6 @@ struct Mtkcam_GPIO cam_gpio[2][CAMERA_GPIO_COUNT] = {
 	}
 };
 
-#endif
 
 int mtkcam_gpio_init(struct platform_device *pdev, struct Mtkcam_GPIO *gpio)
 {
@@ -3418,8 +3413,11 @@ int mtkcam_gpio_init(struct platform_device *pdev, struct Mtkcam_GPIO *gpio)
 	struct device *dev = &pdev->dev;
 	for (i = 0; i < CAMERA_GPIO_COUNT; i++) {
 		gpio[i].num = of_get_named_gpio(dev->of_node, gpio[i].names, 0);
+
 		if (gpio_is_valid(gpio[i].num)) {
+
 			PK_DBG("cam_gpio[%d]: \"%s\"(%d)\n", i, gpio[i].names, gpio[i].num);
+
 			ret = devm_gpio_request(dev, gpio[i].num, gpio[i].names);
 			if (ret)
 				PK_WARN("devm_gpio_request fail, ret=%d\n", ret);
