@@ -33,15 +33,13 @@
 unsigned long (*mtk_thermal_get_gpu_loading_fp)(void) = NULL;
 EXPORT_SYMBOL(mtk_thermal_get_gpu_loading_fp);
 
-bool __attribute__ ((weak))
-	mtk_get_gpu_loading(unsigned int *pLoading)
+bool __attribute__ ((weak)) mtk_get_gpu_loading(unsigned int *pLoading)
 {
 	pr_err("E_WF: %s doesn't exist\n", __func__);
 	return 0;
 }
 
-int __attribute__ ((weak))
-	force_get_tbat(void)
+int __attribute__ ((weak)) force_get_tbat(void)
 {
 	pr_err("E_WF: %s doesn't exist\n", __func__);
 	return 30;

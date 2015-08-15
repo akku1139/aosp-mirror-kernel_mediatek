@@ -19,16 +19,32 @@ extern void __iomem *thermal_base;
 extern void __iomem *auxadc_ts_base;
 extern void __iomem *pericfg_base;
 extern void __iomem *apmixed_ts_base;
-extern unsigned int mt_gpufreq_get_cur_freq(void);
 extern int mt_cpufreq_thermal_protect(unsigned int limited_power, unsigned int limitor_index);
 extern int mtktscpu_limited_dmips;
+
+/* Workaround, it will remove after GPU ready. */
+#if 1
+void __attribute__ ((weak)) mt_gpufreq_thermal_protect(unsigned int limited_power) {
+
+}
+unsigned int __attribute__ ((weak)) mt_gpufreq_get_cur_freq(void){
+	return 0;
+}
+#else
+extern void mt_gpufreq_thermal_protect(unsigned int limited_power);
+extern unsigned int mt_gpufreq_get_cur_freq(void);
+#endif
+
 extern int IMM_GetOneChannelValue(int dwChannel, int data[4], int *rawdata);
 extern int IMM_IsAdcInitReady(void);
+extern int PMIC_IMM_GetOneChannelValue(int dwChannel, int deCount, int trimd);
+
 /* extern int last_abb_t; */
 /* extern int last_CPU2_t; */
 extern int get_immediate_temp2_wrap(void);
 extern void mtkts_dump_cali_info(void);
 extern u32 get_devinfo_with_index(u32 index);
+extern int bts_cur_temp;
 
 #define THERM_CTRL_BASE_2  thermal_base
 #define AUXADC_BASE_2      auxadc_ts_base

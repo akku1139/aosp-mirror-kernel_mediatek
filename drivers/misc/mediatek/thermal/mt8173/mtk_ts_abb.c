@@ -15,6 +15,14 @@
 
 #define MTK_TS_ABB_SW_FILTER         (1)
 
+static int tsabb_debug_log;
+#define tsabb_dprintk(fmt, args...)   \
+do {                                    \
+	if (tsabb_debug_log) {                \
+		pr_debug("[Power/TSABB_Thermal]" fmt, ##args);\
+}                                   \
+} while (0)
+
 static unsigned int interval;	/* mseconds, 0 : no auto polling */
 static int trip_temp[10] = {
 	120000, 110000, 100000, 90000, 80000, 70000, 65000, 60000, 55000, 50000
@@ -50,7 +58,7 @@ static int mtktsabb_get_hw_temp(void)
 	int t_ret = 0;
 
 	t_ret = get_immediate_temp2_wrap();	/* last_CPU2_t; */
-	/* pr_debug("[mtktsabb_get_hw_temp] T_CPU2, %d\n", t_ret); */
+	/* tsabb_dprintk("[mtktsabb_get_hw_temp] T_CPU2, %d\n", t_ret); */
 	return t_ret;
 }
 
@@ -63,10 +71,10 @@ static int mtktsabb_get_temp(struct thermal_zone_device *thermal, unsigned long 
 	static int last_abb_read_temp;
 
 	curr_temp = mtktsabb_get_hw_temp();
-	pr_debug("mtktsabb_get_temp TSABB =%d\n", curr_temp);
+	tsabb_dprintk("mtktsabb_get_temp TSABB =%d\n", curr_temp);
 
 	if ((curr_temp > (trip_temp[0] - 15000))
-		|| (curr_temp < -30000) || (curr_temp > 85000))
+	    || (curr_temp < -30000) || (curr_temp > 85000))
 		pr_info("[Power/ABB_Thermal] ABB T=%d\n", curr_temp);
 
 	temp_temp = curr_temp;
@@ -77,7 +85,7 @@ static int mtktsabb_get_temp(struct thermal_zone_device *thermal, unsigned long 
 			ret = -1;
 		} else if (last_abb_read_temp != 0) {
 			if ((curr_temp - last_abb_read_temp > 20000)
-				|| (last_abb_read_temp - curr_temp > 20000)) {
+			    || (last_abb_read_temp - curr_temp > 20000)) {
 				pr_info
 				    ("[Power/ABB_Thermal] ABB temp float hugely temp=%d, lasttemp=%d\n",
 				     curr_temp, last_abb_read_temp);
@@ -95,7 +103,7 @@ static int mtktsabb_get_temp(struct thermal_zone_device *thermal, unsigned long 
 	int curr_temp;
 
 	curr_temp = mtktsabb_get_hw_temp();
-	pr_debug(" mtktsabb_get_temp CPU T2=%d\n", curr_temp);
+	tsabb_dprintk(" mtktsabb_get_temp CPU T2=%d\n", curr_temp);
 
 	if ((curr_temp > (trip_temp[0] - 15000)) || (curr_temp < -30000))
 		pr_info("[Power/ABB_Thermal] ABB T=%d\n", curr_temp);
@@ -112,43 +120,43 @@ static int mtktsabb_bind(struct thermal_zone_device *thermal, struct thermal_coo
 
 	if (!strcmp(cdev->type, g_bind0)) {
 		table_val = 0;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind1)) {
 		table_val = 1;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind2)) {
 		table_val = 2;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind3)) {
 		table_val = 3;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind4)) {
 		table_val = 4;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind5)) {
 		table_val = 5;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind6)) {
 		table_val = 6;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind7)) {
 		table_val = 7;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind8)) {
 		table_val = 8;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind9)) {
 		table_val = 9;
-		pr_debug("[mtktsabb_bind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_bind] %s\n", cdev->type);
 	} else {
 		return 0;
 	}
 
 	if (mtk_thermal_zone_bind_cooling_device(thermal, table_val, cdev)) {
-		pr_debug("[mtktsabb_bind] error binding cooling dev\n");
+		tsabb_dprintk("[mtktsabb_bind] error binding cooling dev\n");
 		return -EINVAL;
 	}
-	pr_debug("[mtktsabb_bind] binding OK, %d\n", table_val);
+	tsabb_dprintk("[mtktsabb_bind] binding OK, %d\n", table_val);
 
 	return 0;
 }
@@ -159,42 +167,42 @@ static int mtktsabb_unbind(struct thermal_zone_device *thermal, struct thermal_c
 
 	if (!strcmp(cdev->type, g_bind0)) {
 		table_val = 0;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind1)) {
 		table_val = 1;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind2)) {
 		table_val = 2;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind3)) {
 		table_val = 3;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind4)) {
 		table_val = 4;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind5)) {
 		table_val = 5;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind6)) {
 		table_val = 6;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind7)) {
 		table_val = 7;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind8)) {
 		table_val = 8;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else if (!strcmp(cdev->type, g_bind9)) {
 		table_val = 9;
-		pr_debug("[mtktsabb_unbind] %s\n", cdev->type);
+		tsabb_dprintk("[mtktsabb_unbind] %s\n", cdev->type);
 	} else
 		return 0;
 
 	if (thermal_zone_unbind_cooling_device(thermal, table_val, cdev)) {
-		pr_debug("[mtktsabb_unbind] error unbinding cooling dev\n");
+		tsabb_dprintk("[mtktsabb_unbind] error unbinding cooling dev\n");
 		return -EINVAL;
 	}
-	pr_debug("[mtktsabb_unbind] unbinding OK\n");
+	tsabb_dprintk("[mtktsabb_unbind] unbinding OK\n");
 
 	return 0;
 }
@@ -286,7 +294,7 @@ static int mtktsabb_read(struct seq_file *m, void *v)
 
 int mtktsabb_register_thermal(void)
 {
-	pr_debug("[mtktsabb_register_thermal]\n");
+	tsabb_dprintk("[mtktsabb_register_thermal]\n");
 
 	/* trips : trip 0~3 */
 	thz_dev = mtk_thermal_zone_device_register("mtktsabb", num_trip, NULL,
@@ -313,7 +321,7 @@ void mtktsabb_unregister_cooler(void)
 
 void mtktsabb_unregister_thermal(void)
 {
-	pr_debug("[mtktsabb_unregister_thermal]\n");
+	tsabb_dprintk("[mtktsabb_unregister_thermal]\n");
 
 	if (thz_dev) {
 		mtk_thermal_zone_device_unregister(thz_dev);
@@ -346,7 +354,7 @@ static ssize_t mtktsabb_write(struct file *file, const char __user *buffer, size
 	     &t_type[2], bind2, &trip[3], &t_type[3], bind3, &trip[4], &t_type[4], bind4, &trip[5],
 	     &t_type[5], bind5, &trip[6], &t_type[6], bind6, &trip[7], &t_type[7], bind7, &trip[8],
 	     &t_type[8], bind8, &trip[9], &t_type[9], bind9, &time_msec) == 32) {
-		pr_debug("[mtktsabb_write] mtktsabb_unregister_thermal\n");
+		tsabb_dprintk("[mtktsabb_write] mtktsabb_unregister_thermal\n");
 		mtktsabb_unregister_thermal();
 
 		for (i = 0; i < num_trip; i++)
@@ -373,7 +381,7 @@ static ssize_t mtktsabb_write(struct file *file, const char __user *buffer, size
 
 		interval = time_msec;
 
-		pr_debug("[mtktsabb_write] mtktsabb_register_thermal\n");
+		tsabb_dprintk("[mtktsabb_write] mtktsabb_register_thermal\n");
 		mtktsabb_register_thermal();
 
 		return count;
@@ -402,7 +410,7 @@ static int __init mtktsabb_init(void)
 	struct proc_dir_entry *entry = NULL;
 	struct proc_dir_entry *mtktsabb_dir = NULL;
 
-	pr_debug("[mtktsabb_init]\n");
+	tsabb_dprintk("[mtktsabb_init]\n");
 
 	err = mtktsabb_register_cooler();
 	if (err)
@@ -411,11 +419,11 @@ static int __init mtktsabb_init(void)
 	if (err)
 		goto err_unreg;
 
-	pr_debug("[mtktsabb_init]\n");
+	tsabb_dprintk("[mtktsabb_init]\n");
 
 	mtktsabb_dir = mtk_thermal_get_proc_drv_therm_dir_entry();
 	if (!mtktsabb_dir) {
-		pr_debug("[mtktsabb_init]: mkdir /proc/driver/thermal failed\n");
+		tsabb_dprintk("[mtktsabb_init]: mkdir /proc/driver/thermal failed\n");
 	} else {
 		entry = proc_create("tzabb", S_IRUGO | S_IWUSR, mtktsabb_dir, &mtktsabb_fops);
 		/* if (entry) */
@@ -431,7 +439,7 @@ err_unreg:
 
 static void __exit mtktsabb_exit(void)
 {
-	pr_debug("[mtktsabb_exit]\n");
+	tsabb_dprintk("[mtktsabb_exit]\n");
 	mtktsabb_unregister_thermal();
 	mtktsabb_unregister_cooler();
 }
