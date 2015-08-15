@@ -1201,8 +1201,6 @@
 
 		touch: touch@ {
 			compatible = "mediatek,mt8173-touch";
-			vtouch-supply = <&mt6397_vgp6_reg>;
-			vtouchio-supply = <&mt6397_vgp4_reg>;
 		};
 
 		dcm@0 {
