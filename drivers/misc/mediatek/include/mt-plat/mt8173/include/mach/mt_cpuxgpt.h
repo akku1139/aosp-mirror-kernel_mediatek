@@ -67,5 +67,7 @@ u64 localtimer_get_phy_count(void);
 unsigned int cpu_xgpt_irq_dis(int cpuxgpt_num);
 void restore_cpuxgpt(void);
 void save_cpuxgpt(void);
+int localtimer_set_next_event(unsigned int evt);
+unsigned int localtimer_get_counter(void);
 
 #endif

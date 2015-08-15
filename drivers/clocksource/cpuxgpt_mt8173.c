@@ -19,7 +19,7 @@
 #include <linux/of_irq.h>
 #include <linux/mfd/syscon.h>
 #include <linux/regmap.h>
-
+#include <clocksource/arm_arch_timer.h>
 #include <mach/mt_cpuxgpt.h>
 
 #define CPUXGPT_BASE	cpuxgpt_regs
@@ -436,5 +436,27 @@ void cpu_xgpt_halt_on_debug_en(int en)
 	__cpuxgpt_halt_on_debug_en(en);
 }
 EXPORT_SYMBOL(cpu_xgpt_halt_on_debug_en);
+
+int localtimer_set_next_event(unsigned int evt)
+{
+	unsigned int ctrl;
+
+	asm volatile("mrs %0,  cntv_ctl_el0" : "=r" (ctrl));
+	ctrl |= ARCH_TIMER_CTRL_ENABLE;
+	ctrl &= ~ARCH_TIMER_CTRL_IT_MASK;
+	asm volatile("msr cntv_tval_el0, %0" : : "r" (evt));
+	asm volatile("msr cntv_ctl_el0,  %0" : : "r" (ctrl));
+
+	return 0;
+}
+
+unsigned int localtimer_get_counter(void)
+{
+	unsigned int val;
+
+	asm volatile("mrs %0, cntv_tval_el0" : "=r" (val));
+
+	return val;
+}
 
 CLOCKSOURCE_OF_DECLARE(mtk_cpuxgpt, "mediatek,mt8173-cpuxgpt", mt_cpuxgpt_init);
