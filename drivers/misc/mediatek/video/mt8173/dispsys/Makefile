@@ -1,8 +1,6 @@
 # drivers/dispsys
 
-ccflags-y += -I$(srctree)/drivers/misc/mediatek/video/include/ \
-             -I$(srctree)/drivers/misc/mediatek/video/common/ \
-             -I$(srctree)/drivers/misc/mediatek/video/$(MTK_PLATFORM)/videox/ \
+ccflags-y += -I$(srctree)/drivers/misc/mediatek/video/$(MTK_PLATFORM)/videox/ \
              -I$(srctree)/drivers/misc/mediatek/ext_disp/$(MTK_PLATFORM) \
              -I$(srctree)/drivers/misc/mediatek/cmdq/$(MTK_PLATFORM)/ \
              -I$(srctree)/drivers/misc/mediatek/cmdq/ \
