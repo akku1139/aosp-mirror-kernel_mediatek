@@ -30,8 +30,8 @@
 #include <linux/clk.h>
 
 #include <mt_vcore_dvfs.h>
+#include <mt_chip.h>
 #if 0				/* L318_Need_Related_File */
-#include <mach/mt_chip.h>
 #include <mach/mt_pmic_wrap.h>
 #endif				/* L318_Need_Related_File */
 #include <mt_cpufreq.h>

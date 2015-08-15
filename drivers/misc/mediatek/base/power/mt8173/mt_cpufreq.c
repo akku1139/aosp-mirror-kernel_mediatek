@@ -22,6 +22,7 @@
 #include <linux/proc_fs.h>
 #include <linux/miscdevice.h>
 #include <linux/platform_device.h>
+
 #if 0				/* L318_Need_Related_File */
 #include <linux/earlysuspend.h>
 #endif				/* L318_Need_Related_File */
@@ -38,7 +39,7 @@
 #include <linux/seq_file.h>
 #include <asm/io.h>
 
-
+#include <mt_chip.h>
 #if 0				/* L318_Need_Related_File */
 #include <linux/cpufreq.h>
 #include <linux/clk.h>
@@ -109,11 +110,6 @@ struct clk *clk_pllca57;
 #endif
 
 #if 1	/* L318_Need_Related_File Dummy code */
-unsigned int mt_get_chip_sw_ver(void)
-{
-	return 0x0001;
-}
-
 int tscpu_get_bL_temp(thermal_TS_name ts_name)
 {
 	return 0;
@@ -397,7 +393,7 @@ cpufreq_write(addr, (cpufreq_read(addr) & ~(_BITMASK_(mask))) | _BITS_(mask, val
 /*=============================================================*/
 /* Local variable definition                                   */
 /*=============================================================*/
-CHIP_SW_VER chip_ver = CHIP_SW_VER_02;
+enum chip_sw_ver chip_ver = CHIP_SW_VER_02;
 struct mt_cpu_tlp_power_info *cpu_tlp_power_tbl = NULL;
 
 /*=============================================================*/
@@ -2194,32 +2190,6 @@ static int _cpufreq_set_locked(struct mt_cpu_dvfs *p, unsigned int cur_khz, unsi
 
 	if (cur_khz == target_khz)
 		goto out;
-
-#if 0				/* 95 designer ask, mt8173 DE not request */
-	{
-		/* update for deep idle */
-		mt_cpufreq_set_pmic_cmd(PMIC_WRAP_PHASE_DEEPIDLE,
-#ifdef MTK_FORCE_CLUSTER1
-					(chip_ver ==
-					 CHIP_SW_VER_01) ? IDX_DI_VSRAM_CA15L_NORMAL :
-					IDX_DI_VPROC_CA7_NORMAL,
-#else
-					IDX_DI_VPROC_CA7_NORMAL,
-#endif
-					VOLT_TO_PMIC_VAL(mv +
-							 (cpu_dvfs_is(p, MT_CPU_DVFS_LITTLE) ? 0 :
-							  NORMAL_DIFF_VRSAM_VPROC))
-		    );
-
-		/* update for suspend */
-		if (cpu_dvfs_is(p, MT_CPU_DVFS_BIG)
-		    && pw.set[PMIC_WRAP_PHASE_SUSPEND]._[IDX_SP_VSRAM_CA15L_PWR_ON].cmd_addr ==
-		    PMIC_ADDR_VSRAM_CA15L_VOSEL_ON)
-			mt_cpufreq_set_pmic_cmd(PMIC_WRAP_PHASE_SUSPEND, IDX_SP_VSRAM_CA15L_PWR_ON,
-						VOLT_TO_PMIC_VAL(mv + NORMAL_DIFF_VRSAM_VPROC)
-			    );
-	}
-#endif
 
 	/* set volt (UP) */
 	if (cur_khz < target_khz) {
