@@ -13,7 +13,7 @@
  */
 
 /dts-v1/;
-#include "mt8176.dtsi"
+#include "mt8173_plus.dtsi"
 #include <dt-bindings/pinctrl/mt6397-pinfunc.h>
 
 / {
