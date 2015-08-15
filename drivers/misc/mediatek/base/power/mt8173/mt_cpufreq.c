@@ -4158,7 +4158,6 @@ static void bat_oc_protection_powerlimit(BATTERY_OC_LEVEL level)
 				MT_CPU_DVFS_BIG, p->idx_opp_tbl);
 	}
 }
-#endif
 
 void Lbat_protection_powerlimit(LOW_BATTERY_LEVEL level)
 {
@@ -4219,6 +4218,7 @@ void Lbat_protection_powerlimit(LOW_BATTERY_LEVEL level)
 		}
 	}
 }
+#endif
 
 /*
  * cpufreq driver

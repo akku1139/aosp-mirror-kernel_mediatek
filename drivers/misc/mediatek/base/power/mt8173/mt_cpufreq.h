@@ -254,13 +254,6 @@ typedef enum {
 	ROME_TS_NUM
 } thermal_TS_name;
 
-/* upmu_sw.h */
-typedef enum LOW_BATTERY_LEVEL_TAG {
-	LOW_BATTERY_LEVEL_0 = 0,
-	LOW_BATTERY_LEVEL_1 = 1,
-	LOW_BATTERY_LEVEL_2 = 2
-} LOW_BATTERY_LEVEL;
-
 
 #endif	/* L318_Need_Related_File Dummy code */
 
