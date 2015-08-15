@@ -827,12 +827,13 @@ static void process_dbg_opt(const char *opt)
 		STR_CONVERT(&p, &option, uint, goto Error);
 		gDebugSvp = session;
 		gDebugSvpOption = option;
-		if (session == 0)
+		if (session == 0) {
 			DDPMSG("switch to normal world\n");
-		else if (session == 1)
+		} else if (session == 1) {
 			DDPMSG("replace sec handle with internal buffer handle\n");
-		else if (session == 2)
+		} else if (session == 2) {
 			DDPMSG("switch to secure world\n");
+		}
 #endif
 	} else {
 		dbg_buf[0] = '\0';

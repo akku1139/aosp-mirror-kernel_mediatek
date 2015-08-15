@@ -33,7 +33,11 @@ ccflags-$(CONFIG_MTK_LCM) += -I$(srctree)/drivers/misc/mediatek/lcm/inc/
 ccflags-y += -I$(srctree)/drivers/staging/android/ion \
              -I$(srctree)/drivers/staging/android/ion/mtk
 
-
+ifeq ($(CONFIG_MTK_SEC_VIDEO_PATH_SUPPORT),y)
+#cmdq driver header need followings for secure case
+ccflags-y += -I$(srctree)/include/trustzone
+ccflags-y += -I$(srctree)/include
+endif
 ifeq ($(CONFIG_MTK_INTERNAL_HDMI_SUPPORT), y)
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/hdmi/
 endif

@@ -6,9 +6,11 @@
 #include "cmdq_device.h"
 #include "cmdq_core.h"
 #include "cmdq_reg.h"
-/* #ifdef MTK_SEC_VIDEO_PATH_SUPPORT */
-/* #define CMDQ_SECURE_PATH_SUPPORT */
-/* #endif */
+#ifdef MTK_SEC_VIDEO_PATH_SUPPORT
+#if !defined(CMDQ_SECURE_PATH_SUPPORT)
+#define CMDQ_SECURE_PATH_SUPPORT
+#endif
+#endif
 
 #ifdef CMDQ_SECURE_PATH_SUPPORT
 #include "cmdq_iwc_sec.h"
@@ -17,6 +19,7 @@
 #include "trustzone/kree/system.h"
 #include "trustzone/kree/mem.h"
 #include "cmdq_sec_iwc_common.h"
+#include "cmdq_record.h"
 #endif
 /**
  * error code for CMDQ

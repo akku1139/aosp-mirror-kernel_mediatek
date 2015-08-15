@@ -124,7 +124,7 @@ typedef struct {
 typedef struct {
 	/* share memory with NWd */
 	/* startPA and size must be 4K aligned for drApiMapPhys */
-	/* uint32_t sharedThrExecCntPA;  /* [IN]PA start address of THR cookie */ */
+	/* uint32_t sharedThrExecCntPA;  // [IN]PA start address of THR cookie */
 	/* uint32_t sharedThrExecCntSize; */
 
 	/* basic execution data */

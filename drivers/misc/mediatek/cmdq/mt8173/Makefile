@@ -11,6 +11,9 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat
 
 ifeq ($(CONFIG_MTK_SEC_VIDEO_PATH_SUPPORT),y)
 $(warning start to build cmdq secure)
+	ccflags-y += -I$(srctree)/include
+	ccflags-y += -I$(srctree)/include/trustzone
+
 	ccflags-y += -DMTK_SEC_VIDEO_PATH_SUPPORT
 	ccflags-y += -DCMDQ_SECURE_PATH_SUPPORT
 	ccflags-y += -DDEBUG_SVP_INFO

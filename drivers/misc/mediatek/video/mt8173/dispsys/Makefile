@@ -6,6 +6,12 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/video/$(MTK_PLATFORM)/videox/ \
              -I$(srctree)/drivers/misc/mediatek/cmdq/ \
              -I$(srctree)/drivers/misc/mediatek/m4u/$(MTK_PLATFORM)/ \
              -I$(srctree)/drivers/misc/mediatek/lcm/inc
+ifeq ($(CONFIG_MTK_SEC_VIDEO_PATH_SUPPORT),y)
+#cmdq driver header need followings for secure case
+ccflags-y += -I$(srctree)/include
+ccflags-y += -I$(srctree)/include/trustzone
+ccflags-y += -DMTK_SEC_VIDEO_PATH_SUPPORT
+endif
 
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/mmp/
 #driver

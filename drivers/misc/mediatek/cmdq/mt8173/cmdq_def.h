@@ -6,9 +6,12 @@
 #undef  CMDQ_OF_SUPPORT
 #endif
 
-/* #ifdef MTK_SEC_VIDEO_PATH_SUPPORT  //modify */
-/* #define CMDQ_SECURE_PATH_SUPPORT */
-/* #endif */
+#ifdef MTK_SEC_VIDEO_PATH_SUPPORT
+#if !defined(CMDQ_SECURE_PATH_SUPPORT)
+#define CMDQ_SECURE_PATH_SUPPORT
+#endif
+#endif
+
 /* CMDQ capability*/
 #define CMDQ_GPR_SUPPORT
 
