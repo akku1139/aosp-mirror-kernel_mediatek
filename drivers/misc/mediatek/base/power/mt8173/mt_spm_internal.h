@@ -8,9 +8,7 @@
 #include <mt-plat/aee.h>
 
 #include "mt_spm.h"
-/* TODO: add mt_lpae.h
 #include "mt_lpae.h"
-*/
 /* #include "mt_vcore_dvfs.h" */
 
 /*
@@ -290,7 +288,7 @@ do {							\
 static inline u32 base_va_to_pa(const u32 *base)
 {
 	phys_addr_t pa = virt_to_phys(base);
-/*	MAPPING_DRAM_ACCESS_ADDR(pa);	*//* for 4GB mode *//* TODO: need lpae.h */
+	MAPPING_DRAM_ACCESS_ADDR(pa);	/* for 4GB mode */
 	return (u32) pa;
 }
 
