@@ -426,6 +426,83 @@
 			status = "disabled";
 		};
 
+		sound: sound@11220000 {
+			compatible = "mediatek,mt8173-soc-machine";
+			#address-cells = <2>;
+			#size-cells = <2>;
+			reg = <0 0x11220000 0 0x1000>,
+				<0 0x11221000 0 0x9000>;
+			interrupts = <GIC_SPI 134 IRQ_TYPE_LEVEL_LOW>;
+			clocks = <&infracfg CLK_INFRA_AUDIO>,
+				<&topckgen CLK_TOP_AUDIO_SEL>,
+				<&topckgen CLK_TOP_AUD_INTBUS_SEL>,
+				<&topckgen CLK_TOP_AUD_1_SEL>,
+				<&topckgen CLK_TOP_AUD_2_SEL>,
+				<&topckgen CLK_TOP_APLL1>,
+				<&topckgen CLK_TOP_APLL2>,
+				<&clk26m>;
+			clock-names = "infra_sys_audio_clk",
+					"top_pdn_audio",
+					"top_pdn_aud_intbus",
+					"top_audio_1_sel",
+					"top_audio_2_sel",
+					"top_apll1_ck",
+					"top_apll2_ck",
+					"clk26m";
+		};
+
+		mediatek,mt8173-soc-dl1-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-dl1-pcm";
+		};
+
+		mediatek,mt8173-soc-ul1-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-ul1-pcm";
+		};
+
+		mediatek,mt8173-soc-ul2-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-ul2-pcm";
+		};
+
+		mediatek,mt8173-soc-btsco-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-btsco-pcm";
+		};
+
+		mediatek,mt8173-soc-hdmi-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-hdmi-pcm";
+		};
+
+		mediatek,mt8173-soc-dl1-awb-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-dl1-awb-pcm";
+		};
+
+		mediatek,mt8173-soc-hdmi-raw@11220000 {
+			compatible = "mediatek,mt8173-soc-hdmi-raw";
+		};
+
+		mediatek,mt8173-soc-spdif-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-spdif-pcm";
+		};
+
+		mediatek,mt8173-soc-i2s0-awb-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-i2s0-awb-pcm";
+		};
+
+		mediatek,mt8173-soc-mrgrx-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-mrgrx-pcm";
+		};
+
+		mediatek,mt8173-soc-mrgrx-awb-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-mrgrx-awb-pcm";
+		};
+
+		mediatek,mt8173-soc-routing-pcm@11220000 {
+			compatible = "mediatek,mt8173-soc-routing-pcm";
+		};
+
+		mediatek,mt8173-soc-dummy-dai@11220000 {
+			compatible = "mediatek,mt8173-soc-dummy-dai";
+		};
+
 		mmc0: mmc@11230000 {
 			compatible = "mediatek,mt8173-mmc",
 				     "mediatek,mt8135-mmc";
