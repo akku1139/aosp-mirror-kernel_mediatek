@@ -529,6 +529,48 @@
 			vtouch-supply = <&mt6397_vgp6_reg>;
 			vtouchio-supply = <&mt6397_vgp4_reg>;
 		};
+
+		dcm@0 {
+			compatible = "mediatek,mt8173-dcm";
+			reg =	<0 0x10000000 0 0x1000>, /* TOPCKGEN_BASE */
+				<0 0x10001000 0 0x1000>, /* INFRASYS_BASE */
+				<0 0x10003000 0 0x1000>, /* PERISYS_BASE */
+				<0 0x10004000 0 0x1000>, /* DRAMC0_BASE */
+				<0 0x10006000 0 0x1000>, /* SCPSYS_BASE */
+				<0 0x1000D000 0 0x1000>, /* PWRAP_BASE */
+				<0 0x10011000 0 0x1000>, /* DRAMC1_BASE */
+				<0 0x10200000 0 0x1000>, /* MCUCFG_BASE */
+				<0 0x10203000 0 0x1000>, /* EMI_BASE */
+				<0 0x10205000 0 0x1000>, /* M4U_BASE */
+				<0 0x10214000 0 0x1000>, /* PERI_IOMMU_BASE */
+				<0 0x11007000 0 0x1000>, /* I2C0_BASE */
+				<0 0x11008000 0 0x1000>, /* I2C1_BASE */
+				<0 0x11009000 0 0x1000>, /* I2C2_BASE */
+				<0 0x11010000 0 0x1000>, /* I2C3_BASE */
+				<0 0x11011000 0 0x1000>, /* I2C4_BASE */
+				<0 0x11200000 0 0x1000>, /* USB0_BASE */
+				<0 0x11230000 0 0x1000>, /* MSDC0_BASE */
+				<0 0x11240000 0 0x1000>, /* MSDC1_BASE */
+				<0 0x11250000 0 0x1000>, /* MSDC2_BASE */
+				<0 0x11260000 0 0x1000>, /* MSDC3_BASE */
+				<0 0x14000000 0 0x1000>, /* MMSYS_BASE */
+				<0 0x14021000 0 0x1000>, /* SMI_LARB0_BASE */
+				<0 0x14022000 0 0x1000>, /* SMI_COMMON_BASE */
+				<0 0x14027000 0 0x1000>, /* SMI_LARB4_BASE */
+				<0 0x15001000 0 0x1000>, /* SMI_LARB2_BASE */
+				<0 0x15004000 0 0x1000>, /* CAM1_BASE */
+				<0 0x1500B000 0 0x1000>, /* FDVT_BASE */
+				<0 0x16000000 0 0x1000>, /* VDECSYS_BASE */
+				<0 0x16010000 0 0x1000>, /* SMI_LARB1_BASE */
+				<0 0x18001000 0 0x1000>, /* SMI_LARB3_BASE */
+				<0 0x18002000 0 0x1000>, /* VENC_BASE */
+				<0 0x18003000 0 0x1000>, /* JPGENC_BASE */
+				<0 0x18004000 0 0x1000>, /* JPGDEC_BASE */
+				<0 0x19001000 0 0x1000>, /* SMI_LARB5_BASE */
+				<0 0x19002000 0 0x1000>; /* VENCLT_BASE */
+			clocks = <&topckgen CLK_TOP_MM_SEL>;
+			clock-names = "mm_sel";
+		};
 	};
 
 	bring-up {
