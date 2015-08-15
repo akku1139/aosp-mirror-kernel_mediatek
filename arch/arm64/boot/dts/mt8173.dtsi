@@ -682,6 +682,19 @@
 			status = "disabled";
 		};
 
+		mmc3: mmc@11260000 {
+			compatible = "mediatek,mt8173-sdio",
+				     "mediatek,mt8173-msdc";
+			reg = <0 0x11260000 0 0x1000>;
+			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_LOW>;
+			/* power domain always on */
+			clocks = <&pericfg CLK_PERI_MSDC30_3>;
+			clock-names = "sdio-clock";
+			host-function = <2>  /*<MSDC_SDIO>*/;
+			clk_src = <2>;  /*<MSDC30_CLKSRC_200MHZ>*/
+			status = "disabled";
+		};
+
 		usb: usb@11270000 {
 			compatible = "mediatek,mt8173-ssusb";
 			reg = <0 0x11270000 0 0x1000>,  /* xhci */
