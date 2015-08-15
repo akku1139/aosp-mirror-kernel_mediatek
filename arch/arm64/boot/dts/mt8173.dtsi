@@ -15,6 +15,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/reset-controller/mt8173-resets.h>
 #include <dt-bindings/clock/mt8173-clk.h>
+#include <dt-bindings/power/mt8173-power.h>
 #include "mt8173-pinfunc.h"
 
 / {
@@ -169,6 +170,15 @@
 			pins-are-numbered;
 			gpio-controller;
 			#gpio-cells = <2>;
+		};
+
+		scpsys: scpsys@10006000 {
+			compatible = "mediatek,mt8173-scpsys";
+			#power-domain-cells = <1>;
+			reg = <0 0x10006000 0 0x1000>;
+			infracfg = <&infracfg>;
+			clocks = <&topckgen CLK_TOP_MM_SEL>;
+			clock-names = "disp";
 		};
 
 		pwrap: pwrap@1000d000 {
