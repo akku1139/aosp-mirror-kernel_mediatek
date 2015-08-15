@@ -949,6 +949,85 @@
 			#clock-cells = <1>;
 		};
 
+		/* We need add another node to contrl DISP power in ISP driver */
+		isp_display: isp_display {
+			compatible = "mediatek,mt8173-isp_display";
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+		};
+
+		ispsys: ispsys@15000000 {
+			compatible = "mediatek,mt8173-ispsys";
+			reg = <0 0x15004000 0 0x9000>,	/* ISP_ADDR */
+				  <0 0x1500d000 0 0x1000>,	/* INNER_ISP_ADDR */
+				  <0 0x15000000 0 0x10000>,	/* IMGSYS_CONFIG_ADDR */
+				  <0 0x10217000 0 0x3000>,	/* MIPI_ANA_ADDR */
+				  <0 0x10002000 0 0x1000>;	/* GPIO_ADDR */
+
+			interrupts = /* <0:SPI gic#-32 irq_type> */
+						 <GIC_SPI 211 IRQ_TYPE_LEVEL_LOW>, /* CAM0 */
+						 <GIC_SPI 212 IRQ_TYPE_LEVEL_LOW>, /* CAM1 */
+						 <GIC_SPI 213 IRQ_TYPE_LEVEL_LOW>, /* CAM2 */
+						 <GIC_SPI 214 IRQ_TYPE_LEVEL_LOW>, /* CAMSV0 */
+						 <GIC_SPI 215 IRQ_TYPE_LEVEL_LOW>; /* CAMSV1 */
+
+			clocks = <&imgsys CLK_IMG_LARB2_SMI>,
+					 <&imgsys CLK_IMG_CAM_SMI>,
+					 <&imgsys CLK_IMG_CAM_CAM>,
+					 <&imgsys CLK_IMG_SEN_TG>,
+					 <&imgsys CLK_IMG_SEN_CAM>,
+					 <&imgsys CLK_IMG_CAM_SV>,
+					 <&imgsys CLK_IMG_FD>,
+					 <&mmsys CLK_MM_SMI_COMMON>;
+
+			clock-names = "IMG_LARB2_SMI",
+						  "IMG_CAM_SMI",
+						  "IMG_CAM_CAM",
+						  "IMG_SEN_TG",
+						  "IMG_SEN_CAM",
+						  "IMG_CAM_SV",
+						  "IMG_FD",
+						  "MM_SMI_COMMON";
+
+			/* Power domains */
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_ISP>;
+		};
+
+		/* Main Cam */
+		kd_camera_hw1: camera1@15008000 {
+			compatible = "mediatek,mt8173-camera_hw";
+			reg = <0 0x15008000 0 0x1000>;  /* SENINF_ADDR */
+
+			/* Camera Common Clock Framework (CCF) */
+			clocks = <&topckgen CLK_TOP_CAMTG_SEL>,
+					 <&topckgen CLK_TOP_UNIVPLL_D26>,
+					 <&topckgen CLK_TOP_UNIVPLL2_D2>;
+
+			clock-names = "TOP_CAMTG_SEL",
+						  "TOP_UNIVPLL_D26",
+						  "TOP_UNIVPLL2_D2";
+		};
+
+		/* Sub Cam */
+		kd_camera_hw2: camera2@15008000 {
+			compatible = "mediatek,mt8173-camera_hw2";
+			reg = <0 0x15008000 0 0x1000>;  /* SENINF_ADDR */
+		};
+
+		fdvt@1500b000 {
+			compatible = "mediatek,mt8173-fdvt";
+			reg = <0 0x1500b000 0 0x1000>;
+			interrupts = <GIC_SPI 216 IRQ_TYPE_LEVEL_LOW>;
+
+			clocks = <&imgsys CLK_IMG_FD>,
+	 				 <&mmsys CLK_MM_SMI_COMMON>;
+
+			clock-names = "IMG_FD",
+										"MM_SMI_COMMON";
+
+			/* Power domains */
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_ISP>;
+		};
+
 		vdecsys: vdecsys@16000000 {
 			compatible = "mediatek,mt8173-vdecsys", "syscon";
 			reg = <0 0x16000000 0 0x1000>;
