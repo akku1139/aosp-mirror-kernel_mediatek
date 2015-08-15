@@ -1408,7 +1408,7 @@ void mt_afe_reset_dma_buffer(enum mt_afe_mem_context mem_context)
 		struct mt_afe_block_t *afe_block = &(afe_mem_control_context[mem_context]->block);
 
 		if (afe_block) {
-			memset(afe_block->virtual_buf_addr, 0, afe_block->buffer_size);
+			memset_io(afe_block->virtual_buf_addr, 0, afe_block->buffer_size);
 			afe_block->read_index = 0;
 			afe_block->write_index = 0;
 			afe_block->data_remained = 0;
