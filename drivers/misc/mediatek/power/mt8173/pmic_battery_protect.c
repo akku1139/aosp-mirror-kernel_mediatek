@@ -4,7 +4,7 @@
 
 #include <mt-plat/mt_pmic_wrap.h>
 #include <mt-plat/upmu_common.h>
-#include <pmic_mt6397.h>
+#include "pmic_mt6397.h"
 #include <linux/mfd/mt6397/core.h>
 
 #define LBCB_NUM 16
