@@ -530,7 +530,7 @@
 			status = "disabled";
 		};
 
-		uart0: serial@11002000 {
+		uart0: uart0@11002000 {
 			cell-index = <0>;
 			compatible = "mediatek,mt8173-uart";
 			reg = <0 0x11002000 0 0x1000>, /* UART base */
@@ -560,7 +560,7 @@
 			status = "okay";
 		};
 
-		uart1: serial@11003000 {
+		uart1: uart1@11003000 {
 			cell-index = <1>;
 			compatible = "mediatek,mt8173-uart";
 			reg = <0 0x11003000 0 0x1000>, /* UART base */
@@ -591,7 +591,7 @@
 			status = "okay";
 		};
 
-		uart2: serial@11004000 {
+		uart2: uart2@11004000 {
 			cell-index = <2>;
 			compatible = "mediatek,mt8173-uart";
 			reg = <0 0x11004000 0 0x1000>, /* UART base */
@@ -621,7 +621,7 @@
 			status = "okay";
 		};
 
-		uart3: serial@11005000 {
+		uart3: uart3@11005000 {
 			cell-index = <3>;
 			compatible = "mediatek,mt8173-uart";
 			reg = <0 0x11005000 0 0x1000>, /* UART base */
