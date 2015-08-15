@@ -9134,10 +9134,12 @@ int msdc_of_parse(struct mmc_host *mmc)
 		host->id = 1;
 	else if (0 == strcmp(np->name, "MSDC2"))
 		host->id = 2;
-	else if (0 == strcmp(np->name, "sdio"))
+	else if (0 == strcmp(np->name, "sdio")) {
 		host->id = 3;
+		host->hw->flags |= MSDC_EXT_SDIO_IRQ;
+	}
 
-	pr_err("of msdc DT probe %s!, hostId:%d\n", np->name, host->id);
+	pr_err("of msdc DT probe %s!, hostId:%d, flags:%d\n", np->name, host->id, host->hw->flags);
 
 	/* iomap register */
 	host->base = of_iomap(np, 0);
@@ -9153,7 +9155,7 @@ int msdc_of_parse(struct mmc_host *mmc)
 	BUG_ON(host->irq < 0);
 
 	/* get clk_src */
-	if (of_property_read_u8(np, "clk_src", &host->hw->clk_src))
+	if (of_property_read_u32(np, "clk_src", &host->hw->clk_src))
 		pr_err("[MDSC%d] error: clk_src isn't found in DT.\n", host->id);
 
 	/* get msdc flag(caps)*/
@@ -9164,7 +9166,7 @@ int msdc_of_parse(struct mmc_host *mmc)
 	* -ENODATA if property does not have a value, and -EOVERFLOW if the
 	* property data isn't large enough.*/
 
-	if (of_property_read_u8(np, "host_function", &host->hw->host_function))
+	if (of_property_read_u32(np, "host-function", &host->hw->host_function))
 		pr_err("[MSDC%d] host_function isn't found in DT\n", host->id);
 
 	if (of_find_property(np, "bootable", &len))
