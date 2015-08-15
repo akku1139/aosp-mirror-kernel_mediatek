@@ -481,7 +481,6 @@ static int _convert_fb_layer_to_disp_input(struct fb_overlay_layer *src,
 		layerpitch = 4;
 		layerbpp = 32;
 		break;
-/*
 	case MTK_FB_FORMAT_BGRA8888:
 		dst->fmt = eBGRA8888;
 		layerpitch = 4;
@@ -493,7 +492,7 @@ static int _convert_fb_layer_to_disp_input(struct fb_overlay_layer *src,
 		layerpitch = 4;
 		layerbpp = 32;
 		break;
-*/
+
 	case MTK_FB_FORMAT_XRGB8888:
 		dst->fmt = eARGB8888;
 		layerpitch = 4;
@@ -1043,7 +1042,7 @@ static int mtkfb_set_par(struct fb_info *fbi)
 		fb_layer.src_use_color_key = 0;
 		MTKFB_LOG("set_par,var->blue.offset=%d\n", var->blue.offset);
 		fb_layer.src_fmt = (0 == var->blue.offset) ?
-		    MTK_FB_FORMAT_ARGB8888 : MTK_FB_FORMAT_ABGR8888;
+		    MTK_FB_FORMAT_BGRA8888 : MTK_FB_FORMAT_RGBA8888;
 		fb_layer.src_color_key = 0;
 		break;
 
@@ -1684,7 +1683,7 @@ static int mtkfb_fbinfo_init(struct fb_info *info)
 
 	var.transp.offset = 24;
 	var.transp.length = 8;
-#if 1
+#if 0
 	/* default as BGRA, GPU(default data is BGRA too) will not change this value at home screen */
 	var.red.offset = 16;
 	var.red.length = 8;
@@ -1733,7 +1732,7 @@ static int mtkfb_fbinfo_modify(struct fb_info *info, unsigned int fmt)
 	var.transp.offset = 24;
 
 
-	if (fmt == MTK_FB_FORMAT_ARGB8888) {
+	if (fmt == MTK_FB_FORMAT_BGRA8888) {
 		/* default as BGRA, GPU(default data is BGRA too) will not change this value at home screen */
 		var.red.offset = 16;
 		var.red.length = 8;
@@ -1995,7 +1994,7 @@ static int _mtkfb_internal_test(unsigned long va, unsigned int w, unsigned int h
 	for (i = 0; i < h; i++) {
 		for (j = 0; j < w; j++) {
 			*(pAddr + i * w + j) =
-			    (fmt == MTK_FB_FORMAT_ABGR8888) ? 0xFFFF0000U : 0xFF0000FFU;
+			    (fmt == MTK_FB_FORMAT_BGRA8888) ? 0xFFFF0000U : 0xFF0000FFU;
 		}
 	}
 	primary_display_trigger(1, NULL, 0);
@@ -2013,7 +2012,7 @@ static int _mtkfb_internal_test(unsigned long va, unsigned int w, unsigned int h
 	for (i = 0; i < h; i++) {
 		for (j = 0; j < w; j++) {
 			*(pAddr + i * w + j) =
-			    (fmt == MTK_FB_FORMAT_ARGB8888) ? 0xFF0000FFU : 0xFFFF0000U;
+			    (fmt == MTK_FB_FORMAT_BGRA8888) ? 0xFF0000FFU : 0xFFFF0000U;
 		}
 	}
 	primary_display_trigger(1, NULL, 0);
@@ -2370,13 +2369,13 @@ static int mtkfb_probe(struct device *dev)
 #ifdef DDP_UT
 	/* check BGRA color format */
 	_mtkfb_internal_test((unsigned long)fbdev->fb_va_base, MTK_FB_XRES, MTK_FB_YRES,
-			     MTK_FB_FORMAT_ARGB8888);
+			     MTK_FB_FORMAT_BGRA8888);
 	/* check RGBA color format */
-	mtkfb_fbinfo_modify(fbi, MTK_FB_FORMAT_ABGR8888);
+	mtkfb_fbinfo_modify(fbi, MTK_FB_FORMAT_RGBA8888);
 	_mtkfb_internal_test((unsigned long)fbdev->fb_va_base, MTK_FB_XRES, MTK_FB_YRES,
-			     MTK_FB_FORMAT_ABGR8888);
+			     MTK_FB_FORMAT_RGBA8888);
 	/* change back to BGRA as default */
-	mtkfb_fbinfo_modify(fbi, MTK_FB_FORMAT_ARGB8888);
+	mtkfb_fbinfo_modify(fbi, MTK_FB_FORMAT_BGRA8888);
 #endif
 
 	r = mtkfb_register_sysfs(fbdev);
