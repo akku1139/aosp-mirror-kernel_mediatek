@@ -351,6 +351,10 @@ static void mt6397_irq_mask_unmask_locked(struct irq_data *d, bool enable)
 	} else {
 		pwrap_write(mt_chip->int_con[0], mt_chip->event_mask & 0xFFFF);
 		pwrap_read(mt_chip->int_con[0], &val);
+#if defined(CONFIG_MTK_BATTERY_PROTECT)
+		/* lbat irq src need toggle to enable again. */
+		toggle_lbat_irq_src(enable, hw_irq);
+#endif
 	}
 }
 
@@ -1190,6 +1194,12 @@ static int pmic_mt6397_probe(struct platform_device *pdev)
 	spm_register_wakeup_event(&rtc_wev);
 	spm_register_wakeup_event(&charger_wev);
 
+#if defined(CONFIG_MTK_BATTERY_PROTECT)
+	low_battery_protect_init(&(pdev->dev));
+#else
+	pr_info("[Power/PMIC][PMIC] no define LOW_BATTERY_PROTECT\n");
+#endif
+
 	mt6397_chip = chip;
 	register_syscore_ops(&mt6397_syscore_ops);
 
@@ -1233,6 +1243,10 @@ static int pmic_mt6397_suspend(struct platform_device *pdev, pm_message_t state)
 	pr_info("[Power/PMIC] Suspend: Reg[0x%x]=0x%x\n", VPCA7_CON18,
 		upmu_get_reg_value(VPCA7_CON18));
 
+#if defined(CONFIG_MTK_BATTERY_PROTECT)
+	low_battery_protect_disable();
+#endif
+
 	return 0;
 }
 
@@ -1255,6 +1269,10 @@ static int pmic_mt6397_resume(struct platform_device *pdev)
 		upmu_get_reg_value(VCA15_CON18));
 	pr_info("[Power/PMIC] Resume: Reg[0x%x]=0x%x\n", VPCA7_CON18,
 		upmu_get_reg_value(VPCA7_CON18));
+
+#if defined(CONFIG_MTK_BATTERY_PROTECT)
+	low_battery_protect_enable();
+#endif
 
 	mt6397_set_suspended(chip, false);
 
