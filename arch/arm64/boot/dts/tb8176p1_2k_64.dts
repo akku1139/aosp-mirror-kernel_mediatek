@@ -245,6 +245,11 @@
 		interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
 		int-gpio = <&pio 6 0>;
 	};
+
+	lp8557_led@2c {
+		compatible = "mediatek,8173led_i2c";
+		reg = <0x2c>;
+	};
 };
 
 &mmc0 {

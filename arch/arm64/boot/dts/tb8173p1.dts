@@ -251,6 +251,11 @@
 		reg = <0x70>;
 	};
 
+	lp8557_led@2c {
+		compatible = "mediatek,8173led_i2c";
+		reg = <0x2c>;
+	};
+
 	tmp103-sensor@71 {
 		compatible = "ti,tmp103_temp_sensor";
 		reg = <0x71>;
@@ -907,3 +912,4 @@
 		status = "disabled"; /* don't create platform-device */
 	};
 };
+
