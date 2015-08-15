@@ -1,6 +1,7 @@
 #ifndef _MT6397_PMIC_UPMU_SW_H_
 #define _MT6397_PMIC_UPMU_SW_H_
 
+#include <linux/module.h>
 #include <mach/upmu_hw.h>
 
 #define PMIC_ISINK_RSV2_ISINK0_MASK 0x1
