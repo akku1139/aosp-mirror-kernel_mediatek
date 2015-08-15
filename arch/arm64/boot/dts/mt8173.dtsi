@@ -451,6 +451,28 @@
 			status = "disabled";
 		};
 
+		pwm: pwm@11006000 {
+			compatible = "mediatek,mt8173-pwm";
+			reg = <0 0x11006000 0 0x1000>;
+			interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_LOW>;
+			clocks = <&pericfg CLK_PERI_PWM>,
+				 <&pericfg CLK_PERI_PWM1>,
+				 <&pericfg CLK_PERI_PWM2>,
+				 <&pericfg CLK_PERI_PWM3>,
+				 <&pericfg CLK_PERI_PWM4>,
+				 <&pericfg CLK_PERI_PWM5>,
+				 <&pericfg CLK_PERI_PWM6>,
+				 <&pericfg CLK_PERI_PWM7>;
+			clock-names = "PWM-main",
+				      "PWM1-main",
+				      "PWM2-main",
+				      "PWM3-main",
+				      "PWM4-main",
+				      "PWM5-main",
+				      "PWM6-main",
+				      "PWM7-main";
+		};
+
 		i2c0: i2c@11007000 {
 			compatible = "mediatek,mt8173-i2c";
 			reg = <0 0x11007000 0 0x70>,
@@ -1389,6 +1411,57 @@
 			compatible = "mediatek,orientation";
 		};
 /* sensor end */
+
+/* led part */
+		led0:led@0 {
+			compatible = "mediatek,red";
+			led_mode = <3>;
+			data = <6>;
+			pwm_config = <0 0 0 0 0>;
+		};
+
+		led1:led@1 {
+			compatible = "mediatek,green";
+			led_mode = <3>;
+			data = <7>;
+			pwm_config = <0 0 0 0 0>;
+		};
+
+		led2:led@2 {
+			compatible = "mediatek,blue";
+			led_mode = <3>;
+			data = <8>;
+			pwm_config = <0 0 0 0 0>;
+		};
+
+		led3:led@3 {
+			compatible = "mediatek,jogball-backlight";
+			led_mode = <0>;
+			data = < >;
+			pwm_config = <0 0 0 0 0>;
+		};
+
+		led4:led@4 {
+			compatible = "mediatek,keyboard-backlight";
+			led_mode = <0>;
+			data = < >;
+			pwm_config = <0 0 0 0 0>;
+		};
+
+		led5:led@5 {
+			compatible = "mediatek,button-backlight";
+			led_mode = <3>;
+			data = <0>;
+			pwm_config = <0 0 0 0 0>;
+		};
+
+		led6:led@6 {
+			compatible = "mediatek,lcd-backlight";
+			led_mode = <5>;
+			data = <>;
+			pwm_config = <0 0 0 0 0>;
+		};
+/* led end*/
 	};
 
 	mediatek,battery_meter {
