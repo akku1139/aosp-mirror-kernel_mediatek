@@ -142,6 +142,7 @@
 #define L2_PDN_REQ				(2)
 #define SRAM_PDN				(0xf << 8)
 
+#define CA15L_ACINACTM				(1U << 0)
 
 
 /*

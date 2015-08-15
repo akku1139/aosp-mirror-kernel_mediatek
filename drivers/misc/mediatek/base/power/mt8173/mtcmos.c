@@ -6,12 +6,12 @@
 #include <linux/regulator/consumer.h>
 #include <linux/clk.h>
 #include <linux/platform_device.h>
-
 #include <linux/of.h>
 #include <linux/of_irq.h>
 #include <linux/of_address.h>
 #include <linux/mfd/syscon.h>
 #include <linux/regmap.h>
+#include <linux/soc/mediatek/infracfg.h>
 
 #include "mtcmos.h"
 
@@ -19,18 +19,7 @@ static struct regmap *regmap_spm;
 static struct regmap *regmap_mcucfg;
 static struct regmap *regmap_infracfg;
 
-#ifdef EXTERNAL_BUCK_SUPPORT
-static struct regulator *g_big_vproc;
-static struct regulator *g_big_vsram;
-static struct clk *g_big_pll;
-#endif
 static DEFINE_SPINLOCK(spm_cpu_lock);
-static DEFINE_SPINLOCK(spm_noncpu_lock);
-
-#define spm_mtcmos_noncpu_lock(flags)   \
-	spin_lock_irqsave(&spm_noncpu_lock, flags)
-#define spm_mtcmos_noncpu_unlock(flags) \
-	spin_unlock_irqrestore(&spm_noncpu_lock, flags)
 
 int __init mt_spm_mtcmos_init(void)
 {
@@ -536,6 +525,9 @@ int spm_mtcmos_ctrl_cpu4(int state, int chkWfiBeforePdn)
 		       || ((spm_read(SPM_PWR_STATUS_2ND) & CA15_CPU0) != 0))
 			;
 
+		spm_write(SPM_CA15_CPU0_PWR_CON,
+			spm_read(SPM_CA15_CPU0_PWR_CON) & ~PWR_RST_B);
+
 		spm_mtcmos_cpu_unlock(&flags);
 
 	if (!(spm_read(SPM_PWR_STATUS) &
@@ -550,9 +542,6 @@ int spm_mtcmos_ctrl_cpu4(int state, int chkWfiBeforePdn)
 			spm_mtcmos_ctrl_cpusys1(state, chkWfiBeforePdn);
 
 		spm_mtcmos_cpu_lock(&flags);
-
-		spm_write(SPM_CA15_CPU0_PWR_CON,
-			spm_read(SPM_CA15_CPU0_PWR_CON) & ~PWR_RST_B);
 
 		spm_write(SPM_CA15_CPU0_PWR_CON,
 			spm_read(SPM_CA15_CPU0_PWR_CON) | PWR_ON);
@@ -624,6 +613,9 @@ int spm_mtcmos_ctrl_cpu5(int state, int chkWfiBeforePdn)
 		       || ((spm_read(SPM_PWR_STATUS_2ND) & CA15_CPU1) != 0))
 			;
 
+		spm_write(SPM_CA15_CPU1_PWR_CON,
+			spm_read(SPM_CA15_CPU1_PWR_CON) & ~PWR_RST_B);
+
 		spm_mtcmos_cpu_unlock(&flags);
 
 	if (!(spm_read(SPM_PWR_STATUS) &
@@ -638,9 +630,6 @@ int spm_mtcmos_ctrl_cpu5(int state, int chkWfiBeforePdn)
 			spm_mtcmos_ctrl_cpusys1(state, chkWfiBeforePdn);
 
 		spm_mtcmos_cpu_lock(&flags);
-
-		spm_write(SPM_CA15_CPU1_PWR_CON,
-			spm_read(SPM_CA15_CPU1_PWR_CON) & ~PWR_RST_B);
 
 		spm_write(SPM_CA15_CPU1_PWR_CON,
 			spm_read(SPM_CA15_CPU1_PWR_CON) | PWR_ON);
@@ -712,6 +701,9 @@ int spm_mtcmos_ctrl_cpu6(int state, int chkWfiBeforePdn)
 		       || ((spm_read(SPM_PWR_STATUS_2ND) & CA15_CPU2) != 0))
 			;
 
+		spm_write(SPM_CA15_CPU2_PWR_CON,
+			spm_read(SPM_CA15_CPU2_PWR_CON) & ~PWR_RST_B);
+
 		spm_mtcmos_cpu_unlock(&flags);
 
 	if (!(spm_read(SPM_PWR_STATUS) &
@@ -726,9 +718,6 @@ int spm_mtcmos_ctrl_cpu6(int state, int chkWfiBeforePdn)
 			spm_mtcmos_ctrl_cpusys1(state, chkWfiBeforePdn);
 
 		spm_mtcmos_cpu_lock(&flags);
-
-		spm_write(SPM_CA15_CPU2_PWR_CON,
-			spm_read(SPM_CA15_CPU2_PWR_CON) & ~PWR_RST_B);
 
 		spm_write(SPM_CA15_CPU2_PWR_CON,
 			spm_read(SPM_CA15_CPU2_PWR_CON) | PWR_ON);
@@ -800,6 +789,9 @@ int spm_mtcmos_ctrl_cpu7(int state, int chkWfiBeforePdn)
 		       || ((spm_read(SPM_PWR_STATUS_2ND) & CA15_CPU3) != 0))
 			;
 
+		spm_write(SPM_CA15_CPU3_PWR_CON,
+			spm_read(SPM_CA15_CPU3_PWR_CON) & ~PWR_RST_B);
+
 		spm_mtcmos_cpu_unlock(&flags);
 
 	if (!(spm_read(SPM_PWR_STATUS) &
@@ -814,9 +806,6 @@ int spm_mtcmos_ctrl_cpu7(int state, int chkWfiBeforePdn)
 			spm_mtcmos_ctrl_cpusys1(state, chkWfiBeforePdn);
 
 		spm_mtcmos_cpu_lock(&flags);
-
-		spm_write(SPM_CA15_CPU3_PWR_CON,
-			spm_read(SPM_CA15_CPU3_PWR_CON) & ~PWR_RST_B);
 
 		spm_write(SPM_CA15_CPU3_PWR_CON,
 			spm_read(SPM_CA15_CPU3_PWR_CON) | PWR_ON);
@@ -854,25 +843,26 @@ int spm_mtcmos_ctrl_cpu7(int state, int chkWfiBeforePdn)
 int spm_mtcmos_ctrl_cpusys0(int state, int chkWfiBeforePdn)
 {
 	unsigned long flags;
+	int ret;
 
 	/* enable register control */
 	spm_write(SPM_POWERON_CONFIG_SET,
 		(SPM_PROJECT_CODE << 16) | (1U << 0));
 
 	if (state == STA_POWER_DOWN) {
-		/* TODO: add per cpu power status check? */
 
 		if (chkWfiBeforePdn)
 			while ((spm_read(SPM_SLEEP_TIMER_STA) &
 					CA7_CPUTOP_STANDBYWFI) == 0)
 				;
 
-		/* XXX: no dbg0 mtcmos on k2 */
-		/* spm_mtcmos_ctrl_dbg0(state); */
+		ret = mtk_infracfg_set_bus_protection1(regmap_infracfg, MT8173_TOP_AXI_PROT_EN1_L2C_SRAM);
+		if (ret)
+			pr_err("%s():%d\n", __func__, __LINE__);
 
-		/* XXX: async adb on mt8173 */
-		spm_topaxi_prot_l2(L2_PDN_REQ, 1);
-		spm_topaxi_prot(CA7_PDN_REQ, 1);
+		mtk_infracfg_set_bus_protection(regmap_infracfg, MT8173_TOP_AXI_PROT_EN_CA7_ADB);
+		if (ret)
+			pr_err("%s():%d\n", __func__, __LINE__);
 
 		spm_mtcmos_cpu_lock(&flags);
 
@@ -944,12 +934,13 @@ int spm_mtcmos_ctrl_cpusys0(int state, int chkWfiBeforePdn)
 
 		spm_mtcmos_cpu_unlock(&flags);
 
-		/* XXX: async adb on mt8173 */
-		spm_topaxi_prot_l2(L2_PDN_REQ, 0);
-		spm_topaxi_prot(CA7_PDN_REQ, 0);
+		ret = mtk_infracfg_clear_bus_protection1(regmap_infracfg, MT8173_TOP_AXI_PROT_EN1_L2C_SRAM);
+		if (ret)
+			pr_err("%s():%d\n", __func__, __LINE__);
 
-		/* XXX: no dbg0 mtcmos on k2 */
-		/* spm_mtcmos_ctrl_dbg0(state); */
+		ret = mtk_infracfg_clear_bus_protection(regmap_infracfg, MT8173_TOP_AXI_PROT_EN_CA7_ADB);
+		if (ret)
+			pr_err("%s():%d\n", __func__, __LINE__);
 	}
 
 	return 0;
@@ -958,34 +949,36 @@ int spm_mtcmos_ctrl_cpusys0(int state, int chkWfiBeforePdn)
 int spm_mtcmos_ctrl_cpusys1(int state, int chkWfiBeforePdn)
 {
 	unsigned long flags;
-#ifdef EXTERNAL_BUCK_SUPPORT
-	int ret = 0;
-#endif
+	int ret;
 
 	/* enable register control */
 	spm_write(SPM_POWERON_CONFIG_SET,
 		(SPM_PROJECT_CODE << 16) | (1U << 0));
 
 	if (state == STA_POWER_DOWN) {
-		/* turn_off_SPARK(); *//* TOCHECK: Does it support on mt8173 */
+		/* turn_off_SPARK("spm_mtcmos_ctrl_cpsys1-----0"); */
 
 		/* assert ACINCATM before wait for WFIL2 */
 		mcucfg_write(CA15L_MISCDBG,
-			mcucfg_read(CA15L_MISCDBG) | 0x1);
+			mcucfg_read(CA15L_MISCDBG) | CA15L_ACINACTM);
 
 		if (chkWfiBeforePdn)
 			while ((spm_read(SPM_SLEEP_TIMER_STA) &
 					CA15_CPUTOP_STANDBYWFI) == 0)
 				;
 
-		spm_topaxi_prot(CA15_PDN_REQ, 1);
+		ret = mtk_infracfg_set_bus_protection(regmap_infracfg, MT8173_TOP_AXI_PROT_EN_CA15_ADB);
+		if (ret)
+			pr_err("%s():%d\n", __func__, __LINE__);
 
 		spm_mtcmos_cpu_lock(&flags);
 
-		/* turn_off_FBB(); *//* TOCHECK: Does it support on mt8173 */
+		/* turn_off_FBB(); */
 
 		spm_write(SPM_CA15_CPUTOP_PWR_CON,
 			spm_read(SPM_CA15_CPUTOP_PWR_CON) | SRAM_CKISO);
+		spm_write(SPM_CA15_CPUTOP_PWR_CON,
+			spm_read(SPM_CA15_CPUTOP_PWR_CON) & ~SRAM_ISOINT_B);
 
 		spm_write(SPM_CA15_L2_PWR_CON,
 			spm_read(SPM_CA15_L2_PWR_CON) | CA15_L2_PDN);
@@ -994,8 +987,9 @@ int spm_mtcmos_ctrl_cpusys1(int state, int chkWfiBeforePdn)
 			;
 
 		spm_write(SPM_CA15_CPUTOP_PWR_CON,
-			  (spm_read(SPM_CA15_CPUTOP_PWR_CON) | PWR_CLK_DIS) &
-				~PWR_RST_B);
+			spm_read(SPM_CA15_CPUTOP_PWR_CON) & ~PWR_RST_B);
+		spm_write(SPM_CA15_CPUTOP_PWR_CON,
+			spm_read(SPM_CA15_CPUTOP_PWR_CON) | PWR_CLK_DIS);
 		spm_write(SPM_CA15_CPUTOP_PWR_CON,
 			spm_read(SPM_CA15_CPUTOP_PWR_CON) | PWR_ISO);
 
@@ -1012,29 +1006,31 @@ int spm_mtcmos_ctrl_cpusys1(int state, int chkWfiBeforePdn)
 		if ((spm_read(SPM_SLEEP_DUAL_VCORE_PWR_CON) &
 				VCA15_PWR_ISO) == 0) {
 
+			/* enable dcm for low power */
+			/*
+			if (CHIP_SW_VER_01 == mt_get_chip_sw_ver())
+				spm_write(TOPAXI_DCMCTL, spm_read(TOPAXI_DCMCTL) | 0x00000771);
+			*/
 			spm_write(SPM_SLEEP_DUAL_VCORE_PWR_CON,
 				  spm_read(SPM_SLEEP_DUAL_VCORE_PWR_CON) |
 					VCA15_PWR_ISO);
-
-#ifdef EXTERNAL_BUCK_SUPPORT
-			ret = big_clk_buck_disable();
-			BUG_ON(ret);
-#endif
-
 		}
 	} else {
 
 		if ((spm_read(SPM_SLEEP_DUAL_VCORE_PWR_CON) & VCA15_PWR_ISO) ==
 				VCA15_PWR_ISO) {
 
-#ifdef EXTERNAL_BUCK_SUPPORT
-			ret = big_clk_buck_enable();
-			BUG_ON(ret);
-#endif
-
 			spm_write(SPM_SLEEP_DUAL_VCORE_PWR_CON,
 				  spm_read(SPM_SLEEP_DUAL_VCORE_PWR_CON) &
 					~VCA15_PWR_ISO);
+
+			/* disable dcm for performance */
+			/*
+			if (CHIP_SW_VER_01 == mt_get_chip_sw_ver()) {
+				spm_write(TOPAXI_DCMCTL, spm_read(TOPAXI_DCMCTL) | 0x00000001);
+				spm_write(TOPAXI_DCMCTL, spm_read(TOPAXI_DCMCTL) & ~0x00000770);
+			}
+			*/
 		}
 
 		spm_mtcmos_cpu_lock(&flags);
@@ -1050,9 +1046,6 @@ int spm_mtcmos_ctrl_cpusys1(int state, int chkWfiBeforePdn)
 				CA15_CPUTOP)
 			;
 
-		spm_write(SPM_CA15_L2_PWR_CON,
-			spm_read(SPM_CA15_L2_PWR_CON) & ~CA15_L2_PDN_ISO);
-
 		spm_write(SPM_CA15_CPUTOP_PWR_CON,
 			  spm_read(SPM_CA15_CPUTOP_PWR_CON) & ~PWR_CLK_DIS);
 
@@ -1067,6 +1060,8 @@ int spm_mtcmos_ctrl_cpusys1(int state, int chkWfiBeforePdn)
 		spm_write(SPM_CA15_CPUTOP_PWR_CON,
 			spm_read(SPM_CA15_CPUTOP_PWR_CON) & ~SRAM_CKISO);
 
+		/* ptp2_pre_init(); */
+
 		spm_write(SPM_CA15_CPUTOP_PWR_CON,
 			spm_read(SPM_CA15_CPUTOP_PWR_CON) & ~PWR_ISO);
 
@@ -1075,7 +1070,11 @@ int spm_mtcmos_ctrl_cpusys1(int state, int chkWfiBeforePdn)
 
 		spm_mtcmos_cpu_unlock(&flags);
 
-		spm_topaxi_prot(CA15_PDN_REQ, 0);
+		ret = mtk_infracfg_clear_bus_protection(regmap_infracfg, MT8173_TOP_AXI_PROT_EN_CA15_ADB);
+		if (ret)
+			pr_err("%s():%d\n", __func__, __LINE__);
+
+		mcucfg_write(CA15L_MISCDBG, mcucfg_read(CA15L_MISCDBG) & ~CA15L_ACINACTM);
 	}
 
 	return 0;
@@ -1090,13 +1089,12 @@ void spm_mtcmos_ctrl_cpusys1_init_1st_bring_up(int state)
 		spm_mtcmos_ctrl_cpu6(STA_POWER_DOWN, 0);
 		spm_mtcmos_ctrl_cpu5(STA_POWER_DOWN, 0);
 		spm_mtcmos_ctrl_cpu4(STA_POWER_DOWN, 0);
-	} else {		/* STA_POWER_ON */
+	} else {	/* STA_POWER_ON */
 
 		spm_mtcmos_ctrl_cpu4(STA_POWER_ON, 1);
 		spm_mtcmos_ctrl_cpu5(STA_POWER_ON, 1);
 		spm_mtcmos_ctrl_cpu6(STA_POWER_ON, 1);
 		spm_mtcmos_ctrl_cpu7(STA_POWER_ON, 1);
-		/* spm_mtcmos_ctrl_dbg1(STA_POWER_ON); */
 	}
 }
 
@@ -1123,90 +1121,3 @@ bool spm_cpusys1_can_power_down(void)
 		  | CA7_CPUTOP | CA15_CPU1 | CA15_CPU2 |
 		  CA15_CPU3));
 }
-
-
-
-int spm_topaxi_prot(int bit, int en)
-{
-	unsigned long flags;
-
-	spm_mtcmos_noncpu_lock(flags);
-
-	if (en == 1) {
-		infracfg_write(TOPAXI_PROT_EN,
-			infracfg_read(TOPAXI_PROT_EN) | (1 << bit));
-
-		while ((infracfg_read(TOPAXI_PROT_STA1) & (1 << bit))
-			    != (1 << bit))
-			;
-
-	} else {
-		infracfg_write(TOPAXI_PROT_EN,
-			infracfg_read(TOPAXI_PROT_EN) & ~(1 << bit));
-
-		while (infracfg_read(TOPAXI_PROT_STA1) & (1 << bit))
-			;
-	}
-
-	spm_mtcmos_noncpu_unlock(flags);
-
-	return 0;
-}
-
-int spm_topaxi_prot_l2(int bit, int en)
-{
-	unsigned long flags;
-
-	spm_mtcmos_noncpu_lock(flags);
-
-	if (en == 1) {
-		infracfg_write(TOPAXI_PROT_EN1,
-			infracfg_read(TOPAXI_PROT_EN1) | (1 << bit));
-
-		while ((infracfg_read(TOPAXI_PROT_STA3) & (1 << bit))
-			    != (1 << bit))
-			;
-	} else {
-		infracfg_write(TOPAXI_PROT_EN1,
-			infracfg_read(TOPAXI_PROT_EN1) & ~(1 << bit));
-
-		while (infracfg_read(TOPAXI_PROT_STA3) & (1 << bit))
-			;
-	}
-
-	spm_mtcmos_noncpu_unlock(flags);
-
-	return 0;
-}
-
-#ifdef EXTERNAL_BUCK_SUPPORT
-static int big_clk_buck_enable(void)
-{
-	static int boot_init;
-	int ret = 0;
-
-	if (unlikely(!boot_init)) {
-		boot_init = 1;
-		return ret;
-	}
-
-	ret = regulator_enable(g_big_vsram);
-	if (ret) {
-		pr_err("Failed to enable g_big_vsram");
-		return ret;
-	}
-	ret = regulator_enable(g_big_vproc);
-	if (ret) {
-		pr_err("Failed to enable g_big_vproc");
-		return retinitialise;
-	}
-	ret = clk_prepare_enable(g_big_pll);
-	if (ret) {
-		pr_err("Failed to enable g_big_pll");
-		return ret;
-	}
-
-
-	return ret;
-}
-#endif
