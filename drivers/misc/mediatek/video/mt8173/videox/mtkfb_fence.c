@@ -181,7 +181,7 @@ static disp_session_sync_info *_get_session_sync_info(unsigned int session_id)
 				layer_info->inc = 0;
 				layer_info->cur_idx = 0;
 				layer_info->inited = 1;
-				#ifdef MTK_SUPPORT_FENCE
+				#ifdef CONFIG_MTK_SYNC
 				layer_info->timeline =
 				    (struct sw_sync_timeline *)timeline_create(name);
 				#endif
@@ -723,7 +723,7 @@ void mtkfb_release_fence(unsigned int session_id, unsigned int layer_id, int fen
 		current_timeline_idx = layer_info->timeline_idx;
 		num_fence = fence - layer_info->timeline_idx;
 		if (num_fence > 0) {
-			#ifdef MTK_SUPPORT_FENCE
+			#ifdef CONFIG_MTK_SYNC
 			timeline_inc((struct sw_sync_timeline *)layer_info->timeline, num_fence);
 			#endif
 			layer_info->timeline_idx = fence;
@@ -932,7 +932,7 @@ int disp_sync_convert_input_to_fence_layer_info(disp_input_config *src, FENCE_LA
  */
 struct mtkfb_fence_buf_info *disp_sync_prepare_buf(disp_buffer_info *buf)
 {
-#ifdef MTK_SUPPORT_FENCE
+#ifdef CONFIG_MTK_SYNC
 	int ret = 0;
 #endif
 	unsigned int mva = 0x0;
@@ -979,7 +979,7 @@ struct mtkfb_fence_buf_info *disp_sync_prepare_buf(disp_buffer_info *buf)
 	mutex_unlock(&(layer_info->sync_lock));
 
 	sprintf(data.name, "ovl_fence-0x%x-%d-%d", session_id, timeline_id, data.value);
-	#ifdef MTK_SUPPORT_FENCE
+	#ifdef CONFIG_MTK_SYNC
 	ret = fence_create((struct sw_sync_timeline *)layer_info->timeline, &data);
 	if (ret != 0) {
 		/* Does this really happened? */

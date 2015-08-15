@@ -636,7 +636,7 @@ int _ioctl_prepare_present_fence(unsigned long arg)
 		/* create fence  */
 		data.fence = MTK_FB_INVALID_FENCE_FD;
 		data.value = ++fence_idx;
-		#ifdef MTK_SUPPORT_FENCE
+		#ifdef CONFIG_MTK_SYNC
 		ret = fence_create(layer_info->timeline, &data);
 		if (ret != 0) {
 			DISPPR_ERROR("%s%d,layer%d create Fence Object failed!\n",

@@ -405,7 +405,7 @@ void extd_release_buf(unsigned int layer)
  */
 void extd_signal_fence(unsigned int layer, int fence)
 {
-#ifdef MTK_SUPPORT_FENCE
+#ifdef CONFIG_MTK_SYNC
 	struct extd_fence_sync_info *info;
 	/* struct extd_fence_buf_info *buf; */
 	/* struct extd_fence_buf_info *n; */
@@ -447,7 +447,7 @@ static struct sw_sync_timeline *extd_create_timeline(unsigned int layer)
 
 	ASSERT(layer < HW_OVERLAY_COUNT);
 	/* MMProfileLogEx(EXTD_MMP_Events.CreateSyncTimeline, MMProfileFlagPulse, layer, 0); */
-#ifdef MTK_SUPPORT_FENCE
+#ifdef CONFIG_MTK_SYNC
 	timeline = timeline_create(name);
 #endif
 
@@ -491,7 +491,7 @@ static struct fence_data extd_create_fence(unsigned int layer)
 	/* MMProfileLogEx(EXTD_MMP_Events.CreateSyncFence, MMProfileFlagStart, layer, 0); */
 
 	if (timeline != NULL) {
-	#ifdef MTK_SUPPORT_FENCE
+	#ifdef CONFIG_MTK_SYNC
 		if (fence_create(timeline, &data)) {
 			EXTD_FENCE_ERR("layer%d create Fence Object failed!\n", layer);
 		} else {
@@ -517,7 +517,7 @@ static struct fence_data extd_create_fence(unsigned int layer)
  */
 void extd_release_fence(unsigned int layer, int fence)
 {
-#ifdef MTK_SUPPORT_FENCE
+#ifdef CONFIG_MTK_SYNC
 	struct extd_fence_sync_info *info;
 	struct extd_fence_buf_info *buf;
 	struct extd_fence_buf_info *n;

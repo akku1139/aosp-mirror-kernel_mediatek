@@ -2816,7 +2816,7 @@ static int _present_fence_release_worker_thread(void *data)
 	sched_setscheduler(current, SCHED_RR, &param);
 
 	dpmgr_enable_event(pgc->dpmgr_handle, DISP_PATH_EVENT_IF_VSYNC);
-#ifndef MTK_SUPPORT_FENCE
+#ifndef CONFIG_MTK_SYNC
 	return 0;
 #endif
 	while (1) {
@@ -2835,7 +2835,7 @@ static int _present_fence_release_worker_thread(void *data)
 			_primary_path_lock(__func__);
 			fence_increment = gPresentFenceIndex - layer_info->timeline->value;
 			if (fence_increment > 0) {
-			#ifdef MTK_SUPPORT_FENCE
+			#ifdef CONFIG_MTK_SYNC
 				timeline_inc(layer_info->timeline, fence_increment);
 			#endif
 				MMProfileLogEx(ddp_mmp_get_events()->present_fence_release,
