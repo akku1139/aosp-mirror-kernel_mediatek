@@ -1610,9 +1610,6 @@ static void read_all_bank_temperature(void)
 	int i = 0;
 	unsigned long flags;
 
-	pr_debug("read_all_bank_temperature\n");
-
-
 	mt_ptp_lock(&flags);
 
 	for (i = 0; i < ROME_BANK_NUM; i++) {
@@ -3741,8 +3738,6 @@ static const struct file_operations mtktscpu_fastpoll_fops = {
 
 static int mtktscpu_switch_bank(thermal_bank_name bank)
 {
-	pr_debug("mtktscpu_switch_bank bank=%d\n", bank);
-
 	switch (bank) {
 	case THERMAL_BANK0:	/* bank0,CA7 (TS2 TS3) */
 		thermal_clrl(PTPCORESEL, 0xF);	/* bank0 */
