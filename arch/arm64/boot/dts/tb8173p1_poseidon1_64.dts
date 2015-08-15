@@ -531,6 +531,8 @@
 };
 
 &touch {
+	vtouch-supply = <&mt6397_vgp6_reg>;
+	vtouchio-supply = <&mt6397_vgp4_reg>;
 	tpd-resolution = <720 1280>;
 	use-tpd-button = <0>;
 	tpd-key-num = <3>;
