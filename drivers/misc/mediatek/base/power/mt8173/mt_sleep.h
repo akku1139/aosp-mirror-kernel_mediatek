@@ -14,7 +14,7 @@ extern bool slp_will_infra_pdn(void);
 extern void slp_pasr_en(bool en, u32 value);
 extern void slp_dpd_en(bool en);
 
-extern void slp_module_init(void);
+/* extern void slp_module_init(void); */
 
 extern void mt_power_gs_dump_suspend(void);
 
