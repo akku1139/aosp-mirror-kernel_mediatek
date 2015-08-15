@@ -9,6 +9,11 @@ obj-$(CONFIG_ARCH_MT8173) += mt_spm_sleep.o
 obj-$(CONFIG_ARCH_MT8173) += mt_spm_dpidle.o
 obj-$(CONFIG_ARCH_MT8173) += mt_spm_fs.o
 
+obj-y += mt_static_power.o
+obj-y += mt_cpufreq.o
+obj-y += mt_cpufreq_tlp.o
+#obj-y += mt_vcore_dvfs.o
+
 obj-y += mt_dcm.o
 obj-y	+= mtcmos.o
 obj-$(CONFIG_MTK_PSCI)	+= mt_psci.o
