@@ -1391,6 +1391,12 @@ struct clk *g_ispclk_fd;
 struct device *g_pmdev_isp;
 struct device *g_pmdev_disp;
 struct clk *g_ispclk_smi_common;
+
+/* Houston Add MTCMOS check +++ */
+struct device *g_scpsys_dev;
+unsigned long g_scpsys_baseaddr;
+/* Houston Add MTCMOS check --- */
+
 #endif
 
 #else
@@ -4014,8 +4020,7 @@ static inline void Get_ccf_clock(struct platform_device *pDev)
 
 static inline void Prepare_ccf_clock(void)
 {
-	BUG_ON(IS_ERR(g_pmdev_isp));
-	pm_runtime_enable(g_pmdev_isp);
+	LOG_INF("====>");
 	BUG_ON(IS_ERR(g_ispclk_larb2_smi));
 	clk_prepare(g_ispclk_larb2_smi);
 	BUG_ON(IS_ERR(g_ispclk_cam_smi));
@@ -4028,17 +4033,15 @@ static inline void Prepare_ccf_clock(void)
 	clk_prepare(g_ispclk_sen_cam);
 	BUG_ON(IS_ERR(g_ispclk_cam_sv));
 	clk_prepare(g_ispclk_cam_sv);
-	BUG_ON(IS_ERR(g_pmdev_disp));
-	pm_runtime_enable(g_pmdev_disp);
 	BUG_ON(IS_ERR(g_ispclk_smi_common));
 	clk_prepare(g_ispclk_smi_common);
+	LOG_INF("<====");
 	return;
 }
 
 static inline void Enable_ccf_clock(void)
 {
-	BUG_ON(IS_ERR(g_pmdev_isp));
-	pm_runtime_get_sync(g_pmdev_isp);
+	LOG_INF("====>");
 	BUG_ON(IS_ERR(g_ispclk_larb2_smi));
 	clk_enable(g_ispclk_larb2_smi);
 	BUG_ON(IS_ERR(g_ispclk_cam_smi));
@@ -4051,10 +4054,12 @@ static inline void Enable_ccf_clock(void)
 	clk_enable(g_ispclk_sen_cam);
 	BUG_ON(IS_ERR(g_ispclk_cam_sv));
 	clk_enable(g_ispclk_cam_sv);
-	BUG_ON(IS_ERR(g_pmdev_disp));
-	pm_runtime_get_sync(g_pmdev_disp);
+
 	BUG_ON(IS_ERR(g_ispclk_smi_common));
 	clk_enable(g_ispclk_smi_common);
+
+	LOG_INF("<====");
+
 	return;
 }
 
@@ -4072,12 +4077,8 @@ static inline void Disable_ccf_clock(void)
 	clk_disable(g_ispclk_sen_cam);
 	BUG_ON(IS_ERR(g_ispclk_cam_sv));
 	clk_disable(g_ispclk_cam_sv);
-	BUG_ON(IS_ERR(g_pmdev_isp));
-	pm_runtime_put_sync(g_pmdev_isp);
 	BUG_ON(IS_ERR(g_ispclk_smi_common));
 	clk_disable(g_ispclk_smi_common);
-	BUG_ON(IS_ERR(g_pmdev_disp));
-	pm_runtime_put_sync(g_pmdev_disp);
 	return;
 }
 
@@ -4095,12 +4096,8 @@ static inline void Unprepare_ccf_clock(void)
 	clk_unprepare(g_ispclk_sen_cam);
 	BUG_ON(IS_ERR(g_ispclk_cam_sv));
 	clk_unprepare(g_ispclk_cam_sv);
-	BUG_ON(IS_ERR(g_pmdev_isp));
-	pm_runtime_disable(g_pmdev_isp);
 	BUG_ON(IS_ERR(g_ispclk_smi_common));
 	clk_unprepare(g_ispclk_smi_common);
-	BUG_ON(IS_ERR(g_pmdev_disp));
-	pm_runtime_disable(g_pmdev_disp);
 	return;
 }
 
@@ -4108,6 +4105,7 @@ static inline void Unprepare_ccf_clock(void)
 
 static void ISP_EnableClock(MBOOL En)
 {
+	LOG_INF("====> En(%d) , G_u4EnableClockCount(%d)", En, G_u4EnableClockCount);
 
 	if (G_u4EnableClockCount == 1) {
 		LOG_DBG("- E. En: %d. G_u4EnableClockCount: %d.", En, G_u4EnableClockCount);
@@ -4116,6 +4114,7 @@ static void ISP_EnableClock(MBOOL En)
 	{
 		/* from SY yang,,*IMG_CG_CLR = 0xffffffff; *MMSYS_CG_CLR0 = 0x00000003; *CLK_CFG_7 = *CLK_CFG_7 | 0x02000000; *CAM_CTL_CLK_EN = 0x00000009; */
 		/* address map, MMSYS_CG_CLR0:0x14000108,CLK_CFG_7:0x100000b0 */
+		LOG_DBG("Camera clock enbled. G_u4EnableClockCount: %d.", G_u4EnableClockCount);
 		spin_lock(&(IspInfo.SpinLockClock));
 		/* LOG_DBG("Camera clock enbled. G_u4EnableClockCount: %d.", G_u4EnableClockCount); */
 		switch (G_u4EnableClockCount) {
@@ -4134,12 +4133,14 @@ static void ISP_EnableClock(MBOOL En)
 #endif
 			break;
 		default:
+			LOG_INF("G_u4EnableClockCount(%d)", G_u4EnableClockCount);
 			break;
 		}
 		G_u4EnableClockCount++;
 		spin_unlock(&(IspInfo.SpinLockClock));
 	} else			/* Disable clock. */
 	{
+		LOG_DBG("Camera clock disabled. G_u4EnableClockCount: %d.", G_u4EnableClockCount);
 		spin_lock(&(IspInfo.SpinLockClock));
 		/* LOG_DBG("Camera clock disabled. G_u4EnableClockCount: %d.", G_u4EnableClockCount); */
 		G_u4EnableClockCount--;
@@ -4160,10 +4161,12 @@ static void ISP_EnableClock(MBOOL En)
 #endif
 			break;
 		default:
+			LOG_INF("G_u4EnableClockCount(%d)", G_u4EnableClockCount);
 			break;
 		}
 		spin_unlock(&(IspInfo.SpinLockClock));
 	}
+	LOG_INF("<==== En(%d) , G_u4EnableClockCount(%d)", En, G_u4EnableClockCount);
 }
 
 /*******************************************************************************
@@ -8254,13 +8257,13 @@ static MINT32 ISP_WaitIrq_v3(ISP_WAIT_IRQ_STRUCT * WaitIrq)
 	    /*  */
 	    /* v : kernel receive mark request */
 	    /* o : kernel receive wait request */
-	    /* ¡ô: return to user */
+	    /* Â¡Ã´: return to user */
 	    /*  */
 	    /* case: freeze is true, and passby signal count = 0 */
 	    /*  */
 	    /* |                                              | */
 	    /* |                                  (wait)    | */
-	    /* |       v-------------o++++++ |¡ô */
+	    /* |       v-------------o++++++ |Â¡Ã´ */
 	    /* |                                              | */
 	    /* Sig                                            Sig */
 	    /*  */
@@ -8268,7 +8271,7 @@ static MINT32 ISP_WaitIrq_v3(ISP_WAIT_IRQ_STRUCT * WaitIrq)
 	    /*  */
 	    /* |                                              | */
 	    /* |                                              | */
-	    /* |       v---------------------- |-o  ¡ô(return) */
+	    /* |       v---------------------- |-o  Â¡Ã´(return) */
 	    /* |                                              | */
 	    /* Sig                                            Sig */
 	    /*  */
@@ -11272,6 +11275,16 @@ inline static MINT32 ISP_RegCharDev(void)
 /*******************************************************************************
 *
 ********************************************************************************/
+const long of_getISPPA(struct device_node *dev, int index)
+{
+	struct resource res;
+
+	if (of_address_to_resource(dev, index, &res))
+		return 0;
+	return res.start;
+
+}
+
 static MINT32 ISP_probe(struct platform_device *pDev)
 {
 	MINT32 Ret = 0;
@@ -11314,10 +11327,39 @@ static MINT32 ISP_probe(struct platform_device *pDev)
 			dev_err(&pDev->dev, "Unable to ioremap registers, of_iomap fail, i=%d\n", i);
 			return -ENOMEM;
 		}
-
 		gISPSYS_Reg[i] = (unsigned long)cam_isp_dev->regs[i];
-		LOG_INF("DT, i=%d, map_addr=0x%lx\n", i, (long unsigned int)cam_isp_dev->regs[i]);
+		LOG_INF("DT, i=%d, PA(0x%lx), map_VA=0x%lx\n",
+				i, of_getISPPA(pDev->dev.of_node, i), (unsigned long int)cam_isp_dev->regs[i]);
 	}
+
+/* Houston Add MTCMOS status checking +++++ */
+{
+	struct device_node *scpsys_node = NULL;
+	struct platform_device *scpsys_dev = NULL;
+
+	g_scpsys_baseaddr = 0;
+
+	scpsys_node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-scpsys");
+
+	if (NULL == scpsys_node) {
+		LOG_ERR("of_find_compatible_node(mediatek,mt8173-scpsys) fail");
+	} else {
+		LOG_INF("of_find_compatible_node(mediatek,mt8173-scpsys) success !!");
+
+		scpsys_dev = of_find_device_by_node(scpsys_node);
+		if (WARN_ON(!scpsys_dev)) {
+			LOG_ERR("scpsys_dev NULL");
+			/* return; */
+		}
+		g_scpsys_dev = &scpsys_dev->dev;
+		LOG_ERR("of_find_device_by_node(scpsys_node) success !!");
+
+		g_scpsys_baseaddr = (unsigned long)of_iomap(g_scpsys_dev->of_node, 0);
+		LOG_INF("g_scpsys_baseaddr VA = 0x%lx", g_scpsys_baseaddr);
+	}
+}
+/* Houston Add MTCMOS status checking ----- */
+
 
 	/* get IRQ ID and request IRQ */
 	for (i = 0; i < ISP_CAM_IRQ_IDX_NUM; i++) {
@@ -11383,6 +11425,17 @@ static MINT32 ISP_probe(struct platform_device *pDev)
 
 #ifdef MTKCAM_USING_CCF		/* Common Clock Framework (CCF) */
 	Get_ccf_clock(pDev);
+
+/* Houston workaround for pm_domain timing +++ */
+
+	BUG_ON(IS_ERR(g_pmdev_isp)); pm_runtime_enable(g_pmdev_isp);
+	BUG_ON(IS_ERR(g_pmdev_disp)); pm_runtime_enable(g_pmdev_disp);
+
+	BUG_ON(IS_ERR(g_pmdev_isp));	pm_runtime_get_sync(g_pmdev_isp);
+	BUG_ON(IS_ERR(g_pmdev_disp));	pm_runtime_get_sync(g_pmdev_disp);
+
+/* Houston workaround for pm_domain timing --- */
+
 #endif
 
 #endif
@@ -11489,6 +11542,17 @@ static MINT32 ISP_remove(struct platform_device *pDev)
 	MINT32 IrqNum;
 	/*  */
 	LOG_DBG("- E.");
+
+/* Houston workaround for pm_domain timing +++ */
+
+	BUG_ON(IS_ERR(g_pmdev_isp)); pm_runtime_put_sync(g_pmdev_isp);
+	BUG_ON(IS_ERR(g_pmdev_disp)); pm_runtime_put_sync(g_pmdev_disp);
+
+	BUG_ON(IS_ERR(g_pmdev_isp)); pm_runtime_disable(g_pmdev_isp);
+	BUG_ON(IS_ERR(g_pmdev_disp)); pm_runtime_disable(g_pmdev_disp);
+
+/* Houston workaround for pm_domain timing --- */
+
 	/* unregister char driver. */
 	ISP_UnregCharDev();
 	/* unmaping ISP CAM_REGISTER registers */
@@ -13340,7 +13404,6 @@ void ISP_MCLK1_EN(MBOOL En)
 	}
 	temp = ISP_RD32(ISP_ADDR + 0x4200);
 	LOG_INF("ISP_MCLK1_EN(0x%x), mMclk1User(%d)", temp, mMclk1User);
-
 }
 
 void ISP_MCLK2_EN(MBOOL En)
