@@ -1327,6 +1327,10 @@
 			compatible = "mediatek,mt8173-touch";
 		};
 
+		gps {
+			compatible = "mediatek,mt3326-gps";
+		};
+
 		dcm@0 {
 			compatible = "mediatek,mt8173-dcm";
 			reg =	<0 0x10000000 0 0x1000>, /* TOPCKGEN_BASE */
