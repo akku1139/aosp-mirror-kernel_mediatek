@@ -9134,7 +9134,7 @@ int msdc_of_parse(struct mmc_host *mmc)
 		host->id = 1;
 	else if (0 == strcmp(np->name, "MSDC2"))
 		host->id = 2;
-	else if (0 == strcmp(np->name, "mmc3"))
+	else if (0 == strcmp(np->name, "sdio"))
 		host->id = 3;
 
 	pr_err("of msdc DT probe %s!, hostId:%d\n", np->name, host->id);
@@ -9216,7 +9216,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
 #ifndef CFG_DEV_MSDC2
 		return 1;
 #endif
-	} else if (0 == strcmp(pdev->dev.of_node->name, "mmc3")) {
+	} else if (0 == strcmp(pdev->dev.of_node->name, "sdio")) {
 #ifndef CFG_DEV_MSDC3
 		return 1;
 #endif
@@ -9338,7 +9338,7 @@ static int msdc_drv_probe(struct platform_device *pdev)
 	}
 #endif
 #if defined(CFG_DEV_MSDC3)
-	if (strcmp(pdev->dev.of_node->name, "mmc3") == 0) {
+	if (strcmp(pdev->dev.of_node->name, "sdio") == 0) {
 		pdev->id = 3;
 		pr_err("platform_data hw:0x%p, is msdc3_hw\n", host->hw);
 	}

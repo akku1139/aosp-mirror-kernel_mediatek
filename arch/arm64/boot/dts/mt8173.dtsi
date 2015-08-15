@@ -682,7 +682,7 @@
 			status = "disabled";
 		};
 
-		mmc3: mmc@11260000 {
+		mmc3: sdio@11260000 {
 			compatible = "mediatek,mt8173-sdio",
 				     "mediatek,mt8173-msdc";
 			reg = <0 0x11260000 0 0x1000>;
