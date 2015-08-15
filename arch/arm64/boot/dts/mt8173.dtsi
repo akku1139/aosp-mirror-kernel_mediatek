@@ -1097,16 +1097,53 @@
 			#clock-cells = <1>;
 		};
 
+		vdec_gcon@16000000 {
+			compatible = "mediatek,mt8173-vdec_gcon";
+			reg = <0 0x16000000 0 0x10000>;
+			power-domains=<&scpsys MT8173_POWER_DOMAIN_VDEC>;
+			clocks = <&mmsys CLK_MM_SMI_COMMON>,
+					<&vdecsys CLK_VDEC_CKEN>,
+					<&vdecsys CLK_VDEC_LARB_CKEN>,
+					<&vencsys CLK_VENC_CKE0>,  /* smi_larb3 */
+					<&vencsys CLK_VENC_CKE1>,  /* venc      */
+					<&vencltsys CLK_VENCLT_CKE0>;
+
+			clock-names = "MMSYS_CLK_SMI_COMMON",
+					"MT_CG_VDEC0_VDEC",
+					"MT_CG_VDEC1_LARB",
+					"MT_CG_VENC_SMI_LARB3",
+					"MT_CG_VENC_CKE1",
+					"MT_CG_VENCLT_LARB";
+		};
+
+		vdec@16020000 {
+			compatible = "mediatek,mt8173-vdec";
+			reg = <0 0x16020000 0 0x10000>;
+			interrupts = <GIC_SPI 204 IRQ_TYPE_LEVEL_LOW>;
+		};
+
 		vencsys: vencsys@18000000 {
 			compatible = "mediatek,mt8173-vencsys", "syscon";
 			reg = <0 0x18000000 0 0x1000>;
 			#clock-cells = <1>;
 		};
 
+		venc@18002000 {
+			compatible = "mediatek,mt8173-venc";
+			reg = <0 0x18002000 0 0x1000>;
+			interrupts = <GIC_SPI 198 IRQ_TYPE_LEVEL_LOW>;
+		};
+
 		vencltsys: vencltsys@19000000 {
 			compatible = "mediatek,mt8173-vencltsys", "syscon";
 			reg = <0 0x19000000 0 0x1000>;
 			#clock-cells = <1>;
+		};
+
+		venclt@19002000 {
+			compatible = "mediatek,mt8173-venclt";
+			reg = <0 0x19002000 0 0x1000>;
+			interrupts = <GIC_SPI 202 IRQ_TYPE_LEVEL_LOW>;
 		};
 
 		keypad: keypad@10010000 {

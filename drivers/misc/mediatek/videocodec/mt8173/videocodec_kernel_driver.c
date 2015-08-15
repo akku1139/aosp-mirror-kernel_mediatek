@@ -48,6 +48,7 @@
 #include <linux/of.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+#include <linux/pm_runtime.h>
 
 #if IS_ENABLED(CONFIG_COMPAT)
 #include <linux/uaccess.h>
@@ -207,7 +208,11 @@ KVA_VENCSYS_CG_SET_ADDR;
 
 #ifdef CONFIG_OF
 static struct clk *clk_smi, *clk_vdec, *clk_vdec_larb, *clk_venc_larb, *clk_venc_clk;
-static struct clk *clk_venc_lt_larb, *clk_venc_lt_clk, *clk_vdecpwr, *clk_venc_pwr, *clk_venc_pwr2;
+static struct clk *clk_venc_lt_larb, *clk_venc_lt_clk;
+static struct clk *clk_venc_pwr, *clk_venc_pwr2;
+
+struct platform_device *vdec_pdev;
+
 #endif
 static int venc_enableIRQ(VAL_HW_LOCK_T *prHWLock);
 static int venc_disableIRQ(VAL_HW_LOCK_T *prHWLock);
@@ -220,8 +225,10 @@ void vdec_power_on(void)
 	/* Central power on */
 
 #ifdef CONFIG_OF
-	clk_prepare(clk_vdecpwr);
-	clk_enable(clk_vdecpwr);
+	/* clk_prepare(clk_vdecpwr); */
+	/* clk_enable(clk_vdecpwr); */
+	pm_runtime_get_sync(&vdec_pdev->dev);
+
 	clk_prepare(clk_smi);
 	clk_enable(clk_smi);
 	clk_prepare(clk_vdec);
@@ -251,8 +258,9 @@ void vdec_power_off(void)
 		clk_unprepare(clk_vdec);
 		clk_disable(clk_smi);
 		clk_unprepare(clk_smi);
-		clk_disable(clk_vdecpwr);
-		clk_unprepare(clk_vdecpwr);
+		/* clk_disable(clk_vdecpwr); */
+		/* clk_unprepare(clk_vdecpwr); */
+		pm_runtime_put_sync(&vdec_pdev->dev);
 #else
 		disable_clock(MT_CG_VDEC0_VDEC, "VDEC");
 		disable_clock(MT_CG_VDEC1_LARB, "VDEC");
@@ -2302,11 +2310,16 @@ static int vcodec_probe(struct platform_device *pdev)
 	BUG_ON(IS_ERR(clk_venc_lt_larb));
 	clk_venc_lt_clk = devm_clk_get(&pdev->dev, "MT_CG_VENCLT_CKE");
 	BUG_ON(IS_ERR(clk_venc_lt_clk));
+
+	vdec_pdev = pdev;
+
+	pm_runtime_enable(&pdev->dev);
+	pm_runtime_get_sync(&pdev->dev);
+	pm_runtime_put_sync(&pdev->dev);
+#if 0
 	clk_vdecpwr = devm_clk_get(&pdev->dev, "MT_VDEC_POWER");
 	BUG_ON(IS_ERR(clk_vdecpwr));
-
     clk_venc_pwr  = devm_clk_get(&pdev->dev, "MT_VENC_POWER");
-
     clk_venc_pwr2  = devm_clk_get(&pdev->dev, "MT_VENC_POWER2");
 
 	clk_prepare(clk_vdec);
@@ -2323,6 +2336,7 @@ static int vcodec_probe(struct platform_device *pdev)
 	clk_unprepare(clk_venc_clk);
 	clk_disable(clk_venc_lt_clk);
 	clk_unprepare(clk_venc_lt_clk);
+#endif
 #endif
 
 	ret = register_chrdev_region(vcodec_devno, 1, VCODEC_DEVNAME);
@@ -2455,13 +2469,14 @@ static int venc_enableIRQ(VAL_HW_LOCK_T *prHWLock)
 
 static int vcodec_remove(struct platform_device *pDev)
 {
+	pm_runtime_disable(&pDev->dev);
 	MODULE_MFV_LOGD("vcodec_remove\n");
 	return 0;
 }
 
 #ifdef CONFIG_OF
 static const struct of_device_id vcodec_of_ids[] = {
-	{.compatible = "mediatek,VDEC_GCON",},
+	{.compatible = "mediatek,mt8173-vdec_gcon",},
 	{}
 };
 
@@ -2506,7 +2521,7 @@ static int __init vcodec_driver_init(void)
 	{
 		struct device_node *node = NULL;
 
-		node = of_find_compatible_node(NULL, NULL, "mediatek,VENC");
+		node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-venc");
 		KVA_VENC_BASE = (VAL_ULONG_T) of_iomap(node, 0);
 		VENC_IRQ_ID = irq_of_parse_and_map(node, 0);
 		KVA_VENC_IRQ_STATUS_ADDR = KVA_VENC_BASE + 0x05C;
@@ -2517,7 +2532,7 @@ static int __init vcodec_driver_init(void)
 	{
 		struct device_node *node = NULL;
 
-		node = of_find_compatible_node(NULL, NULL, "mediatek,VENCLT");
+		node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-venclt");
 		KVA_VENC_LT_BASE = (VAL_ULONG_T) of_iomap(node, 0);
 		VENC_LT_IRQ_ID = irq_of_parse_and_map(node, 0);
 		KVA_VENC_LT_IRQ_STATUS_ADDR = KVA_VENC_LT_BASE + 0x05C;
@@ -2529,7 +2544,7 @@ static int __init vcodec_driver_init(void)
 	{
 		struct device_node *node = NULL;
 
-		node = of_find_compatible_node(NULL, NULL, "mediatek,VDEC");
+		node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-venclt");
 		KVA_VDEC_BASE = (VAL_ULONG_T) of_iomap(node, 0);
 		VDEC_IRQ_ID = irq_of_parse_and_map(node, 0);
 		KVA_VDEC_MISC_BASE = KVA_VDEC_BASE + 0x0000;
@@ -2538,7 +2553,7 @@ static int __init vcodec_driver_init(void)
 	{
 		struct device_node *node = NULL;
 
-		node = of_find_compatible_node(NULL, NULL, "mediatek,VDEC_GCON");
+		node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-vdec_gcon");
 		KVA_VDEC_GCON_BASE = (VAL_ULONG_T) of_iomap(node, 0);
 		MODULE_MFV_LOGD
 		    ("[DeviceTree] KVA_VENC_BASE(0x%lx), KVA_VDEC_BASE(0x%lx), KVA_VDEC_GCON_BASE(0x%lx)",
