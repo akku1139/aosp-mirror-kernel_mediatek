@@ -1374,8 +1374,8 @@ static void mt6391_turn_off_adc(struct mt6391_priv *codec_data, int adc_type)
 static int mt6391_audio_amp_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_power[MT6391_DEV_OUT_HEADSETL] ? 1 : 0;
@@ -1385,8 +1385,8 @@ static int mt6391_audio_amp_get(struct snd_kcontrol *kcontrol,
 static int mt6391_audio_amp_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	mutex_lock(&codec_data->ctrl_mutex);
 
@@ -1409,8 +1409,8 @@ static int mt6391_audio_amp_set(struct snd_kcontrol *kcontrol,
 static int mt6391_voice_amp_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_power[MT6391_DEV_OUT_EARPIECEL] ? 1 : 0;
@@ -1420,8 +1420,8 @@ static int mt6391_voice_amp_get(struct snd_kcontrol *kcontrol,
 static int mt6391_voice_amp_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	mutex_lock(&codec_data->ctrl_mutex);
 
@@ -1444,8 +1444,8 @@ static int mt6391_voice_amp_set(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_amp_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_power[MT6391_DEV_OUT_SPEAKERL] ? 1 : 0;
@@ -1455,8 +1455,8 @@ static int mt6391_speaker_amp_get(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_amp_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s gain = %ld\n ", __func__, ucontrol->value.integer.value[0]);
 	if (ucontrol->value.integer.value[0] &&
@@ -1476,8 +1476,8 @@ static int mt6391_speaker_amp_set(struct snd_kcontrol *kcontrol,
 static int mt6391_headset_speaker_amp_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_power[MT6391_DEV_OUT_SPEAKER_HEADSET_L] ? 1 : 0;
@@ -1487,8 +1487,8 @@ static int mt6391_headset_speaker_amp_get(struct snd_kcontrol *kcontrol,
 static int mt6391_headset_speaker_amp_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s gain = %ld\n ", __func__, ucontrol->value.integer.value[0]);
 	if (ucontrol->value.integer.value[0] &&
@@ -1508,8 +1508,8 @@ static int mt6391_headset_speaker_amp_set(struct snd_kcontrol *kcontrol,
 static int mt6391_headset_pgal_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->device_volume[MT6391_VOL_HPOUTL];
 	return 0;
@@ -1518,9 +1518,9 @@ static int mt6391_headset_pgal_get(struct snd_kcontrol *kcontrol,
 static int mt6391_headset_pgal_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	int index = 0;
 
 	pr_debug("%s\n", __func__);
@@ -1537,8 +1537,8 @@ static int mt6391_headset_pgal_set(struct snd_kcontrol *kcontrol,
 static int mt6391_headset_pgar_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->device_volume[MT6391_VOL_HPOUTR];
 	return 0;
@@ -1547,9 +1547,9 @@ static int mt6391_headset_pgar_get(struct snd_kcontrol *kcontrol,
 static int mt6391_headset_pgar_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	int index = 0;
 
 	pr_debug("%s\n", __func__);
@@ -1567,8 +1567,8 @@ static int mt6391_headset_pgar_set(struct snd_kcontrol *kcontrol,
 static int mt6391_handset_pga_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->device_volume[MT6391_VOL_HSOUTL];
 	return 0;
@@ -1577,9 +1577,9 @@ static int mt6391_handset_pga_get(struct snd_kcontrol *kcontrol,
 static int mt6391_handset_pga_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	int index = 0;
 
 	pr_debug("%s %ld\n", __func__, ucontrol->value.integer.value[0]);
@@ -1597,8 +1597,8 @@ static int mt6391_handset_pga_set(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_pgal_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->device_volume[MT6391_VOL_SPKL];
 	return 0;
@@ -1607,9 +1607,9 @@ static int mt6391_speaker_pgal_get(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_pgal_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	int index = 0;
 
 	pr_debug("%s\n", __func__);
@@ -1627,8 +1627,8 @@ static int mt6391_speaker_pgal_set(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_pgar_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->device_volume[MT6391_VOL_SPKR];
 	return 0;
@@ -1637,9 +1637,9 @@ static int mt6391_speaker_pgar_get(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_pgar_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	int index = 0;
 
 	pr_debug("%s\n", __func__);
@@ -1656,8 +1656,8 @@ static int mt6391_speaker_pgar_set(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_channel_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s\n", __func__);
 	codec_data->speaker_channel_sel = ucontrol->value.integer.value[0];
@@ -1667,8 +1667,8 @@ static int mt6391_speaker_channel_set(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_channel_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s = %d\n", __func__, codec_data->speaker_channel_sel);
 	ucontrol->value.integer.value[0] = codec_data->speaker_channel_sel;
@@ -1678,8 +1678,8 @@ static int mt6391_speaker_channel_get(struct snd_kcontrol *kcontrol,
 static int mt6391_speaker_oc_flag_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	uint32_t reg_value = mt6391_get_reg(SPK_CON6);
 
 	if (codec_data->speaker_mode == MT6391_CLASS_AB)
@@ -1719,8 +1719,8 @@ static int mt6391_dac_newif_sck_set(struct snd_kcontrol *kcontrol,
 static int mt6391_dmic_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_power[MT6391_DEV_IN_DIGITAL_MIC] ? 1 : 0;
@@ -1730,8 +1730,8 @@ static int mt6391_dmic_get(struct snd_kcontrol *kcontrol,
 static int mt6391_dmic_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s\n", __func__);
 	if (ucontrol->value.integer.value[0] &&
@@ -1751,8 +1751,8 @@ static int mt6391_dmic_set(struct snd_kcontrol *kcontrol,
 static int mt6391_adc1_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_power[MT6391_DEV_IN_ADC1] ? 1 : 0;
@@ -1762,8 +1762,8 @@ static int mt6391_adc1_get(struct snd_kcontrol *kcontrol,
 static int mt6391_adc1_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s\n", __func__);
 	if (ucontrol->value.integer.value[0]
@@ -1783,8 +1783,8 @@ static int mt6391_adc1_set(struct snd_kcontrol *kcontrol,
 static int mt6391_adc2_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_power[MT6391_DEV_IN_ADC2] ? 1 : 0;
@@ -1794,8 +1794,8 @@ static int mt6391_adc2_get(struct snd_kcontrol *kcontrol,
 static int mt6391_adc2_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s\n", __func__);
 	if (ucontrol->value.integer.value[0]
@@ -1815,8 +1815,8 @@ static int mt6391_adc2_set(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp1_mux_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->device_mux[MT6391_MUX_IN_PREAMP_1];
 	return 0;
@@ -1825,9 +1825,9 @@ static int mt6391_preamp1_mux_get(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp1_mux_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s\n", __func__);
 
@@ -1862,8 +1862,8 @@ static int mt6391_preamp1_mux_set(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp2_mux_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->device_mux[MT6391_MUX_IN_PREAMP_2];
 	return 0;
@@ -1872,9 +1872,9 @@ static int mt6391_preamp2_mux_get(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp2_mux_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	pr_debug("%s\n", __func__);
 
@@ -1906,8 +1906,8 @@ static int mt6391_preamp2_mux_set(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp1_gain_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_volume[MT6391_VOL_MICAMPL];
@@ -1917,9 +1917,9 @@ static int mt6391_preamp1_gain_get(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp1_gain_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	int index = 0;
 
 	pr_debug("%s\n", __func__);
@@ -1936,8 +1936,8 @@ static int mt6391_preamp1_gain_set(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp2_gain_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] =
 	    codec_data->device_volume[MT6391_VOL_MICAMPR];
@@ -1947,9 +1947,9 @@ static int mt6391_preamp2_gain_get(struct snd_kcontrol *kcontrol,
 static int mt6391_preamp2_gain_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
 	struct soc_enum *e = (struct soc_enum *)kcontrol->private_value;
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	int index = 0;
 
 	pr_debug("%s\n", __func__);
@@ -1967,8 +1967,8 @@ static int mt6391_preamp2_gain_set(struct snd_kcontrol *kcontrol,
 static int mt6391_loopback_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->codec_loopback_type;
 	return 0;
@@ -1977,8 +1977,8 @@ static int mt6391_loopback_get(struct snd_kcontrol *kcontrol,
 static int mt6391_loopback_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 	uint32_t previous_type = codec_data->codec_loopback_type;
 	long set_value = ucontrol->value.integer.value[0];
 
@@ -2105,8 +2105,8 @@ static int mt6391_loopback_set(struct snd_kcontrol *kcontrol,
 static int mt6391_dac_sgen_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->dac_sgen_switch;
 	return 0;
@@ -2115,8 +2115,8 @@ static int mt6391_dac_sgen_get(struct snd_kcontrol *kcontrol,
 static int mt6391_dac_sgen_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	if (codec_data->dac_sgen_switch == ucontrol->value.integer.value[0]) {
 		pr_debug("%s dummy operation for %u", __func__, codec_data->dac_sgen_switch);
@@ -2140,8 +2140,8 @@ static int mt6391_dac_sgen_set(struct snd_kcontrol *kcontrol,
 static int mt6391_adc_sgen_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	ucontrol->value.integer.value[0] = codec_data->adc_sgen_switch;
 	return 0;
@@ -2150,8 +2150,8 @@ static int mt6391_adc_sgen_get(struct snd_kcontrol *kcontrol,
 static int mt6391_adc_sgen_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	if (codec_data->adc_sgen_switch == ucontrol->value.integer.value[0]) {
 		pr_debug("%s dummy operation for %u", __func__, codec_data->adc_sgen_switch);
@@ -2174,8 +2174,8 @@ static int mt6391_adc_sgen_set(struct snd_kcontrol *kcontrol,
 static int mt6391_dac_freq_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	if (codec_data->sample_rate[MT6391_ADDA_DAC] == 48000)
 		ucontrol->value.integer.value[0] = DAC_FREQ_48000;
@@ -2203,8 +2203,8 @@ static int mt6391_dac_freq_get(struct snd_kcontrol *kcontrol,
 static int mt6391_dac_freq_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	if (ucontrol->value.integer.value[0] == DAC_FREQ_48000)
 		codec_data->sample_rate[MT6391_ADDA_DAC] = 48000;
@@ -2231,8 +2231,8 @@ static int mt6391_dac_freq_set(struct snd_kcontrol *kcontrol,
 static int mt6391_adc_freq_get(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	if (codec_data->sample_rate[MT6391_ADDA_ADC] == 48000)
 		ucontrol->value.integer.value[0] = ADC_FREQ_48000;
@@ -2250,8 +2250,8 @@ static int mt6391_adc_freq_get(struct snd_kcontrol *kcontrol,
 static int mt6391_adc_freq_set(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
-	struct mt6391_priv *codec_data = snd_soc_codec_get_drvdata(codec);
+	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
+	struct mt6391_priv *codec_data = snd_soc_component_get_drvdata(component);
 
 	if (ucontrol->value.integer.value[0] == ADC_FREQ_48000)
 		codec_data->sample_rate[MT6391_ADDA_ADC] = 48000;
