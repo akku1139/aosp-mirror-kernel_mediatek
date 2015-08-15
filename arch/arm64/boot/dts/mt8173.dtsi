@@ -263,6 +263,125 @@
 					bias-disable;
 				};
 			};
+
+			/* UART GPIO Settings - Start */
+			/* UART0: rx set, rx clear, tx clear, tx clear*/
+			uart0_gpio_def_cfg:uart0gpiodefault {
+
+			};
+			uart0_rx_set_cfg:uart0_rx_set {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_113_URXD0__FUNC_URXD0>;
+				};
+			};
+			uart0_rx_clr_cfg:uart0_rx_clear  {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_113_URXD0__FUNC_GPIO113>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+			uart0_tx_set_cfg:uart0_tx_set  {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_114_UTXD0__FUNC_UTXD0>;
+				};
+			};
+			uart0_tx_clr_cfg:uart0_tx_clear  {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_114_UTXD0__FUNC_GPIO114>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+
+			/* UART1: rx set, rx clear, tx clear, tx clear*/
+			uart1_gpio_def_cfg:uart1gpiodefault {
+
+			};
+			uart1_rx_set_cfg:uart1_rx_set {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_96_URXD1__FUNC_URXD1>;
+				};
+			};
+			uart1_rx_clr_cfg:uart1_rx_clear {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_96_URXD1__FUNC_GPIO96>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+			uart1_tx_set_cfg:uart1_tx_set {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_97_UTXD1__FUNC_UTXD1>;
+				};
+			};
+			uart1_tx_clr_cfg:uart1_tx_clear {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_97_UTXD1__FUNC_GPIO97>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+
+			/* UART2: rx set, rx clear, tx clear, tx clear*/
+			uart2_gpio_def_cfg:uart2gpiodefault {
+
+			};
+			uart2_rx_set_cfg:uart2_rx_set {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_31_URXD2__FUNC_URXD2>;
+				};
+			};
+			uart2_rx_clr_cfg:uart2_rx_clear {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_31_URXD2__FUNC_GPIO31>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+			uart2_tx_set_cfg:uart2_tx_set {
+				pins_cmd_dat {
+					pins = <MT8173_PIN_32_UTXD2__FUNC_UTXD2>;
+				};
+			};
+			uart2_tx_clr_cfg:uart2_tx_clear {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_32_UTXD2__FUNC_GPIO32>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+
+			/* UART3: rx set, rx clear, tx clear, tx clear*/
+			uart3_gpio_def_cfg:uart3gpiodefault {
+
+			};
+			uart3_rx_set_cfg:uart3_rx_set {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_117_URXD3__FUNC_URXD3>;
+				};
+			};
+			uart3_rx_clr_cfg:uart3_rx_clear {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_117_URXD3__FUNC_GPIO117>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+			uart3_tx_set_cfg:uart3_tx_set {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_118_UTXD3__FUNC_UTXD3>;
+				};
+			};
+			uart3_tx_clr_cfg:uart3_tx_clear {
+				pins_cmd_dat {
+					pinmux = <MT8173_PIN_118_UTXD3__FUNC_GPIO118>;
+					slew-rate = <1>;
+					output-high;
+				};
+			};
+
+			/* UART GPIO Settings - End */
 		};
 
 		scpsys: scpsys@10006000 {
@@ -412,43 +531,125 @@
 		};
 
 		uart0: serial@11002000 {
-			compatible = "mediatek,mt8173-uart",
-				     "mediatek,mt6577-uart";
-			reg = <0 0x11002000 0 0x400>;
-			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_LOW>;
-			clocks = <&uart_clk>;
-			clock-names = "baud";
-			status = "disabled";
+			cell-index = <0>;
+			compatible = "mediatek,mt8173-uart";
+			reg = <0 0x11002000 0 0x1000>, /* UART base */
+				  <0 0x11000380 0 0x1000>, /* DMA Tx base */
+				  <0 0x11000400 0 0x80>; /* DMA Rx base */
+			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_LOW>, /* UART IRQ */
+				     <GIC_SPI 95 IRQ_TYPE_LEVEL_LOW>, /* DMA Tx IRQ */
+				     <GIC_SPI 96 IRQ_TYPE_LEVEL_LOW>; /* DMA Rx IRQ */
+
+			clock-frequency = <26000000>;
+			clock-div = <1>;
+			clocks = <&pericfg CLK_PERI_UART0>, <&pericfg CLK_PERI_AP_DMA>;
+			clock-names = "uart0-main", "uart-apdma";
+			pinctrl-names = "uart0_gpio_default",
+					"uart0_rx_set",
+					"uart0_rx_clear",
+					"uart0_tx_set",
+					"uart0_tx_clear";
+
+			pinctrl-0 = <&uart0_gpio_def_cfg>;
+			pinctrl-1 = <&uart0_rx_set_cfg>;
+			pinctrl-2 = <&uart0_rx_clr_cfg>;
+			pinctrl-3 = <&uart0_tx_set_cfg>;
+			pinctrl-4 = <&uart0_tx_clr_cfg>;
+			rx_gpios = <&pio 113 0>;
+			tx_gpios = <&pio 114 0>;
+			status = "okay";
 		};
 
 		uart1: serial@11003000 {
-			compatible = "mediatek,mt8173-uart",
-				     "mediatek,mt6577-uart";
-			reg = <0 0x11003000 0 0x400>;
-			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_LOW>;
-			clocks = <&uart_clk>;
-			clock-names = "baud";
-			status = "disabled";
+			cell-index = <1>;
+			compatible = "mediatek,mt8173-uart";
+			reg = <0 0x11003000 0 0x1000>, /* UART base */
+				  <0 0x11000480 0 0x80>, /* DMA Tx base */
+				  <0 0x11000500 0 0x80>; /* DMA Rx base */
+			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_LOW>, /* UART IRQ */
+				     <GIC_SPI 97 IRQ_TYPE_LEVEL_LOW>, /* DMA Tx IRQ */
+				     <GIC_SPI 98 IRQ_TYPE_LEVEL_LOW>; /* DMA Rx IRQ */
+
+			clock-frequency = <26000000>;
+			clock-div = <1>;
+			clocks = <&pericfg CLK_PERI_UART1>;
+			clock-names = "uart1-main";
+
+			pinctrl-names = "uart1_gpio_default",
+					"uart1_rx_set",
+					"uart1_rx_clear",
+					"uart1_tx_set",
+					"uart1_tx_clear";
+
+			pinctrl-0 = <&uart1_gpio_def_cfg>;
+			pinctrl-1 = <&uart1_rx_set_cfg>;
+			pinctrl-2 = <&uart1_rx_clr_cfg>;
+			pinctrl-3 = <&uart1_tx_set_cfg>;
+			pinctrl-4 = <&uart1_tx_clr_cfg>;
+			rx_gpios = <&pio 96 0>;
+			tx_gpios = <&pio 97 0>;
+			status = "okay";
 		};
 
 		uart2: serial@11004000 {
-			compatible = "mediatek,mt8173-uart",
-				     "mediatek,mt6577-uart";
-			reg = <0 0x11004000 0 0x400>;
-			interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_LOW>;
-			clocks = <&uart_clk>;
-			clock-names = "baud";
-			status = "disabled";
+			cell-index = <2>;
+			compatible = "mediatek,mt8173-uart";
+			reg = <0 0x11004000 0 0x1000>, /* UART base */
+				  <0 0x11000580 0 0x80>, /* DMA Tx base */
+				  <0 0x11000600 0 0x80>; /* DMA Rx base */
+			interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_LOW>, /* UART IRQ */
+				     <GIC_SPI 99 IRQ_TYPE_LEVEL_LOW>, /* DMA Tx IRQ */
+				     <GIC_SPI 100 IRQ_TYPE_LEVEL_LOW>; /* DMA Rx IRQ */
+
+			clock-frequency = <26000000>;
+			clock-div = <1>;
+			clocks = <&pericfg CLK_PERI_UART2>;
+			clock-names = "uart2-main";
+			pinctrl-names = "uart2_gpio_default",
+					"uart2_rx_set",
+					"uart2_rx_clear",
+					"uart2_tx_set",
+					"uart2_tx_clear";
+
+			pinctrl-0 = <&uart2_gpio_def_cfg>;
+			pinctrl-1 = <&uart2_rx_set_cfg>;
+			pinctrl-2 = <&uart2_rx_clr_cfg>;
+			pinctrl-3 = <&uart2_tx_set_cfg>;
+			pinctrl-4 = <&uart2_tx_clr_cfg>;
+			rx_gpios = <&pio 31 0>;
+			tx_gpios = <&pio 32 0>;
+			status = "okay";
 		};
 
 		uart3: serial@11005000 {
-			compatible = "mediatek,mt8173-uart",
-				     "mediatek,mt6577-uart";
-			reg = <0 0x11005000 0 0x400>;
-			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_LOW>;
-			clocks = <&uart_clk>;
-			clock-names = "baud";
-			status = "disabled";
+			cell-index = <3>;
+			compatible = "mediatek,mt8173-uart";
+			reg = <0 0x11005000 0 0x1000>, /* UART base */
+				  <0 0x11000680 0 0x80>, /* DMA Tx base */
+				  <0 0x11000700 0 0x80>; /* DMA Rx base */
+			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_LOW>, /* UART IRQ */
+				     <GIC_SPI 101 IRQ_TYPE_LEVEL_LOW>, /* DMA Tx IRQ */
+				     <GIC_SPI 102 IRQ_TYPE_LEVEL_LOW>; /* DMA Rx IRQ */
+
+			clock-frequency = <26000000>;
+			clock-div = <1>;
+			clocks = <&pericfg CLK_PERI_UART3>;
+			clock-names = "uart3-main";
+
+			pinctrl-names = "uart3_gpio_default",
+					"uart3_rx_set",
+					"uart3_rx_clear",
+					"uart3_tx_set",
+					"uart3_tx_clear";
+
+			pinctrl-0 = <&uart3_gpio_def_cfg>;
+			pinctrl-1 = <&uart3_rx_set_cfg>;
+			pinctrl-2 = <&uart3_rx_clr_cfg>;
+			pinctrl-3 = <&uart3_tx_set_cfg>;
+			pinctrl-4 = <&uart3_tx_clr_cfg>;
+			rx_gpios = <&pio 117 0>;
+			tx_gpios = <&pio 118 0>;
+			status = "okay";
 		};
 
 		pwm: pwm@11006000 {
