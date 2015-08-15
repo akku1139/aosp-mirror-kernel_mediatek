@@ -276,7 +276,6 @@ static void __init mt_cpuxgpt_init(struct device_node *node)
 		cpuxgpt_irq[3], cpuxgpt_irq[4], cpuxgpt_irq[5]);
 
 	/* gpt_update_unlock(save_flags); */
-	cpu_xgpt_set_init_count(0, 0);
 }
 
 
