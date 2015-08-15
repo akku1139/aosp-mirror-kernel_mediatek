@@ -287,6 +287,47 @@
 			#clock-cells = <1>;
 		};
 
+		gce: gce@10212000 {
+			compatible = "mediatek,mt8173-gce";
+			reg = <0 0x10212000 0 0x1000>;
+			interrupts = <GIC_SPI 135 IRQ_TYPE_LEVEL_LOW>,
+				     <GIC_SPI 136 IRQ_TYPE_LEVEL_LOW>;
+
+			clocks = <&infracfg CLK_INFRA_GCE>,
+				 <&mmsys CLK_MM_MUTEX_32K>,
+				 <&mmsys CLK_MM_SMI_COMMON>,
+				 <&mmsys CLK_MM_SMI_LARB0>,
+				 <&mmsys CLK_MM_SMI_LARB4>, /*larb4*/
+				 <&mmsys CLK_MM_CAM_MDP>,
+				 <&mmsys CLK_MM_MDP_RDMA0>,
+				 <&mmsys CLK_MM_MDP_RDMA1>,
+				 <&mmsys CLK_MM_MDP_RSZ0>,
+				 <&mmsys CLK_MM_MDP_RSZ1>,
+				 <&mmsys CLK_MM_MDP_RSZ2>,
+				 <&mmsys CLK_MM_MDP_TDSHP0>,
+				 <&mmsys CLK_MM_MDP_TDSHP1>,
+				 <&mmsys CLK_MM_MDP_WROT0>,
+				 <&mmsys CLK_MM_MDP_WROT1>,
+				 <&mmsys CLK_MM_MDP_WDMA>;
+
+			clock-names = "MT_CG_INFRA_GCE",
+				      "MT_CG_DISP0_MUTEX_32K",
+				      "MT_CG_DISP0_SMI_COMMON",
+				      "MT_CG_DISP0_SMI_LARB0",
+				      "MT_CG_DISP0_SMI_LARB4",
+				      "MT_CG_DISP0_CAM_MDP",
+				      "MT_CG_DISP0_MDP_RDMA0",
+				      "MT_CG_DISP0_MDP_RDMA1",
+				      "MT_CG_DISP0_MDP_RSZ0",
+				      "MT_CG_DISP0_MDP_RSZ1",
+				      "MT_CG_DISP0_MDP_RSZ2",
+				      "MT_CG_DISP0_MDP_TDSHP0",
+				      "MT_CG_DISP0_MDP_TDSHP1",
+				      "MT_CG_DISP0_MDP_WROT0",
+				      "MT_CG_DISP0_MDP_WROT1",
+				      "MT_CG_DISP0_MDP_WDMA";
+		};
+
 		perisysiommu: perisys@10214000 {
 			cell-index = <1>;
 			compatible = "mediatek,mt8173-perisys-iommu";
