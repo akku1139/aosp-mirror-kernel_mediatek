@@ -51,7 +51,7 @@ extern "C" {
 #define DEF_CPU_RUSH_BOOST_THRESHOLD	98
 #define DEF_CPU_RUSH_BOOST_TIMES	1
 
-#define EN_HPS				0
+#define EN_HPS				1
 #define EN_HPS_LOG			1
 #define EN_ISR_LOG			0
 
