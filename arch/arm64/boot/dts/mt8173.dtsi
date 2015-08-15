@@ -521,6 +521,11 @@
 			interrupts = <GIC_SPI 186 IRQ_TYPE_EDGE_FALLING>;
 		};
 
+		touch: touch@ {
+			compatible = "mediatek,mt8173-touch";
+			vtouch-supply = <&mt6397_vgp6_reg>;
+			vtouchio-supply = <&mt6397_vgp4_reg>;
+		};
 	};
 
 	bring-up {
@@ -685,4 +690,5 @@
 	};
 };
 
+/include/ "cust_i2c.dtsi"
 /include/ "cust_kpd_8173.dtsi"
