@@ -37,6 +37,14 @@
 		battery = "p1v1_battery";
 	};
 
+	mtcpufreq {
+		compatible = "mediatek,mt8173-cpufreq";
+		reg-vpca53-supply = <&mt6397_vpca15_reg>;
+		reg-ext-vpca57-supply = <&da9212_vcpu_reg>;
+		reg-vsramca57-supply = <&mt6397_vsramca7_reg>;
+		reg-vcore-supply = <&mt6397_vcore_reg>;
+	};
+
 	chosen { };
 };
 
