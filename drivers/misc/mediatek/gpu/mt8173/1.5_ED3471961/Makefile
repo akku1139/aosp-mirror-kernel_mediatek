@@ -7,7 +7,7 @@ RGX_TOP := $(srctree)/drivers/misc/mediatek/gpu/$(MTK_PLATFORM)/1.5_ED3471961/
 #RGX_TOP := $(srctree)/drivers/misc/mediatek/gpu/$(MTK_PLATFORM)/rgx
 
 VER := $(if $(filter eng,$(TARGET_BUILD_VARIANT)),eng,user)
-ccflags-y += -include $(RGX_TOP)/include/config_kernel_$(VER).h
+ccflags-y += -include $(RGX_TOP)/include/config_kernel_eng.h
 
 ccflags-y += \
  -D__linux__ $(OPTIM) -g \
