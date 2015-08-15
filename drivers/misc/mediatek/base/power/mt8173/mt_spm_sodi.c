@@ -570,7 +570,7 @@ void spm_sodi_init(void)
 #ifdef CONFIG_OF
 	struct device_node *mcucfg_node;
 
-	mcucfg_node = of_find_compatible_node(NULL, NULL, "mediatek,MCUCFG");
+	mcucfg_node = of_find_compatible_node(NULL, NULL, "mediatek,mt8173-mcucfg");
 	if (!mcucfg_node) {
 		pr_err("mcucfg_node not found!\n");
 		return;
