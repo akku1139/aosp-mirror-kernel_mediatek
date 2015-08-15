@@ -2,11 +2,11 @@
 #define _H_DDP_INFO
 #include <linux/types.h>
 #include "ddp_hal.h"
-#include "DpDataType.h"
+#include "../videox/DpDataType.h"
 #include "lcm_drv.h"
 #include "disp_event.h"
 #include "ddp_ovl.h"
-#include <disp_session.h>
+#include "../videox/disp_session.h"
 typedef unsigned char UINT8;
 typedef signed char INT8;
 typedef unsigned short UINT16;

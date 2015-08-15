@@ -6,7 +6,7 @@
 #include "ddp_reg.h"
 #include "lcm_drv.h"
 #include "ddp_hal.h"
-#include "fbconfig_kdebug_rome.h"
+#include "../videox/fbconfig_kdebug_rome.h"
 
 
 #ifdef __cplusplus

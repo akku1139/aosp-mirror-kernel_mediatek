@@ -1,7 +1,7 @@
 #ifndef _DDP_OVL_H_
 #define _DDP_OVL_H_
 #include "ddp_hal.h"
-#include "DpDataType.h"
+#include "../videox/DpDataType.h"
 
 
 #define OVL_MAX_WIDTH  (8191)

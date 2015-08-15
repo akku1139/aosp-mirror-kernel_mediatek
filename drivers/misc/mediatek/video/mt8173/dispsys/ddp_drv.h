@@ -6,7 +6,7 @@
 #include "ddp_aal.h"
 #include "ddp_gamma.h"
 #include "disp_event.h"
-#include "DpDataType.h"
+#include "../videox/DpDataType.h"
 
 
 typedef struct {
