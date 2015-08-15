@@ -1807,7 +1807,7 @@
 			<&pericfg CLK_PERI_I2C2>,
 			<&pericfg CLK_PERI_I2C3>,
 			<&pericfg CLK_PERI_I2C4>,
-			<&pericfg CLK_PERI_AUXADC>,
+			<&clk_null>,
 			<&pericfg CLK_PERI_SPI0>,
 			<&pericfg CLK_PERI_I2C5>,
 			<&pericfg CLK_PERI_NFIECC>,
