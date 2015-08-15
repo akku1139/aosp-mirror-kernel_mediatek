@@ -245,6 +245,21 @@
 		interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
 		int-gpio = <&pio 6 0>;
 	};
+
+	tmp103-sensor@70 {
+		compatible = "ti,tmp103_temp_sensor";
+		reg = <0x70>;
+	};
+
+	tmp103-sensor@71 {
+		compatible = "ti,tmp103_temp_sensor";
+		reg = <0x71>;
+	};
+
+	tmp103-sensor@72 {
+		compatible = "ti,tmp103_temp_sensor";
+		reg = <0x72>;
+	};
 };
 
 &mmc0 {
