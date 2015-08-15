@@ -77,11 +77,11 @@
 #define MT_SOC_SPDIF_PLATFORM_NAME        "mt8173-soc-spdif-pcm"
 #define MT_SOC_SPDIF_CPU_DAI_NAME         "mt-audio-spdif"
 
-#define MT_SOC_MRGRX_STREAM_NAME   "MRGRX_Playback"
+#define MT_SOC_MRGRX_STREAM_NAME   "MRGRX_PLayback"
 #define MT_SOC_MRGRX_CPU_DAI_NAME  "mt-audio-mrgrx"
 #define MT_SOC_MRGRX_PLARFORM_NAME "mt8173-soc-mrgrx-pcm"
 
-#define MT_SOC_MRGRX_AWB_STREAM_NAME   "MRGRX_Capture"
+#define MT_SOC_MRGRX_AWB_STREAM_NAME   "MRGRX_CAPTURE"
 #define MT_SOC_MRGRX_AWB_CPU_DAI_NAME  "mt-audio-mrgrx-awb"
 #define MT_SOC_MRGRX_AWB_PLARFORM_NAME "mt8173-soc-mrgrx-awb-pcm"
 
