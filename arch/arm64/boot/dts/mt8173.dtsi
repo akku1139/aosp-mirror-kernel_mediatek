@@ -973,6 +973,66 @@
 			#clock-cells = <1>;
 		};
 
+		mdp_rdma0: mdp_rdma0@14001000 {
+			compatible = "mediatek,mt8173-mdp_rdma0";
+			reg = <0 0x14001000 0 0x1000>;
+			interrupts = <GIC_SPI 170 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_rdma1: mdp_rdma1@14002000 {
+			compatible = "mediatek,mt8173-mdp_rdma1";
+			reg = <0 0x14002000 0 0x1000>;
+			interrupts = <GIC_SPI 171 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_rsz0: mdp_rsz0@14003000 {
+			compatible = "mediatek,mt8173-mdp_rsz0";
+			reg = <0 0x14003000 0 0x1000>;
+			interrupts = <GIC_SPI 172 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_rsz1: mdp_rsz1@14004000 {
+			compatible = "mediatek,mt8173-mdp_rsz1";
+			reg = <0 0x14004000 0 0x1000>;
+			interrupts = <GIC_SPI 173 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_rsz2: mdp_rsz2@14005000 {
+			compatible = "mediatek,mt8173-mdp_rsz2";
+			reg = <0 0x14005000 0 0x1000>;
+			interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_wdma: mdp_wdma@14006000 {
+			compatible = "mediatek,mt8173-mdp_wdma";
+			reg = <0 0x14006000 0 0x1000>;
+			interrupts = <GIC_SPI 177 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_wrot0: mdp_wrot0@14007000 {
+			compatible = "mediatek,mt8173-mdp_wrot0";
+			reg = <0 0x14007000 0 0x1000>;
+			interrupts = <GIC_SPI 178 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_wrot1: mdp_wrot1@14008000 {
+			compatible = "mediatek,mt8173-mdp_wrot1";
+			reg = <0 0x14008000 0 0x1000>;
+			interrupts = <GIC_SPI 179 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_tdshp0: mdp_tdshp0@14009000 {
+			compatible = "mediatek,mt8173-mdp_tdshp0";
+			reg = <0 0x14009000 0 0x1000>;
+			interrupts = <GIC_SPI 175 IRQ_TYPE_LEVEL_LOW>;
+		};
+
+		mdp_tdshp1: mdp_tdshp1@1400a000 {
+			compatible = "mediatek,mt8173-mdp_tdshp1";
+			reg = <0 0x1400A000 0 0x1000>;
+			interrupts = <GIC_SPI 176 IRQ_TYPE_LEVEL_LOW>;
+		};
+
 		DISP_OVL@1400c000 {
 			compatible = "mediatek,mt8173-disp_ovl";
 			reg = <0 0x1400c000 0 0x2000>;

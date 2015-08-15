@@ -234,6 +234,7 @@ static void testcase_errors(void)
 	cmdqRecHandle hLoop;
 	struct TaskStruct *pTask;
 	int32_t ret;
+	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA;
 	const uint32_t UNKNOWN_OP = 0x50;
 	uint32_t *pCommand;
 
@@ -277,9 +278,9 @@ static void testcase_errors(void)
 
 		CMDQ_MSG("================POLL INIFINITE====================\n");
 
-		CMDQ_MSG("testReg: %lx\n", CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+		CMDQ_MSG("testReg: %lx\n", MMSYS_DUMMY_REG);
 
-		CMDQ_REG_SET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA, 0x0);
+		CMDQ_REG_SET32(MMSYS_DUMMY_REG, 0x0);
 		cmdqRecReset(hReq);
 		cmdqRecSetSecure(hReq, gCmdqTestSecure);
 		cmdqRecPoll(hReq, CMDQ_TEST_DISP_PWM0_DUMMY_PA, 1, 0xFFFFFFFF);
@@ -973,7 +974,7 @@ static void testcase_long_command(void)
 	int i;
 	cmdqRecHandle handle;
 	uint32_t data;
-	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_DISP_PWM0_DUMMY_VA;
+	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA;
 
 	CMDQ_MSG("%s\n", __func__);
 
@@ -1129,7 +1130,7 @@ static void testcase_write_from_data_reg(void)
 	const uint32_t PATTERN = 0xFFFFDEAD;
 	const uint32_t srcGprId = CMDQ_DATA_REG_DEBUG;
 	const uint32_t dstRegPA = CMDQ_TEST_DISP_PWM0_DUMMY_PA;
-	const unsigned long dstRegVA = CMDQ_TEST_DISP_PWM0_DUMMY_VA;
+	const unsigned long dstRegVA = CMDQ_TEST_MMSYS_DUMMY_VA;
 
 	CMDQ_MSG("%s\n", __func__);
 
@@ -1174,7 +1175,7 @@ static void testcase_read_to_data_reg(void)
 	cmdqRecHandle handle;
 	uint32_t data;
 	unsigned long long data64;
-	unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_DISP_PWM0_DUMMY_VA;
+	unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA;
 
 	CMDQ_MSG("%s\n", __func__);
 
@@ -1227,7 +1228,7 @@ static void testcase_write_reg_from_slot(void)
 	CMDQ_MSG("%s\n", __func__);
 
 	/* init */
-	CMDQ_REG_SET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA, 0xdeaddead);
+	CMDQ_REG_SET32(CMDQ_TEST_MMSYS_DUMMY_VA, 0xdeaddead);
 	CMDQ_REG_SET32(CMDQ_GPR_R32(dstRegId), 0xdeaddead);
 	CMDQ_REG_SET64_GPR_PX(srcRegId, 0xdeaddeaddeaddead);
 
@@ -1259,7 +1260,7 @@ static void testcase_write_reg_from_slot(void)
 	cmdqRecDestroy(handle);
 
 	/* verify */
-	value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+	value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 	if (PATTEN != value)
 		CMDQ_ERR("%s failed, value:0x%x\n", __func__, value);
 
@@ -1278,7 +1279,7 @@ static void testcase_write_reg_from_slot(void)
 static void testcase_backup_reg_to_slot(void)
 {
 	cmdqRecHandle handle;
-	unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_DISP_PWM0_DUMMY_VA;
+	unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA;
 	cmdqBackupSlotHandle hSlot = 0;
 	int i;
 	uint32_t value = 0;
@@ -1385,7 +1386,7 @@ static void testcase_update_value_to_slot(void)
 static void testcase_poll(void)
 {
 	cmdqRecHandle handle;
-	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_DISP_PWM0_DUMMY_VA;
+	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA;
 
 	uint32_t value = 0;
 	uint32_t testReg = MMSYS_DUMMY_REG;
@@ -1424,7 +1425,7 @@ static int32_t _thread_poll_reg_value(void *data)
 
 	while (1) {
 		if (gThreadRunFlag) {
-			value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+			value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 			CMDQ_LOG("Get Test Value:0x%08x\n", value);
 			msleep(500);
 		}
@@ -1465,7 +1466,7 @@ static void testcase_write_with_mask(void)
 	CMDQ_MSG("%s\n", __func__);
 
 	/* set to 0x0 */
-	CMDQ_REG_SET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA, 0x0);
+	CMDQ_REG_SET32(CMDQ_TEST_MMSYS_DUMMY_VA, 0x0);
 
 	/* use CMDQ to set to PATTERN */
 	cmdqRecCreate(CMDQ_SCENARIO_DEBUG, &handle);
@@ -1476,7 +1477,7 @@ static void testcase_write_with_mask(void)
 	cmdqRecDestroy(handle);
 
 	/* value check */
-	value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+	value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 	if (EXPECT_RESULT != value)
 		CMDQ_ERR("TEST FAIL: wrote value is 0x%08x, not 0x%08x\n", value, EXPECT_RESULT);
 
@@ -1664,7 +1665,7 @@ static void testcase_write(void)
 
 	uint32_t value = 0;
 	cmdqRecHandle handle;
-	/* const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_DISP_PWM0_DUMMY_VA; */
+	/* const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA; */
 	/* const uint32_t PATTERN = (1<<0) | (1<<2) | (1<<16);  */
 	const uint32_t PATTERN = 0x10;
 	const int32_t loopCount = gCmdqTestConfig[2];
@@ -1687,7 +1688,7 @@ static void testcase_write(void)
 
 #if 1
 	/* value check */
-	value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+	value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 	if (value != PATTERN)
 		CMDQ_ERR("TEST FAIL: wrote value is 0x%08x, not 0x%08x\n", value, PATTERN);
 	else
@@ -1751,7 +1752,7 @@ static void testcase_prefetch(void)
 static void testcase_backup_register(void)
 {
 #ifdef CMDQ_GPR_SUPPORT
-	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_DISP_PWM0_DUMMY_VA;
+	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA;
 	cmdqRecHandle handle;
 	int ret = 0;
 	uint32_t regAddr[3] = { CMDQ_TEST_DISP_PWM0_DUMMY_PA,
@@ -1791,13 +1792,13 @@ static void testcase_backup_register(void)
 static void testcase_get_result(void)
 {
 #ifdef CMDQ_GPR_SUPPORT
-	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_DISP_PWM0_DUMMY_VA;
+	const unsigned long MMSYS_DUMMY_REG = CMDQ_TEST_MMSYS_DUMMY_VA;
 	int i;
 	cmdqRecHandle handle;
 	int ret = 0;
 	struct cmdqCommandStruct desc = { 0 };
 
-	int registers[1] = { CMDQ_TEST_DISP_PWM0_DUMMY_VA };
+	int registers[1] = { CMDQ_TEST_MMSYS_DUMMY_VA };
 	int result[1] = { 0 };
 
 	CMDQ_MSG("%s\n", __func__);
@@ -2086,7 +2087,7 @@ static void testcase_use_backup_slot_to_debug(void)
 	cmdqRecHandle handle;
 	cmdqBackupSlotHandle hSlot = 0;
 
-	CMDQ_REG_SET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA, gCmdqTestConfig[2]);
+	CMDQ_REG_SET32(CMDQ_TEST_MMSYS_DUMMY_VA, gCmdqTestConfig[2]);
 	CMDQ_LOG("set TESTREG to %d", gCmdqTestConfig[2]);
 	cmdqRecCreate(CMDQ_SCENARIO_DEBUG, &handle);
 	cmdqBackupAllocateSlot(&hSlot, 3);
@@ -2095,7 +2096,7 @@ static void testcase_use_backup_slot_to_debug(void)
 	cmdqRecSetSecure(handle, false);
 	if ((gCmdqTestConfig[2] % 2) != 0) {
 		CMDQ_LOG("set TESTREG to %d with CPU", gCmdqTestConfig[2]);
-		CMDQ_REG_SET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA, gCmdqTestConfig[2]);
+		CMDQ_REG_SET32(CMDQ_TEST_MMSYS_DUMMY_VA, gCmdqTestConfig[2]);
 	} else {
 		CMDQ_LOG("set TESTREG to %d with CMDQ", gCmdqTestConfig[2]);
 		cmdqRecWrite(handle, CMDQ_TEST_DISP_PWM0_DUMMY_PA, gCmdqTestConfig[2], ~0);
@@ -2162,7 +2163,7 @@ void testcase_secure_disp_scenario(void)
 
 
 	/* value check */
-	value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+	value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 	if (value != PATTERN)
 		CMDQ_ERR("TEST FAIL: wrote value is 0x%08x, not 0x%08x\n", PATTERN, value);
 	else
@@ -2179,7 +2180,7 @@ void testcase_secure_disp_scenario(void)
 	cmdqRecDestroy(hDisableDISP);
 
 	/* value check */
-	value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+	value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 	if (value != PATTERN)
 		CMDQ_ERR("TEST FAIL: wrote value is 0x%08x, not 0x%08x\n", PATTERN, value);
 	else
@@ -2218,8 +2219,8 @@ void testcase_secure_meta_data(void)
 	CMDQ_LOG("%s\n", __func__);
 
 	/* set to 0xFFFFFFFF */
-	CMDQ_REG_SET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA, ~0);
-	value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+	CMDQ_REG_SET32(CMDQ_TEST_MMSYS_DUMMY_VA, ~0);
+	value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 	CMDQ_LOG("CMDQ_TEST_REG init data is 0x%08x\n", value);
 
 
@@ -2253,7 +2254,7 @@ void testcase_secure_meta_data(void)
 	cmdqRecDestroy(hReqMDP);
 
 	/* value check */
-	value = CMDQ_REG_GET32(CMDQ_TEST_DISP_PWM0_DUMMY_VA);
+	value = CMDQ_REG_GET32(CMDQ_TEST_MMSYS_DUMMY_VA);
 	if (value != PATTERN_MDP)
 		CMDQ_ERR("TEST FAIL: wrote value is 0x%08x, not 0x%08x\n", PATTERN_MDP, value);
 	else

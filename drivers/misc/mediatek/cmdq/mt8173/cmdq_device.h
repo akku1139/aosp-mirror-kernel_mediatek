@@ -21,11 +21,7 @@ extern const long cmdq_dev_get_module_base_VA_MDP_WROT0(void);
 extern const long cmdq_dev_get_module_base_VA_MDP_WROT1(void);
 extern const long cmdq_dev_get_module_base_VA_MDP_TDSHP0(void);
 extern const long cmdq_dev_get_module_base_VA_MDP_TDSHP1(void);
-extern const long cmdq_dev_get_module_base_VA_MM_MUTEX(void);
 extern const long cmdq_dev_get_module_base_VA_VENC(void);
-extern const long cmdq_dev_get_module_base_VA_MSDC0(void);
-extern const long cmdq_dev_get_module_base_VA_AUDIO(void);
-extern const long cmdq_dev_get_module_base_VA_DISP_PWM0(void);
 
 const long cmdq_dev_alloc_module_base_VA_by_name(const char *name);
 void cmdq_dev_free_module_base_VA(const long VA);
@@ -44,11 +40,7 @@ void cmdq_dev_deinit(void);
 #define MDP_WROT1_BASE_VA		cmdq_dev_get_module_base_VA_MDP_WROT1()
 #define MDP_TDSHP0_BASE_VA		cmdq_dev_get_module_base_VA_MDP_TDSHP0()
 #define MDP_TDSHP1_BASE_VA		cmdq_dev_get_module_base_VA_MDP_TDSHP1()
-#define MM_MUTEX_BASE_VA		cmdq_dev_get_module_base_VA_MM_MUTEX()
 #define VENC_BASE_VA			cmdq_dev_get_module_base_VA_VENC()
-#define MSDC0_BASE_VA			cmdq_dev_get_module_base_VA_MSDC0()
-#define AUDIO_BASE_VA			cmdq_dev_get_module_base_VA_AUDIO()
-#define DISP_PWM0_VA			cmdq_dev_get_module_base_VA_DISP_PWM0()
 #define GCE_BASE_VA				cmdq_dev_get_module_base_VA_GCE()
 
 
@@ -75,6 +67,5 @@ void cmdq_dev_deinit(void);
 
 
 #define CMDQ_TEST_DISP_PWM0_DUMMY_PA    (DISP_PWM0_PA + 0x0030)
-#define CMDQ_TEST_DISP_PWM0_DUMMY_VA    (DISP_PWM0_VA + 0x0030)
 
 #endif				/* __CMDQ_DEVICE_H__ */

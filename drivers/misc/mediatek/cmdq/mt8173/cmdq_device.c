@@ -116,7 +116,7 @@ const long cmdq_dev_get_module_base_VA_MDP_TDSHP1(void)
 {
 	return gCmdqModuleBaseVA.MDP_TDSHP1;
 }
-
+/*
 const long cmdq_dev_get_module_base_VA_MM_MUTEX(void)
 {
 	return gCmdqModuleBaseVA.MM_MUTEX;
@@ -136,7 +136,7 @@ const long cmdq_dev_get_module_base_VA_DISP_PWM0(void)
 {
 	return gCmdqModuleBaseVA.DISP_PWM0;
 }
-
+*/
 const long cmdq_dev_get_module_base_VA_VENC(void)
 {
 	return gCmdqModuleBaseVA.VENC;
@@ -165,22 +165,22 @@ void cmdq_dev_init_module_base_VA(void)
 
 #ifdef CMDQ_OF_SUPPORT
 	gCmdqModuleBaseVA.MMSYS_CONFIG =
-	    cmdq_dev_alloc_module_base_VA_by_name("mediatek,MMSYS_CONFIG");
-	gCmdqModuleBaseVA.MDP_RDMA0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_RDMA0");
-	gCmdqModuleBaseVA.MDP_RDMA1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_RDMA1");
-	gCmdqModuleBaseVA.MDP_RSZ0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_RSZ0");
-	gCmdqModuleBaseVA.MDP_RSZ1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_RSZ1");
-	gCmdqModuleBaseVA.MDP_RSZ2 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_RSZ2");
-	gCmdqModuleBaseVA.MDP_WDMA = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_WDMA");
-	gCmdqModuleBaseVA.MDP_WROT0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_WROT0");
-	gCmdqModuleBaseVA.MDP_WROT1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_WROT1");
-	gCmdqModuleBaseVA.MDP_TDSHP0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_TDSHP0");
-	gCmdqModuleBaseVA.MDP_TDSHP1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MDP_TDSHP1");
-	gCmdqModuleBaseVA.MM_MUTEX = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MM_MUTEX");
-	gCmdqModuleBaseVA.VENC = cmdq_dev_alloc_module_base_VA_by_name("mediatek,VENC");
-	gCmdqModuleBaseVA.MSDC0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,MSDC0");
-	gCmdqModuleBaseVA.AUDIO = cmdq_dev_alloc_module_base_VA_by_name("mediatek,AUDIO");
-	gCmdqModuleBaseVA.DISP_PWM0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,DISP_PWM");
+	    cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-mmsys");
+	gCmdqModuleBaseVA.MDP_RDMA0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_RDMA0");
+	gCmdqModuleBaseVA.MDP_RDMA1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_RDMA1");
+	gCmdqModuleBaseVA.MDP_RSZ0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_RSZ0");
+	gCmdqModuleBaseVA.MDP_RSZ1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_RSZ1");
+	gCmdqModuleBaseVA.MDP_RSZ2 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_RSZ2");
+	gCmdqModuleBaseVA.MDP_WDMA = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_WDMA");
+	gCmdqModuleBaseVA.MDP_WROT0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_WROT0");
+	gCmdqModuleBaseVA.MDP_WROT1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_WROT1");
+	gCmdqModuleBaseVA.MDP_TDSHP0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_TDSHP0");
+	gCmdqModuleBaseVA.MDP_TDSHP1 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-MDP_TDSHP1");
+	/* gCmdqModuleBaseVA.MM_MUTEX = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-disp_mutex"); */
+	gCmdqModuleBaseVA.VENC = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-venc");
+	/* gCmdqModuleBaseVA.MSDC0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-mmc"); */
+	/* gCmdqModuleBaseVA.AUDIO = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-soc-machine"); */
+	/* gCmdqModuleBaseVA.DISP_PWM0 = cmdq_dev_alloc_module_base_VA_by_name("mediatek,mt8173-disp_pwm"); */
 #else
 	/* use ioremap to allocate */
 	gCmdqModuleBaseVA.MMSYS_CONFIG = (long)ioremap(MMSYS_CONFIG_BASE_PA, 0x1000);
@@ -217,10 +217,10 @@ void cmdq_dev_deinit_module_base_VA(void)
 	cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_MDP_WROT1());
 	cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_MDP_TDSHP0());
 	cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_MDP_TDSHP1());
-	cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_MM_MUTEX());
+	/* cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_MM_MUTEX()); */
 	cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_VENC());
-	cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_MSDC0());
-	cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_AUDIO());
+	/* cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_MSDC0()); */
+	/* cmdq_dev_free_module_base_VA(cmdq_dev_get_module_base_VA_AUDIO()); */
 
 	memset(&gCmdqModuleBaseVA, 0, sizeof(CmdqModuleBaseVA));
 #endif
