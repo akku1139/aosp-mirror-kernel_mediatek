@@ -143,6 +143,21 @@
 	};
 };
 
+&accdet {
+	interrupt-parent = <&pio>;
+	interrupts = <37 IRQ_TYPE_LEVEL_HIGH>;
+	accdet-mic-vol = <7>;
+	headset-mode-setting = <0x500 0x200 1 0x1F0 0x800 0x800 0x20>;
+	accdet-plugout-debounce = <20>;
+	/*1:ACC mode, 2:low cost without in bias, 6:low cost with in bias*/
+	accdet-mic-mode = <1>;
+	/*0--MD_MAX--UP_MAX--DW_MAX*/
+	headset-three-key-threshold = <0 80 220 500>;
+	/*0--MD_MAX--VOICE_MAX--UP_MAX--DW_MAX*/
+	headset-four-key-threshold = <0 58 121 192 450>;
+	status = "okay";
+};
+
 &alsps {
 	pinctrl-names = "pin_default", "pin_cfg";
 	pinctrl-0 = <&alsps_intpin_default>;
