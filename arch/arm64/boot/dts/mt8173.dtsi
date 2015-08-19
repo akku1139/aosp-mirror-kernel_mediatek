@@ -428,6 +428,8 @@
 			reg = <0 0x1000d000 0 0x1000>;
 			reg-names = "pwrap-base";
 			interrupts = <GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&infracfg CLK_INFRA_PMICSPI>, <&infracfg CLK_INFRA_PMICWRAP>;
+			clock-names = "spi", "wrap";
 		};
 
 		sysirq: intpol-controller@10200620 {
@@ -926,8 +928,9 @@
 			reg = <0 0x11260000 0 0x1000>;
 			interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_LOW>;
 			/* power domain always on */
-			clocks = <&pericfg CLK_PERI_MSDC30_3>;
-			clock-names = "sdio-clock";
+			clocks = <&pericfg CLK_PERI_MSDC30_3>,
+				 <&topckgen CLK_TOP_MSDC50_2_H_SEL>;
+			clock-names = "sdio-clock","sdio-hclk";
 			host-function = <2>  /*<MSDC_SDIO>*/;
 			clk_src = <2>;  /*<MSDC30_CLKSRC_200MHZ>*/
 			status = "disabled";
@@ -1570,7 +1573,7 @@
 				"disp-smi-jpgdec",
 				"venc-larb-jpgdec",
 				"venc-jpgdec";
-			power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+			power-domains = <&scpsys MT8173_POWER_DOMAIN_VENC>;
 		};
 
 		vencltsys: vencltsys@19000000 {
@@ -1779,18 +1782,18 @@
 			<&topckgen CLK_TOP_SCAM_SEL>,
 			<&topckgen CLK_TOP_SPINFI_IFR_SEL>,
 			<&clk_null>,
-			<&topckgen CLK_TOP_MSDC50_2_H_SEL>,
+			<&clk_null>,
 			<&infracfg CLK_INFRA_DBGCLK>,
-			<&infracfg CLK_INFRA_SMI>,
+			<&clk_null>,
 			<&clk_null>,
 			<&infracfg CLK_INFRA_GCE>,
-			<&infracfg CLK_INFRA_L2C_SRAM>,
+			<&clk_null>,
 			<&infracfg CLK_INFRA_M4U>,
 			<&infracfg CLK_INFRA_CPUM>,
 			<&clk_null>,
 			<&infracfg CLK_INFRA_CEC>,
-			<&infracfg CLK_INFRA_PMICSPI>,
-			<&infracfg CLK_INFRA_PMICWRAP>,
+			<&clk_null>,
+			<&clk_null>,
 			<&clk_null>,
 			<&pericfg CLK_PERI_NFI>,
 			<&pericfg CLK_PERI_THERM>,
@@ -1808,7 +1811,7 @@
 			<&pericfg CLK_PERI_MSDC30_0>,
 			<&pericfg CLK_PERI_MSDC30_1>,
 			<&pericfg CLK_PERI_MSDC30_2>,
-			<&pericfg CLK_PERI_MSDC30_3>,
+			<&clk_null>,
 			<&pericfg CLK_PERI_NLI_ARB>,
 			<&pericfg CLK_PERI_IRDA>,
 			<&pericfg CLK_PERI_UART0>,
@@ -1821,10 +1824,10 @@
 			<&pericfg CLK_PERI_I2C3>,
 			<&pericfg CLK_PERI_I2C4>,
 			<&clk_null>,
-			<&pericfg CLK_PERI_SPI0>,
+			<&clk_null>,
 			<&pericfg CLK_PERI_I2C5>,
 			<&pericfg CLK_PERI_NFIECC>,
-			<&pericfg CLK_PERI_SPI>,
+			<&clk_null>,
 			<&pericfg CLK_PERI_IRRX>,
 			<&pericfg CLK_PERI_I2C6>,
 			<&pericfg CLK_PERI_UART0_SEL>,
@@ -1922,6 +1925,66 @@
 			"121", "122", "123", "124", "125", "126", "127", "128", "129", "130",
 			"131", "132", "133", "134", "135", "136", "137", "138", "139", "140",
 			"141","142","143";
+	};
+
+	bring-up-pd-vdec {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_VDEC>;
+	};
+
+	bring-up-pd-vdec-disp {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+	};
+
+	bring-up-pd-mfg {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_MFG>;
+	};
+
+	bring-up-pd-venc {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_VENC>;
+	};
+
+	bring-up-pd-venc-disp {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+	};
+
+	bring-up-pd-isp {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_ISP>;
+	};
+
+	bring-up-pd-isp-disp {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+	};
+
+	bring-up-pd-disp {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+	};
+
+	bring-up-pd-venclt {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_VENC_LT>;
+	};
+
+	bring-up-pd-venclt-disp {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_DISP>;
+	};
+
+	bring-up-pd-audio {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_AUDIO>;
+	};
+
+	bring-up-pd-usb {
+		compatible = "mediatek,scpsys-bring-up";
+		power-domains = <&scpsys MT8173_POWER_DOMAIN_USB>;
 	};
 };
 
