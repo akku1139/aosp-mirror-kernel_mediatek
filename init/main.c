@@ -84,6 +84,9 @@
 #include <asm/setup.h>
 #include <asm/sections.h>
 #include <asm/cacheflush.h>
+#ifdef CONFIG_MTPROF
+#include "bootprof.h"
+#endif
 
 #ifdef CONFIG_X86_LOCAL_APIC
 #include <asm/smp.h>
@@ -124,6 +127,7 @@ void (*__initdata late_time_init)(void);
 char __initdata boot_command_line[COMMAND_LINE_SIZE];
 /* Untouched saved command line (eg. for /proc) */
 char *saved_command_line;
+EXPORT_SYMBOL_GPL(saved_command_line);
 /* Command line for parameter parsing */
 static char *static_command_line;
 /* Command line for per-initcall parameter parsing */
@@ -770,7 +774,7 @@ static int __init_or_module do_one_initcall_debug(initcall_t fn)
 	rettime = ktime_get();
 	delta = ktime_sub(rettime, calltime);
 	duration = (unsigned long long) ktime_to_ns(delta) >> 10;
-	printk(KERN_DEBUG "initcall %pF returned %d after %lld usecs\n",
+	pr_notice("initcall %pF returned %d after %lld usecs\n",
 		 fn, ret, duration);
 
 	return ret;
@@ -784,12 +788,14 @@ int __init_or_module do_one_initcall(initcall_t fn)
 
 	if (initcall_blacklisted(fn))
 		return -EPERM;
-
+#if defined(CONFIG_MT_ENG_BUILD)
+	ret = do_one_initcall_debug(fn);
+#else
 	if (initcall_debug)
 		ret = do_one_initcall_debug(fn);
 	else
 		ret = fn();
-
+#endif
 	msgbuf[0] = 0;
 
 	if (preempt_count() != count) {
@@ -940,6 +946,10 @@ static int __ref kernel_init(void *unused)
 	numa_default_policy();
 
 	flush_delayed_fput();
+
+#ifdef CONFIG_MTPROF
+	log_boot("Kernel_init_done");
+#endif
 
 	if (ramdisk_execute_command) {
 		ret = run_init_process(ramdisk_execute_command);

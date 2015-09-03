@@ -27,6 +27,10 @@
 
 #include <asm/local.h>
 
+#ifdef CONFIG_MTK_EXTMEM
+#include <linux/exm_driver.h>
+#endif
+
 static void update_pages_handler(struct work_struct *work);
 
 /*
@@ -397,7 +401,11 @@ size_t ring_buffer_page_len(void *page)
  */
 static void free_buffer_page(struct buffer_page *bpage)
 {
+#ifdef CONFIG_MTK_EXTMEM
+	extmem_free((void *)bpage->page);
+#else
 	free_page((unsigned long)bpage->page);
+#endif
 	kfree(bpage);
 }
 
@@ -450,7 +458,10 @@ int ring_buffer_print_page_header(struct trace_seq *s)
 struct rb_irq_work {
 	struct irq_work			work;
 	wait_queue_head_t		waiters;
+	wait_queue_head_t		full_waiters;
 	bool				waiters_pending;
+	bool				full_waiters_pending;
+	bool				wakeup_full;
 };
 
 /*
@@ -532,6 +543,10 @@ static void rb_wake_up_waiters(struct irq_work *work)
 	struct rb_irq_work *rbwork = container_of(work, struct rb_irq_work, work);
 
 	wake_up_all(&rbwork->waiters);
+	if (rbwork->wakeup_full) {
+		rbwork->wakeup_full = false;
+		wake_up_all(&rbwork->full_waiters);
+	}
 }
 
 /**
@@ -556,9 +571,11 @@ int ring_buffer_wait(struct ring_buffer *buffer, int cpu, bool full)
 	 * data in any cpu buffer, or a specific buffer, put the
 	 * caller on the appropriate wait queue.
 	 */
-	if (cpu == RING_BUFFER_ALL_CPUS)
+	if (cpu == RING_BUFFER_ALL_CPUS) {
 		work = &buffer->irq_work;
-	else {
+		/* Full only makes sense on per cpu reads */
+		full = false;
+	} else {
 		if (!cpumask_test_cpu(cpu, buffer->cpumask))
 			return -ENODEV;
 		cpu_buffer = buffer->buffers[cpu];
@@ -567,7 +584,10 @@ int ring_buffer_wait(struct ring_buffer *buffer, int cpu, bool full)
 
 
 	while (true) {
-		prepare_to_wait(&work->waiters, &wait, TASK_INTERRUPTIBLE);
+		if (full)
+			prepare_to_wait(&work->full_waiters, &wait, TASK_INTERRUPTIBLE);
+		else
+			prepare_to_wait(&work->waiters, &wait, TASK_INTERRUPTIBLE);
 
 		/*
 		 * The events can happen in critical sections where
@@ -589,7 +609,10 @@ int ring_buffer_wait(struct ring_buffer *buffer, int cpu, bool full)
 		 * that is necessary is that the wake up happens after
 		 * a task has been queued. It's OK for spurious wake ups.
 		 */
-		work->waiters_pending = true;
+		if (full)
+			work->full_waiters_pending = true;
+		else
+			work->waiters_pending = true;
 
 		if (signal_pending(current)) {
 			ret = -EINTR;
@@ -618,7 +641,10 @@ int ring_buffer_wait(struct ring_buffer *buffer, int cpu, bool full)
 		schedule();
 	}
 
-	finish_wait(&work->waiters, &wait);
+	if (full)
+		finish_wait(&work->full_waiters, &wait);
+	else
+		finish_wait(&work->waiters, &wait);
 
 	return ret;
 }
@@ -1153,7 +1179,9 @@ static int __rb_allocate_pages(int nr_pages, struct list_head *pages, int cpu)
 	struct buffer_page *bpage, *tmp;
 
 	for (i = 0; i < nr_pages; i++) {
+#if !defined(CONFIG_MTK_EXTMEM)
 		struct page *page;
+#endif
 		/*
 		 * __GFP_NORETRY flag makes sure that the allocation fails
 		 * gracefully without invoking oom-killer and the system is
@@ -1167,11 +1195,19 @@ static int __rb_allocate_pages(int nr_pages, struct list_head *pages, int cpu)
 
 		list_add(&bpage->list, pages);
 
+#ifdef CONFIG_MTK_EXTMEM
+		bpage->page = extmem_malloc_page_align(PAGE_SIZE);
+		if (bpage->page == NULL) {
+			pr_err("%s[%s] ext memory alloc failed!!!\n", __FILE__, __func__);
+			goto free_pages;
+		}
+#else
 		page = alloc_pages_node(cpu_to_node(cpu),
 					GFP_KERNEL | __GFP_NORETRY, 0);
 		if (!page)
 			goto free_pages;
 		bpage->page = page_address(page);
+#endif
 		rb_init_page(bpage->page);
 	}
 
@@ -1216,7 +1252,9 @@ rb_allocate_cpu_buffer(struct ring_buffer *buffer, int nr_pages, int cpu)
 {
 	struct ring_buffer_per_cpu *cpu_buffer;
 	struct buffer_page *bpage;
+#if !defined(CONFIG_MTK_EXTMEM)
 	struct page *page;
+#endif
 	int ret;
 
 	cpu_buffer = kzalloc_node(ALIGN(sizeof(*cpu_buffer), cache_line_size()),
@@ -1233,6 +1271,7 @@ rb_allocate_cpu_buffer(struct ring_buffer *buffer, int nr_pages, int cpu)
 	init_completion(&cpu_buffer->update_done);
 	init_irq_work(&cpu_buffer->irq_work.work, rb_wake_up_waiters);
 	init_waitqueue_head(&cpu_buffer->irq_work.waiters);
+	init_waitqueue_head(&cpu_buffer->irq_work.full_waiters);
 
 	bpage = kzalloc_node(ALIGN(sizeof(*bpage), cache_line_size()),
 			    GFP_KERNEL, cpu_to_node(cpu));
@@ -1242,10 +1281,16 @@ rb_allocate_cpu_buffer(struct ring_buffer *buffer, int nr_pages, int cpu)
 	rb_check_bpage(cpu_buffer, bpage);
 
 	cpu_buffer->reader_page = bpage;
+#ifdef CONFIG_MTK_EXTMEM
+	bpage->page = extmem_malloc_page_align(PAGE_SIZE);
+	if (bpage->page == NULL)
+		goto fail_free_reader;
+#else
 	page = alloc_pages_node(cpu_to_node(cpu), GFP_KERNEL, 0);
 	if (!page)
 		goto fail_free_reader;
 	bpage->page = page_address(page);
+#endif
 	rb_init_page(bpage->page);
 
 	INIT_LIST_HEAD(&cpu_buffer->reader_page->list);
@@ -2665,7 +2710,7 @@ static DEFINE_PER_CPU(unsigned int, current_context);
 
 static __always_inline int trace_recursive_lock(void)
 {
-	unsigned int val = this_cpu_read(current_context);
+	unsigned int val = __this_cpu_read(current_context);
 	int bit;
 
 	if (in_interrupt()) {
@@ -2682,18 +2727,17 @@ static __always_inline int trace_recursive_lock(void)
 		return 1;
 
 	val |= (1 << bit);
-	this_cpu_write(current_context, val);
+	__this_cpu_write(current_context, val);
 
 	return 0;
 }
 
 static __always_inline void trace_recursive_unlock(void)
 {
-	unsigned int val = this_cpu_read(current_context);
+	unsigned int val = __this_cpu_read(current_context);
 
-	val--;
-	val &= this_cpu_read(current_context);
-	this_cpu_write(current_context, val);
+	val &= val & (val - 1);
+	__this_cpu_write(current_context, val);
 }
 
 #else
@@ -2804,6 +2848,8 @@ static void rb_commit(struct ring_buffer_per_cpu *cpu_buffer,
 static __always_inline void
 rb_wakeups(struct ring_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
 {
+	bool pagebusy;
+
 	if (buffer->irq_work.waiters_pending) {
 		buffer->irq_work.waiters_pending = false;
 		/* irq_work_queue() supplies it's own memory barriers */
@@ -2812,6 +2858,15 @@ rb_wakeups(struct ring_buffer *buffer, struct ring_buffer_per_cpu *cpu_buffer)
 
 	if (cpu_buffer->irq_work.waiters_pending) {
 		cpu_buffer->irq_work.waiters_pending = false;
+		/* irq_work_queue() supplies it's own memory barriers */
+		irq_work_queue(&cpu_buffer->irq_work.work);
+	}
+
+	pagebusy = cpu_buffer->reader_page == cpu_buffer->commit_page;
+
+	if (!pagebusy && cpu_buffer->irq_work.full_waiters_pending) {
+		cpu_buffer->irq_work.wakeup_full = true;
+		cpu_buffer->irq_work.full_waiters_pending = false;
 		/* irq_work_queue() supplies it's own memory barriers */
 		irq_work_queue(&cpu_buffer->irq_work.work);
 	}

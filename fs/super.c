@@ -37,6 +37,8 @@
 
 
 LIST_HEAD(super_blocks);
+EXPORT_SYMBOL_GPL(super_blocks);
+
 DEFINE_SPINLOCK(sb_lock);
 
 static char *sb_writers_name[SB_FREEZE_LEVELS] = {
@@ -775,8 +777,8 @@ static void do_emergency_remount(struct work_struct *work)
 		sb->s_count++;
 		spin_unlock(&sb_lock);
 		down_write(&sb->s_umount);
-		if (sb->s_root && sb->s_bdev && (sb->s_flags & MS_BORN) &&
-		    !(sb->s_flags & MS_RDONLY)) {
+		if (sb->s_root && (sb->s_bdev || !(strcmp(sb->s_type->name, "ubifs"))) &&
+		    (sb->s_flags & MS_BORN) && !(sb->s_flags & MS_RDONLY)) {
 			/*
 			 * What lock protects sb->s_flags??
 			 */
