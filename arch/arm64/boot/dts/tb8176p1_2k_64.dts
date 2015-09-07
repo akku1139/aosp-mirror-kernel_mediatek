@@ -277,6 +277,11 @@
 		compatible = "ti,tmp103_temp_sensor";
 		reg = <0x72>;
 	};
+
+	tps65132-powswitch@3e {
+		compatible = "mediatek,tps65132";
+		reg = <0x3e>;
+	};
 };
 
 &i2c6 {
@@ -323,9 +328,10 @@
 };
 
 &lcm {
-	gpio_lcm_pwr_en = <&pio 103 0>;
-	gpio_lcm_rst_en = <&pio 105 0>;
-	gpio_lcm_led_en = <&pio 102 0>;
+	gpio_lcm_pos_pwr_en = <&pio 102 0>;
+	gpio_lcm_neg_pwr_en = <&pio 103 0>;
+	gpio_lcm_rst_en = <&pio 127 0>;
+	gpio_lcm_led_en = <&pio6397 14 0>;
 };
 
 &mmc0 {

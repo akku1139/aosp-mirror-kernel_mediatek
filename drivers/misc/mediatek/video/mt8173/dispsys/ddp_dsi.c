@@ -876,7 +876,7 @@ DSI_STATUS DSI_TXRX_Control(DISP_MODULE_ENUM module, cmdqRecHandle cmdq,
 	/*bool ecc_en = true; */
 	int lane_num = dsi_params->LANE_NUM;
 	int vc_num = 0;
-	bool null_packet_en = false;
+	bool null_packet_en = true;
 	/*bool err_correction_en = false; */
 	bool dis_eotp_en = false;
 	bool hstx_cklp_en = dsi_params->cont_clock ? false : true;

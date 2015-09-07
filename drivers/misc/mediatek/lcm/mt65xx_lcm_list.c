@@ -908,6 +908,10 @@ LCM_DRIVER *lcm_driver_list[] = {
 #if defined(HX8394C_WXGA_DSI_VDO)
 	&hx8394c_wxga_dsi_vdo_lcm_drv,
 #endif
+
+#if defined(R63319_QXGA_DSI_VDO_TRULY)
+	&r63319_qxga_dsi_vdo_truly_lcm_drv,
+#endif
 #endif
 };
 

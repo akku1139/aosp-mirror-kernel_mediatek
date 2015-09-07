@@ -479,12 +479,14 @@ disp_lcm_handle *disp_lcm_probe(char *plcm_name, LCM_INTERFACE_ID lcm_id)
 
 	DISPFUNC();
 	DISPCHECK("plcm_name=%s\n", plcm_name);
+	printk("%s: lcm count=%d\n", __func__, _lcm_count());
 	if (_lcm_count() == 0) {
 		DISPERR("no lcm driver defined in linux kernel driver\n");
 		return NULL;
 	} else if (_lcm_count() == 1) {
 		if (plcm_name == NULL) {
 			lcm_drv = lcm_driver_list[0];
+			printk("%s: select first entry in lcm_driver_list[] = %s\n", __func__, lcm_drv->name);
 
 			isLCMFound = true;
 			isLCMInited = false;

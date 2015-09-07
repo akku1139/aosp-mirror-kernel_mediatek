@@ -1928,6 +1928,11 @@ char *mtkfb_find_lcm_driver(void)
 	char *p;
 	char *q;
 
+	printk("%s+\n", __func__);
+
+	printk("%s: return NULL !!\n", __func__);
+	return NULL;
+
 	p = strstr(saved_command_line, "lcm=");
 	if (p == NULL) {
 		/* we can't find lcm string in the command line, the uboot should be old version */
@@ -1947,7 +1952,7 @@ char *mtkfb_find_lcm_driver(void)
 	strncpy((char *)mtkfb_lcm_name, (const char *)p, (int)(q - p));
 	mtkfb_lcm_name[q - p + 1] = '\0';
 
-	MTKFB_LOG("%s, %s\n", __func__, mtkfb_lcm_name);
+	printk("%s-, lcd name = %s\n", __func__, mtkfb_lcm_name);
 	return mtkfb_lcm_name;
 }
 
