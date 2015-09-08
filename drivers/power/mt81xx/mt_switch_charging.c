@@ -10,6 +10,10 @@
 #include "mt_battery_custom_data.h"
 #include "mt_battery_common.h"
 
+#ifdef CONFIG_SMB1351
+extern void smb1351_charging_algorithm(void);
+#endif
+
 /* TODO: temp code for usb!!! */
 
 enum usb_state_enum {
@@ -837,6 +841,7 @@ int BAT_BatteryStatusFailAction(void)
 
 void mt_battery_charging_algorithm(void)
 {
+#ifndef CONFIG_SMB1351
 	bat_charger_reset_watchdog_timer();
 
 #if defined(CONFIG_MTK_PUMP_EXPRESS_PLUS_SUPPORT)
@@ -869,4 +874,25 @@ void mt_battery_charging_algorithm(void)
 	}
 
 	bat_charger_dump_register();
+#else
+	if (BMT_status.charger_exist) {
+		if (BMT_status.bat_charging_state == CHR_BATFULL) {
+			BAT_BatteryFullAction();
+		} else {
+			bat_charger_init(p_bat_charging_data);
+			BMT_status.PRE_charging_time = 0;
+			BMT_status.CC_charging_time += BAT_TASK_PERIOD;
+			BMT_status.TOPOFF_charging_time = 0;
+			BMT_status.total_charging_time += BAT_TASK_PERIOD;
+			smb1351_charging_algorithm();
+			if (charging_full_check() == true) {
+				BMT_status.bat_charging_state = CHR_BATFULL;
+				BMT_status.bat_full = true;
+				g_charging_full_reset_bat_meter = true;
+			}
+		}
+	} else {
+		smb1351_charging_algorithm();
+	}
+#endif
 }

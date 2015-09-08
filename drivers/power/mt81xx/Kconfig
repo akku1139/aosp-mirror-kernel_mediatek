@@ -85,6 +85,15 @@ config MTK_BQ24261_SUPPORT
           Set to Yes if BQ24261 is used.
         default n
 
+config CHARGER_SMB1351
+        tristate "Summit Microelectronics SMB1351 Battery Charger"
+        depends on I2C
+        select REGMAP_I2C
+        help
+          Say Y to include support for Summit Microelectronics SMB1351
+          Battery Charger.
+	default n
+
 config MTK_BQ25890_SUPPORT
         bool "MTK_BQ25890_SUPPORT"
         help

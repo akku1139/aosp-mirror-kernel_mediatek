@@ -250,6 +250,12 @@
 &i2c4 {
 	clock-frequency = <400000>;
 	status = "okay";
+	smb1351-charger@6A {
+		compatible = "qcom,smb1351-charger";
+		reg = <0x6A>;
+		otg-gpio = <&pio6397 18 0>;
+	};
+
 	alsps@39 {
 		compatible = "mediatek,alsps";
 		reg = <0x39>;

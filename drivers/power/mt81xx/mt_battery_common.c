@@ -2570,8 +2570,9 @@ void BAT_thread(void)
 	mt_battery_thermal_check();
 	mt_battery_notify_check();
 
-	if (BMT_status.charger_exist && !fg_battery_shutdown) {
-		mt_battery_CheckBatteryStatus();
+	if (!fg_battery_shutdown) {
+		if (BMT_status.charger_exist)
+			mt_battery_CheckBatteryStatus();
 		mt_battery_charging_algorithm();
 	}
 	bat_charger_reset_watchdog_timer();

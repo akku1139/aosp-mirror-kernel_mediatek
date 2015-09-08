@@ -27,3 +27,9 @@ ifeq ($(CONFIG_MTK_BQ25890_SUPPORT),y)
 endif
 
 obj-$(CONFIG_MTK_PMIC) += mt6397_fgadc.o
+
+ifeq ($(CONFIG_CHARGER_SMB1351), y)
+    obj-$(CONFIG_CHARGER_SMB1351)    += smb1351_charger.o
+
+    KBUILD_CFLAGS += -DCONFIG_SMB1351=1
+endif
