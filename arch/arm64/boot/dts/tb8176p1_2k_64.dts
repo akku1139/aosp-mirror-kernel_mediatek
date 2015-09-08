@@ -173,9 +173,9 @@
 &i2c0 {
 	clock-frequency = <400000>;
 	status = "okay";
-	cap_touch@5d {
-		compatible = "mediatek,cap_touch";
-		reg = <0x5d>;
+	ft5726@38 {
+		compatible = "mtk-tpd,ft5726";
+		reg = <0x38>;
 		interrupt-parent = <&pio>;
 		interrupts = <14 IRQ_TYPE_EDGE_RISING>;
 		rst-gpio = <&pio6397 12 0>;

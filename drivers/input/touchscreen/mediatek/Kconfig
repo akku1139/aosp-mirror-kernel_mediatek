@@ -107,4 +107,14 @@ config TOUCHSCREEN_MTK_GT911
 
 source "drivers/input/touchscreen/mediatek/GT911/Kconfig"
 
+config TOUCHSCREEN_MTK_FT5726
+	tristate "FT5726 Touchscreen"
+	help
+	  Say Y here if you have FT5726 touchscreen,
+	  connected to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here.
+
 endif
