@@ -236,6 +236,109 @@ single_segment:
 		bio_for_each_segment(bvec, bio, iter)
 			__blk_segment_map_sg(q, &bvec, sglist, &bvprv, sg,
 					     &nsegs, &cluster);
+<<<<<<< HEAD   (092221 cpuset: Make cpusets restore on hotplug)
+=======
+#if defined(FEATURE_STORAGE_PID_LOGGER)
+	do {
+		unsigned long flags;
+
+		if (page_logger) {
+			struct page_pid_logger *tmp_logger;
+			unsigned long page_offset;
+			int index, mmcqd_index;
+			pid_t current_pid = 0;
+
+
+
+	page_offset = (unsigned long)(__page_to_pfn(bvec.bv_page)) - PHYS_PFN_OFFSET;
+
+	tmp_logger = ((struct page_pid_logger *)page_logger) + page_offset;
+
+	current_pid = current->pid;
+
+	for (mmcqd_index = 0; mmcqd_index < PID_ID_CNT; mmcqd_index++) {
+		if (g_pid_logger[mmcqd_index].current_pid == 0 ||
+			g_pid_logger[mmcqd_index].current_pid == current_pid) {
+			g_pid_logger[mmcqd_index].current_pid = current_pid;
+			break;
+			}
+	}
+	if (mmcqd_index == PID_ID_CNT)
+		break;
+	if (tmp_logger->pid1 != 0xFFFF) {
+		spin_lock_irqsave(&g_locker, flags);
+		for (index = 0; index < PID_LOGGER_COUNT; index++) {
+			if (tmp_logger->pid1 == 0xFFFF)
+				break;
+			if ((g_pid_logger[mmcqd_index].pid_logger[index] == 0 ||
+				g_pid_logger[mmcqd_index].pid_logger[index] == tmp_logger->pid1)) {
+					g_pid_logger[mmcqd_index].pid_logger[index] = tmp_logger->pid1;
+					if (bio->bi_rw & REQ_WRITE) {
+						g_pid_logger[mmcqd_index].pid_logger_counter[index]++;
+						g_pid_logger[mmcqd_index].pid_logger_length[index] += bvec.bv_len;
+					} else {
+						g_pid_logger[mmcqd_index].pid_logger_r_counter[index]++;
+						g_pid_logger[mmcqd_index].pid_logger_r_length[index] += bvec.bv_len;
+					}
+					if (prev_logger && prev_logger != tmp_logger)
+						prev_logger->pid1 = 0XFFFF;
+					break;
+			}
+		}
+#if defined(CONFIG_MTK_MORE_PID_LOGGER_COUNT)
+		if (index == PID_LOGGER_COUNT && g_pid_logger[mmcqd_index].reserved < 10) {
+			if (bio->bi_rw & REQ_WRITE)
+				pr_debug("[BLOCK_TAG]exceed logger count, pid%d w length %d",
+				tmp_logger->pid1, bvec.bv_len);
+			else
+				pr_debug("[BLOCK_TAG]exceed logger count, pid%d r length %d",
+				tmp_logger->pid1, bvec.bv_len);
+			g_pid_logger[mmcqd_index].reserved++;
+		}
+#endif
+		spin_unlock_irqrestore(&g_locker, flags);
+	}
+	if (tmp_logger->pid2 != 0xFFFF) {
+		spin_lock_irqsave(&g_locker, flags);
+		for (index = 0; index < PID_LOGGER_COUNT; index++) {
+			if (tmp_logger->pid2 == 0xFFFF)
+				break;
+			if ((g_pid_logger[mmcqd_index].pid_logger[index] == 0 ||
+				g_pid_logger[mmcqd_index].pid_logger[index] == tmp_logger->pid2)) {
+					g_pid_logger[mmcqd_index].pid_logger[index] = tmp_logger->pid2;
+					if (bio->bi_rw & REQ_WRITE) {
+						g_pid_logger[mmcqd_index].pid_logger_counter[index]++;
+						g_pid_logger[mmcqd_index].pid_logger_length[index] += bvec.bv_len;
+					} else {
+						g_pid_logger[mmcqd_index].pid_logger_r_counter[index]++;
+						g_pid_logger[mmcqd_index].pid_logger_r_length[index] += bvec.bv_len;
+					}
+					if (prev_logger && prev_logger != tmp_logger)
+						prev_logger->pid2 = 0XFFFF;
+					break;
+					}
+		}
+#if defined(CONFIG_MTK_MORE_PID_LOGGER_COUNT)
+		if (index == PID_LOGGER_COUNT && g_pid_logger[mmcqd_index].reserved < 10) {
+			if (bio->bi_rw & REQ_WRITE)
+				pr_debug("[BLOCK_TAG]exceed logger count, pid%d w length %d",
+				tmp_logger->pid2, bvec.bv_len);
+			else
+				pr_debug("[BLOCK_TAG]exceed logger count, pid%d r length %d",
+				tmp_logger->pid2, bvec.bv_len);
+					g_pid_logger[mmcqd_index].reserved++;
+		}
+#endif
+		spin_unlock_irqrestore(&g_locker, flags);
+		}
+		prev_logger = tmp_logger;
+		}
+	} while (0);
+
+#endif
+
+			}
+>>>>>>> BRANCH (5f1b04 [ALPS02298677] mrproper and cmdq build fail: build kernel wi)
 
 	return nsegs;
 }
