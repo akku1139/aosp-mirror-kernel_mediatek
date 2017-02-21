@@ -2394,8 +2394,9 @@ typedef struct cmd_tlv {
 	char reserved;
 } cmd_tlv_t;
 
+#define PRIV_CMD_SIZE 512
 typedef struct priv_driver_cmd_s {
-	char *buf;
+	char buf[PRIV_CMD_SIZE];
 	int used_len;
 	int total_len;
 } priv_driver_cmd_t;
@@ -3483,9 +3484,9 @@ int priv_support_driver_cmd(IN struct net_device *prNetDev, IN OUT struct ifreq 
 	P_GLUE_INFO_T prGlueInfo = NULL;
 	int ret = 0;
 	char *pcCommand = NULL;
+	priv_driver_cmd_t *priv_cmd = NULL;
 	int i4BytesWritten = 0;
 	int i4TotalLen = 0;
-	priv_driver_cmd_t priv_cmd;
 
 	if (!prReq->ifr_data) {
 		ret = -EINVAL;
@@ -3493,7 +3494,6 @@ int priv_support_driver_cmd(IN struct net_device *prNetDev, IN OUT struct ifreq 
 	}
 
 	prGlueInfo = *((P_GLUE_INFO_T *) netdev_priv(prNetDev));
-	ASSERT(prGlueInfo);
 	if (!prGlueInfo) {
 		DBGLOG(REQ, WARN, "No glue info\n");
 		ret = -EFAULT;
@@ -3504,36 +3504,28 @@ int priv_support_driver_cmd(IN struct net_device *prNetDev, IN OUT struct ifreq 
 		goto exit;
 	}
 
-	if (copy_from_user(&priv_cmd, prReq->ifr_data, sizeof(priv_driver_cmd_t))) {
+	priv_cmd = kzalloc(sizeof(priv_driver_cmd_t), GFP_KERNEL);
+	if (!priv_cmd) {
+		DBGLOG(REQ, WARN, "%s, alloc mem failed\n", __func__);
+		ret = -ENOMEM;
+		goto exit;
+	}
+
+	if (copy_from_user(priv_cmd, prReq->ifr_data, sizeof(priv_driver_cmd_t))) {
 		DBGLOG(REQ, INFO, "%s: copy_from_user fail\n", __func__);
 		ret = -EFAULT;
 		goto exit;
 	}
 
-	i4TotalLen = priv_cmd.total_len;
+	i4TotalLen = priv_cmd->total_len;
 
-	if (i4TotalLen <= 0) {
+	if (i4TotalLen <= 0 || i4TotalLen > PRIV_CMD_SIZE) {
 		ret = -EINVAL;
+		DBGLOG(REQ, INFO, "%s: i4TotalLen invalid\n", __func__);
 		goto exit;
 	}
 
-	if (!access_ok(VERIFY_READ, priv_cmd.buf, i4TotalLen)) {
-		DBGLOG(REQ, INFO, "%s: copy_from_user fail %d\n", __func__, i4TotalLen);
-		ret = -ENOMEM;
-		goto exit;
-	}
-
-	pcCommand = kmalloc(i4TotalLen, GFP_KERNEL);
-	if (!pcCommand) {
-		DBGLOG(REQ, INFO, "%s: failed to allocate memory size %d\n", __func__, i4TotalLen);
-		ret = -ENOMEM;
-		goto exit;
-	}
-
-	if (copy_from_user(pcCommand, priv_cmd.buf, i4TotalLen)) {
-		ret = -EFAULT;
-		goto exit;
-	}
+	pcCommand = priv_cmd->buf;
 
 	DBGLOG(REQ, INFO, "%s: driver cmd \"%s\" on %s\n", __func__, pcCommand, prReq->ifr_name);
 
@@ -3547,33 +3539,8 @@ int priv_support_driver_cmd(IN struct net_device *prNetDev, IN OUT struct ifreq 
 		}
 	}
 
-	if (i4BytesWritten >= 0) {
-		if ((i4BytesWritten == 0) && (i4TotalLen > 0)) {
-			/* Reset the command buffers */
-			pcCommand[0] = '\0';
-		}
-		if (i4BytesWritten >= i4TotalLen) {
-			DBGLOG(REQ, INFO,
-			       "%s: i4BytesWritten %d > i4TotalLen < %d\n", __func__, i4BytesWritten, i4TotalLen);
-			i4BytesWritten = i4TotalLen;
-		} else {
-			pcCommand[i4BytesWritten] = '\0';
-			i4BytesWritten++;
-		}
-		priv_cmd.used_len = i4BytesWritten;
-		if (copy_to_user(priv_cmd.buf, pcCommand, i4BytesWritten)) {
-			DBGLOG(REQ, WARN, "failed to copy data to user buffer\n");
-			ret = -EFAULT;
-		}
-		if (copy_to_user(prReq->ifr_data, &priv_cmd, sizeof(priv_driver_cmd_t))) {
-			DBGLOG(REQ, WARN, "failed to copy driver_cmd to user buffer\n");
-			ret = -EFAULT;
-		}
-
-	}
-
 exit:
-	kfree(pcCommand);
+	kfree(priv_cmd);
 
 	return ret;
 }				/* priv_support_driver_cmd */
