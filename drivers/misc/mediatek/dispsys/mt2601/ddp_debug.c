@@ -77,10 +77,6 @@ static char STR_HELP[] =
 "        echo [ACTION]... > dispsys\n"
 "\n"
 "ACTION\n"
-"       regr:addr\n"
-"\n"
-"       regw:addr,value\n"
-"\n"
 "       ddp_drv_dbg_log:0|1\n"
 "\n"
 "       ddp_drv_irq_log:0|1\n"
@@ -141,31 +137,7 @@ extern unsigned int gNeedToRecover;
 static void process_dbg_opt(const char *opt)
 {
 	char *buf = dbg_buf + strlen(dbg_buf);
-	if (0 == strncmp(opt, "regr:", 5)) {
-		char *p = (char *)opt + 5;
-		unsigned int addr = (unsigned int)simple_strtoul(p, &p, 16);
-
-		if (addr) {
-			unsigned int regVal = DISP_REG_GET(addr);
-			DDP_DRV_INFO("regr: 0x%08X = 0x%08X\n", addr, regVal);
-			sprintf(buf, "regr: 0x%08X = 0x%08X\n", addr, regVal);
-		} else {
-			goto Error;
-		}
-	} else if (0 == strncmp(opt, "regw:", 5)) {
-		char *p = (char *)opt + 5;
-		unsigned int addr = (unsigned int)simple_strtoul(p, &p, 16);
-		unsigned int val = (unsigned int)simple_strtoul(p + 1, &p, 16);
-		if (addr) {
-			unsigned int regVal;
-			DISP_REG_SET(addr, val);
-			regVal = DISP_REG_GET(addr);
-			DDP_DRV_DBG("regw: 0x%08X, 0x%08X = 0x%08X\n", addr, val, regVal);
-			sprintf(buf, "regw: 0x%08X, 0x%08X = 0x%08X\n", addr, val, regVal);
-		} else {
-			goto Error;
-		}
-	} else if (0 == strncmp(opt, "ddp_drv_dbg_log:", 16)) {
+	if (0 == strncmp(opt, "ddp_drv_dbg_log:", 16)) {
 		char *p = (char *)opt + 16;
 		unsigned int enable = (unsigned int)simple_strtoul(p, &p, 10);
 		if (enable)
