@@ -556,6 +556,9 @@ typedef struct
 #define AFE_ASRC_CON20  (AFE_BASE + 0x056C)
 #define AFE_ASRC_CON21  (AFE_BASE + 0x0570)
 
+/* The maximum address offset of Audio Front End */
+#define AFE_MAX_ADDR_OFFSET    (0x570)
+
 /**********************************
  *  Detailed Definitions
  **********************************/

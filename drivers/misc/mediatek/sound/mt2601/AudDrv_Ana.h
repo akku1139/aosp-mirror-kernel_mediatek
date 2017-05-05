@@ -67,7 +67,7 @@
  *****************************************************************************/
 
 /* ---------------digital pmic  register define ------------------------------------------- */
-#define AFE_PMICDIG_AUDIO_BASE        (0x4000)
+#define AFE_PMICDIG_AUDIO_BASE   (0x4000)
 
 #define ABB_AFE_CON0             (AFE_PMICDIG_AUDIO_BASE + 0x0000)
 #define ABB_AFE_CON1             (AFE_PMICDIG_AUDIO_BASE + 0x0002)
@@ -94,10 +94,14 @@
 #define AFE_TOP_PMIC_CON0        (AFE_PMICDIG_AUDIO_BASE + 0x002C)
 #define ABB_MON_DEBUG0           (AFE_PMICDIG_AUDIO_BASE + 0x002E)
 
+/* The valid range of audio digital hardware in PMIC */
+#define ABB_AFE_ADDR_START       ABB_AFE_CON0
+#define ABB_AFE_ADDR_END         ABB_MON_DEBUG0
+
 /* ---------------digital pmic  register define end --------------------------------------- */
 
 /* ---------------analog pmic  register define start -------------------------------------- */
-#define AFE_PMICANA_AUDIO_BASE        (0x0)
+#define AFE_PMICANA_AUDIO_BASE      (0x0)
 
 #define TOP_CKPDN0                  (AFE_PMICANA_AUDIO_BASE + 0x102)
 #define TOP_CKPDN0_SET              (AFE_PMICANA_AUDIO_BASE + 0x104)
@@ -131,6 +135,9 @@
 #define AUDTOP_CON7                 (AFE_PMICANA_AUDIO_BASE + 0x70E)
 #define AUDTOP_CON8                 (AFE_PMICANA_AUDIO_BASE + 0x710)
 #define AUDTOP_CON9                 (AFE_PMICANA_AUDIO_BASE + 0x712)
+
+/* The valid range of audio analog hardware in PMIC */
+#define AUDTOP_MAX_ADDR_OFFSET      (0x079A)
 
 void Ana_Set_Reg(uint32 offset, uint32 value, uint32 mask);
 uint32  Ana_Get_Reg(uint32 offset);

@@ -69,13 +69,15 @@ uint32 Afe_Get_Reg(uint32 offset);
 
 void Afe_Set_Reg(uint32 offset, uint32 value, uint32 mask)
 {
-    #ifdef AUDIO_MEM_IOREMAP
+    if (offset > AFE_MAX_ADDR_OFFSET)
+        return;
+#ifdef AUDIO_MEM_IOREMAP
     extern void *AFE_BASE_ADDRESS;
     /* PRINTK_AUDDRV("Afe_Set_Reg AUDIO_MEM_IOREMAP AFE_BASE_ADDRESS = %p\n",AFE_BASE_ADDRESS); */
     volatile uint32 address = (uint32) ((char*)AFE_BASE_ADDRESS + offset);
-    #else
+#else
     volatile uint32 address = (AFE_BASE+offset);
-    #endif
+#endif
 
     volatile uint32 *AFE_Register = (volatile uint32 *)address;
     volatile uint32 val_tmp;
@@ -90,13 +92,15 @@ void Afe_Set_Reg(uint32 offset, uint32 value, uint32 mask)
 
 uint32 Afe_Get_Reg(uint32 offset)
 {
-    #ifdef AUDIO_MEM_IOREMAP
+    if (offset > AFE_MAX_ADDR_OFFSET)
+        return 0;
+#ifdef AUDIO_MEM_IOREMAP
     extern void *AFE_BASE_ADDRESS;
     /* PRINTK_AUDDRV("Afe_Get_Reg AUDIO_MEM_IOREMAP AFE_BASE_ADDRESS = %p\ offset = %xn",AFE_BASE_ADDRESS,offset); */
     volatile uint32 address = (uint32) ((char*)AFE_BASE_ADDRESS+offset);
-    #else
+#else
     volatile uint32 address = (AFE_BASE+offset);
-    #endif
+#endif
     volatile uint32 *value;
     /* PRINTK_AFE_REG("Afe_Get_Reg offset=%x address = %x\n",offset,address); */
     value = (volatile uint32 *)(address);
