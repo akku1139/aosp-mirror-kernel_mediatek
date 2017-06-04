@@ -972,7 +972,10 @@ MTK_WCN_BOOL wmt_lib_put_act_op(P_OSAL_OP pOp)
 			WMT_ERR_FUNC("pWmtDev(0x%p), pOp(0x%p)\n", pWmtDev, pOp);
 			break;
 		}
-		if (0 != mtk_wcn_stp_coredump_start_get()) {
+		if ((0 != mtk_wcn_stp_coredump_start_get()) &&
+				(pOp->op.opId != WMT_OPID_HW_RST) &&
+				(pOp->op.opId != WMT_OPID_SW_RST) &&
+				(pOp->op.opId != WMT_OPID_GPIO_STATE)) {
 			bCleanup = MTK_WCN_BOOL_TRUE;
 			WMT_WARN_FUNC("block tx flag is set\n");
 			break;
