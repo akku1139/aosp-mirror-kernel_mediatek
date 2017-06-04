@@ -31,6 +31,7 @@
 
 unsigned int gStpDbgDbgLevel = STP_DBG_LOG_INFO;
 unsigned int gStpDbgLogOut = 0;
+unsigned int gStpDbgDumpType = STP_DBG_PKT;
 
 #define STP_DBG_LOUD_FUNC(fmt, arg...)	\
 do {	\
@@ -1182,6 +1183,18 @@ int stp_dbg_dmp_out(MTKSTP_DBG_T *stp_dbg, char *buf, int *len)
 	return remaining;
 }
 
+static int stp_dbg_get_avl_entry_num(MTKSTP_DBG_T*stp_dbg)
+{
+	osal_bug_on(!stp_dbg);
+	if(0 == stp_dbg->logsys->size) {
+		return STP_DBG_LOG_ENTRY_NUM;
+	} else {
+		return (stp_dbg->logsys->in > stp_dbg->logsys->out) ?
+			(STP_DBG_LOG_ENTRY_NUM - stp_dbg->logsys->in + stp_dbg->logsys->out) :
+			(stp_dbg->logsys->out - stp_dbg->logsys->in);
+	}
+}
+
 static int stp_dbg_fill_hdr(struct stp_dbg_pkt_hdr *hdr, int type, int ack, int seq, int crc,
 			    int dir, int len, int dbg_type)
 {
@@ -1193,6 +1206,8 @@ static int stp_dbg_fill_hdr(struct stp_dbg_pkt_hdr *hdr, int type, int ack, int 
 		return -EINVAL;
 	} else {
 		do_gettimeofday(&now);
+		hdr->last_dbg_type = gStpDbgDumpType;
+		gStpDbgDumpType = dbg_type;
 		hdr->dbg_type = dbg_type;
 		hdr->ack = ack;
 		hdr->seq = seq;
@@ -1214,6 +1229,8 @@ stp_dbg_add_pkt(MTKSTP_DBG_T *stp_dbg, struct stp_dbg_pkt_hdr *hdr, const unsign
 	static struct stp_dbg_pkt stp_pkt;
 	uint32_t hdr_sz = sizeof(struct stp_dbg_pkt_hdr);
 	uint32_t body_sz = 0;
+	unsigned long flags;
+	unsigned int avl_num;
 
 	osal_bug_on(!stp_dbg);
 
@@ -1228,6 +1245,27 @@ stp_dbg_add_pkt(MTKSTP_DBG_T *stp_dbg, struct stp_dbg_pkt_hdr *hdr, const unsign
 	if (body != NULL) {
 		memcpy((uint8_t *) &stp_pkt.raw[0], body, body_sz);
 	}
+
+	if (hdr->dbg_type == STP_DBG_FW_DMP) {
+		if (hdr->last_dbg_type != STP_DBG_FW_DMP) {
+			STP_DBG_INFO_FUNC
+				("reset stp_dbg logsys when queue fw coredump package(%d)\n",
+				hdr->last_dbg_type);
+			STP_DBG_INFO_FUNC("dump 1st fw coredump package len(%d) for confirming\n",
+								hdr->len);
+			spin_lock_irqsave(&(stp_dbg->logsys->lock), flags);
+			stp_dbg->logsys->in = 0;
+			stp_dbg->logsys->out = 0;
+			stp_dbg->logsys->size = 0;
+			spin_unlock_irqrestore(&(stp_dbg->logsys->lock), flags);
+		} else {
+			avl_num = stp_dbg_get_avl_entry_num(stp_dbg);
+
+			if(!avl_num)
+				STP_DBG_ERR_FUNC("there is no avl entry stp_dbg logsys!!!\n");
+		}
+	}
+
 	_stp_dbg_dmp_in(stp_dbg, (char *)&stp_pkt, hdr_sz + body_sz);
 	/* Only FW DMP MSG should inform BTM-CORE to dump packet to native process */
 	if (hdr->dbg_type == STP_DBG_FW_DMP) {

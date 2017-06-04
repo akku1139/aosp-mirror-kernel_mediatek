@@ -95,6 +95,7 @@ typedef struct stp_dbg_pkt_hdr {
 	unsigned int sec;
 	unsigned int usec;
 	unsigned int dbg_type;
+	unsigned int last_dbg_type;
 	unsigned int dmy;
 	unsigned int no;
 	unsigned int dir;
