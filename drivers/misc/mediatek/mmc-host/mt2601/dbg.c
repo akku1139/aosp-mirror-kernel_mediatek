@@ -2137,9 +2137,12 @@ static int msdc_debug_proc_write_DVT(struct file *file, const char __user *buf, 
 
     host = mtk_msdc_host[i_msdc_id];
 
-    printk("[****SD_Debug****] Start Online Tuning DVT test\n");
-    mt_msdc_online_tuning_test(host, 0, 0, 0);
-    printk("[****SD_Debug****] Finish Online Tuning DVT test\n");
+    if(host)
+    {
+    	printk("[****SD_Debug****] Start Online Tuning DVT test\n");
+    	mt_msdc_online_tuning_test(host, 0, 0, 0);
+    	printk("[****SD_Debug****] Finish Online Tuning DVT test\n");
+    }
 
     return count;
 }
