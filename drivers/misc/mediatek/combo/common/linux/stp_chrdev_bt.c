@@ -14,6 +14,7 @@
 #include "stp_exp.h"
 #include "wmt_exp.h"
 #include <linux/device.h>
+#include <linux/uio.h>
 
 MODULE_LICENSE("Dual BSD/GPL");
 
@@ -152,6 +153,56 @@ unsigned int BT_poll(struct file *filp, poll_table *wait)
 	return mask;
 }
 
+ssize_t BT_aio_write(struct kiocb *iocb, const struct iovec *iov, unsigned long nr_segs, loff_t pos)
+{
+	int retval = 0;
+	int written = 0;
+	size_t count = iov_length(iov, nr_segs);
+	down(&wr_mtx);
+
+	BT_DBG_FUNC("%s: count %d pos %lld\n", __func__, count, pos);
+	if (retflag) {
+		if (retflag == 1)	/* reset start */
+		{
+			retval = -88;
+			BT_INFO_FUNC("MT662x reset Write: start\n");
+		} else if (retflag == 2)	/* reset end */
+		{
+			retval = -99;
+			BT_INFO_FUNC("MT662x reset Write: end\n");
+		}
+		goto OUT;
+	}
+
+	if (count > 0) {
+		int copy_size = (count < MTKSTP_BUFFER_SIZE) ? count : MTKSTP_BUFFER_SIZE;
+		if (memcpy_fromiovec(&o_buf[0], iov, copy_size)) {
+			retval = -EFAULT;
+			goto OUT;
+		}
+		/* pr_warn("%02x ", val); */
+
+		written = mtk_wcn_stp_send_data(&o_buf[0], copy_size, BT_TASK_INDX);
+		if (0 == written) {
+			retval = -ENOSPC;
+			/*no windowspace in STP is available, native process should not call BT_aio_write with no delay at all */
+			BT_ERR_FUNC
+			    ("target packet length:%d, write success length:%d, retval = %d.\n",
+			     count, written, retval);
+		} else {
+			retval = written;
+		}
+
+	} else {
+		retval = -EFAULT;
+		BT_ERR_FUNC("target packet length:%d is not allowed, retval = %d.\n", count,
+			    retval);
+	}
+
+ OUT:
+	up(&wr_mtx);
+	return (retval);
+}
 
 ssize_t BT_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
@@ -390,6 +441,7 @@ struct file_operations BT_fops = {
 	.release = BT_close,
 	.read = BT_read,
 	.write = BT_write,
+	.aio_write = BT_aio_write,
 /* .ioctl = BT_ioctl, */
 	.unlocked_ioctl = BT_unlocked_ioctl,
 	.poll = BT_poll
